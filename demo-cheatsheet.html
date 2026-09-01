@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BayouCare — Semi-Final Demo Cheat Sheet</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Segoe UI",system-ui,sans-serif;background:#faf7f1;color:#1d2a24;font-size:10.5px;line-height:1.42;padding:14px}
+  .page{max-width:1050px;margin:0 auto;background:#fff;border:1px solid #e4e0d6;border-radius:14px;padding:18px 22px;box-shadow:0 8px 24px -12px rgba(13,42,28,.18)}
+  header{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;padding-bottom:10px;border-bottom:3px solid #145c40;margin-bottom:12px}
+  h1{font-size:20px;color:#0b3523;letter-spacing:-.01em}
+  h1 small{font-size:11px;color:#51635a;font-weight:600;display:block;letter-spacing:.04em;text-transform:uppercase}
+  .setup{font-size:10px;background:#eff7f1;border:1px solid #dcefe4;border-radius:8px;padding:6px 10px;max-width:440px}
+  .setup b{color:#145c40}
+  h2{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:#1b6e4d;margin:12px 0 6px;display:flex;align-items:center;gap:6px}
+  h2::after{content:"";flex:1;height:1px;background:#e4e0d6}
+  .cols{display:grid;grid-template-columns:1.45fr 1fr;gap:18px}
+  .sec{border:1px solid #e4e0d6;border-radius:10px;padding:9px 12px;margin-bottom:8px;page-break-inside:avoid}
+  .sec .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
+  .sec .t{font-size:12px;font-weight:800;color:#0b3523}
+  .sec .tm{font-size:10px;font-weight:800;color:#7a4a00;background:#fdf0d7;border-radius:999px;padding:1px 8px;white-space:nowrap}
+  .sec .tm.gray{color:#51635a;background:#eeece4}
+  .say{margin:4px 0}
+  .say b{color:#145c40}
+  .click{font-family:Consolas,monospace;font-size:9.5px;color:#1b6e4d;background:#eff7f1;border-radius:5px;padding:1px 6px;display:inline-block;margin:1px 0}
+  ul{margin:3px 0 0 16px}
+  li{margin-bottom:2px}
+  .qa{font-size:10px}
+  .qa b{color:#a03a22}
+  .qa p{margin-bottom:7px}
+  .warn{background:#fbe5dd;border:1px solid #e05a3c;border-radius:8px;padding:7px 10px;font-size:10px;margin-top:10px}
+  .warn b{color:#a03a22}
+  .foot{margin-top:12px;text-align:center;font-size:9px;color:#51635a}
+  @media print{ body{background:#fff;padding:0} .page{border:none;box-shadow:none;border-radius:0;max-width:none} }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>🌿 BayouCare — Semi-Final Demo <small>DevDays 2026 · Virtual · ~10 min · 6 tabs, one journey</small></h1>
+    <div class="setup"><b>BEFORE YOU START:</b> Full screen · reload the tab · <b>test the network</b> (TrialMatch live chip) · mute screen-share audio · teammate ready to reload if a timer hangs</div>
+  </header>
+
+  <div class="cols">
+
+    <!-- LEFT: the run of show -->
+    <div>
+      <h2>Run of show — click this, say this</h2>
+
+      <div class="sec">
+        <div class="h"><span class="t">1 · OPENING — the burden</span><span class="tm">0:00–1:30</span></div>
+        <p class="say"><b>Say:</b> "~30,000 new cancer cases a year; mortality above the national average; 64 mostly-rural parishes where a diagnosis arrives with no roadmap. BayouCare answers all five solution areas — built on ASCO, the brief's data partner."</p>
+        <span class="click">▶ Try the patient demo</span> (hero CTA)
+      </div>
+
+      <div class="sec">
+        <div class="h"><span class="t">2 · THE PATIENT — meet Darlene</span><span class="tm">1:30–3:00</span></div>
+        <p class="say"><b>Say:</b> "58, Alexandria, Stage II breast, day 4 of chemo. She sees one thing: what matters today. Family circle — Renee & Marcus already helping. The whole journey is mapped."</p>
+        <span class="click">My Journey</span> (sidebar) → show timeline → <span class="click">Home</span>
+        <p class="say" style="margin-top:3px">Optional 15s: <span class="click">Understand</span> — "pathology report in plain English, plus questions to ask the doctor."</p>
+      </div>
+
+      <div class="sec">
+        <div class="h"><span class="t">3 · CHECK-IN + THE 2 AM MOMENT</span><span class="tm">3:00–4:30</span></div>
+        <span class="click">Log today's check-in</span> → answer <b>2 / 4 / 5 / 4</b> → mood <b>2 · 2 · 2</b> → <span class="click">Submit check-in</span>
+        <p class="say"><b>Say:</b> "Fever pattern hits the 100.4°F red flag — on-call nurse alerted now. The mood check routes to Louisiana's real support: NAMI and 988."</p>
+        <span class="click">Vitals</span> (sidebar) → <span class="click">▶ Simulate the 2 am fever spike</span> → let it play ~5s → point at the SMS receipt
+        <p class="say"><b>Say:</b> "2:14 am — neutropenic fever starts at 2 am, hours from a hospital. A $40 temp patch catches it at the threshold, auto-escalates to the RN, texts the caregiver. The blind spot is gone."</p>
+      </div>
+
+      <div class="sec">
+        <div class="h"><span class="t">4 · CARE TEAM — we predict, with the prescription</span><span class="tm">4:30–6:30</span></div>
+        <span class="click">Care Team</span> (tab) → point at the 📡 auto-escalated vitals card + Morning Sweep → click a flagged patient in the roster → <span class="click">Apply</span>
+        <p class="say"><b>Say:</b> "Every patient carries a 7-day risk forecast AND the one action that changes it — apply and the model re-runs live. Two avoidable hospital events per 30 days across the cohort; 2 hours of admin time back per patient per week."</p>
+      </div>
+
+      <div class="sec">
+        <div class="h"><span class="t">5 · SURVIVORSHIP — the population everyone ignores</span><span class="tm">6:30–8:00</span></div>
+        <span class="click">Survivorship</span> (tab) → click <span class="click">Alicia · Hodgkin, 2016</span> → point at the radar
+        <p class="say"><b>Say:</b> "350,000 survivors — the largest population the brief names. ASCO-format plan from the treatment record in seconds; the late-effects radar turns doxorubicin + chest radiation into echo, breast MRI, thyroid checks — overdue items flagged for the clinic."</p>
+      </div>
+
+      <div class="sec">
+        <div class="h"><span class="t">6 · PARISHES — burden, not city size</span><span class="tm">8:00–9:00</span></div>
+        <span class="click">Screen &amp; Prevent</span> (tab) → <span class="click">🚐 Deploy van to top-10</span> → let 2–3 stops play
+        <p class="say"><b>Say:</b> "All 64 parishes scored on unmet need — unscreened × late-stage. Vans and SMS nudges route to rural parishes with the worst burden, not the biggest cities."</p>
+        <p class="say" style="margin-top:3px">If network is up (30s): Patient App → <span class="click">Access</span> → TrialMatch — "real ClinicalTrials.gov trials, eligibility pre-scored per patient with reasons."</p>
+      </div>
+
+      <div class="sec">
+        <div class="h"><span class="t">7 · CLOSE — the ask</span><span class="tm">9:00–10:00</span></div>
+        <p class="say"><b>Say:</b> "Five barriers in the brief — five answers, one connected platform, one file that runs anywhere. Pilot with two Ochsner clinics Q1 2027, benchmarked against ASCO quality measures. This is what improving the cancer journey looks like. Thank you."</p>
+      </div>
+    </div>
+
+    <!-- RIGHT: Q&A + watch-fors -->
+    <div>
+      <h2>If they ask</h2>
+      <div class="qa">
+        <p><b>"Is this real data?"</b> — "Every module runs on synthetic data, and the models are transparent — you can see the logistic regression, the ASCO rules, the eligibility criteria. Nothing hidden; that's the point. TrialMatch pulls live from ClinicalTrials.gov."</p>
+        <p><b>"What does Ochsner actually get?"</b> — "2 hours of admin time back per clinician per week, earlier intervention on the patients who need it, and a parish heat index that directs outreach spend."</p>
+        <p><b>"How is this different from a national app?"</b> — "They remind; we predict. They build for broadband cities; we build for Vermilion Parish. Offline-first, SMS fallback, caregiver-inclusive, Louisiana's languages next."</p>
+        <p><b>"What's the pilot?"</b> — "Two Ochsner oncology clinics, 50 patients, Q1 2027 — measuring treatment-start delay, check-in adherence, and admin time against ASCO quality measures."</p>
+      </div>
+
+      <h2>Watch-fors</h2>
+      <div class="warn">
+        <b>⚠ Check-in click order:</b> answer all 4 scales + mood BEFORE Submit, or it toasts "answer all 4 questions."<br>
+        <b>⚠ Replay:</b> it runs ~5s — don't click Simulate twice (button disables; let it finish).<br>
+        <b>⚠ Network:</b> no internet → TrialMatch shows "offline snapshot" — say "same trials, cached for rural broadband."<br>
+        <b>⚠ Screen share:</b> if the shared window is small, zoom the browser (Ctrl +) so text is readable.<br>
+        <b>⚠ Keep moving:</b> each section is ~90 seconds — don't read cards, point and talk.
+      </div>
+
+      <h2>Sticky points</h2>
+      <ul>
+        <li><b>Differentiator:</b> counterfactual forecasts — "the one action that changes the outcome."</li>
+        <li><b>ASCO</b> = official data partner — say it at least twice.</li>
+        <li><b>Story:</b> problem → gap → Louisiana solution → live demo.</li>
+        <li><b>Close on the pilot</b> — they fund plans, not screens.</li>
+      </ul>
+
+      <h2>Demo path at a glance</h2>
+      <p style="font-size:10px">Overview → Patient App (Home → Journey → Check-in → Vitals replay) → Care Team (vitals card → counterfactual) → Survivorship (Alicia → radar) → Screen &amp; Prevent (van tour) → optional TrialMatch → Close</p>
+    </div>
+  </div>
+
+  <div class="foot">BayouCare · DevDays 2026 Semi-Finals · Aug 26–27 · one demo, one file, one story</div>
+</div>
+</body>
+</html>
