@@ -14,6 +14,7 @@
   .setup{font-size:10px;background:#eff7f1;border:1px solid #dcefe4;border-radius:8px;padding:6px 10px;max-width:430px}
   .setup b{color:#145c40}
   .sec{border:1px solid #e4e0d6;border-radius:10px;padding:11px 14px;margin-bottom:9px;page-break-inside:avoid}
+  .sec.new{border-color:#e8960c;background:#fffdf7}
   .sec .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
   .sec .t{font-size:12.5px;font-weight:800;color:#0b3523}
   .sec .tm{font-size:10px;font-weight:800;color:#7a4a00;background:#fdf0d7;border-radius:999px;padding:1px 8px;white-space:nowrap}
@@ -32,13 +33,13 @@
 <body>
 <div class="page">
   <header>
-    <h1>🌿 BayouCare — Demo Script <small>DevDays 2026 Semi-Finals · ~10 min · read this out loud · clicks in monospace</small></h1>
-    <div class="setup"><b>SETUP:</b> Full screen · reload the tab · test network (TrialMatch chip) · mute share audio · teammate ready to reload if a timer hangs · <b>don't read cards — point and talk.</b></div>
+    <h1>🌿 BayouCare — Demo Script <small>DevDays 2026 Finals · Sep 25 · ~11½ min · read this out loud · clicks in monospace</small></h1>
+    <div class="setup"><b>SETUP:</b> Full screen · reload the tab · test network (TrialMatch chip) · mute share audio · teammate ready to reload if a timer hangs · <b>don't read cards — point and talk.</b> Sections marked <b>NEW</b> are finals material.</div>
   </header>
 
   <!-- 1 -->
   <div class="sec">
-    <div class="h"><span class="t">1 · OPENING — the burden</span><span class="tm">0:00–1:30</span></div>
+    <div class="h"><span class="t">1 · OPENING — the burden</span><span class="tm">0:00–1:15</span></div>
     <span class="click">(no clicks — start on the landing page)</span>
     <div class="spk"><b>Say</b>
       <p>"Thirty thousand new cancer cases a year in Louisiana — and a mortality rate above the national average. In 64 mostly-rural parishes, a diagnosis arrives and nobody hands you a roadmap. You figure out the specialists, the schedule, the rides, the bills, the side effects — mostly alone. BayouCare answers every solution area in this brief, built on ASCO — the challenge's own data partner. One platform for the whole journey: patient, caregiver, and care team. Let me show you."</p>
@@ -48,7 +49,7 @@
 
   <!-- 2 -->
   <div class="sec">
-    <div class="h"><span class="t">2 · THE PATIENT — meet Darlene</span><span class="tm">1:30–3:00</span></div>
+    <div class="h"><span class="t">2 · THE PATIENT — meet Darlene</span><span class="tm">1:15–2:45</span></div>
     <span class="click">Home</span> → <span class="click">My Journey</span> → <span class="click">Home</span> → <span class="click">Understand</span>
     <div class="spk"><b>Say</b>
       <p>"Meet Darlene. 58, from Alexandria. Stage II breast cancer, day four of chemotherapy. When she opens the app she sees one thing — what matters today, not a wall of medical records. Her family circle — daughter Renee and son Marcus — is synced in; they see the same journey and volunteer for tasks."</p>
@@ -59,30 +60,45 @@
 
   <!-- 3 -->
   <div class="sec">
-    <div class="h"><span class="t">3 · CHECK-IN + THE 2 AM MOMENT</span><span class="tm">3:00–4:30</span></div>
+    <div class="h"><span class="t">3 · CHECK-IN + THE 2 AM MOMENT</span><span class="tm">2:45–4:15</span></div>
     <span class="click">Log today's check-in</span> → answer <b>2 / 4 / 5 / 4</b> → mood <b>2 · 2 · 2</b> → <span class="click">Submit check-in</span> → <span class="click">Vitals</span> (sidebar) → <span class="click">▶ Simulate the 2 am fever spike</span> → let it play ~5s → point at the SMS receipt
     <div class="spk"><b>Say</b>
       <p>"Every morning, four quick questions — energy, nausea, fever, pain — plus how she's feeling emotionally. Today the answers show a fever pattern heading toward the 100.4°F red flag, so the on-call nurse is alerted right now — not in the morning. And the mood check connects to Louisiana's real support lines: NAMI and 988."</p>
       <p>"But the biggest blind spot in cancer care is the middle of the night. Watch what happens at 2 am."</p>
       <p>"2:14 am. Neutropenic fever — hours from any hospital. A forty-dollar temperature patch catches it at the threshold, auto-escalates to the on-call RN, and texts Darlene's caregiver before she even wakes up. The 2 am blind spot is gone."</p>
     </div>
-    <div class="opt"><b>Watch-for:</b> replay runs ~5s — don't click Simulate twice; it disables itself. If it hangs, teammate reloads and re-enters Vitals.</div>
+    <div class="opt"><b>Watch-for:</b> replay runs ~5s. It now resets cleanly, so a second click is safe — but don't race it. If it hangs, teammate reloads and re-enters Vitals.</div>
   </div>
 
   <!-- 4 -->
   <div class="sec">
-    <div class="h"><span class="t">4 · CARE TEAM — we predict, with the prescription</span><span class="tm">4:30–6:30</span></div>
-    <span class="click">Care Team</span> (tab) → point at the 📡 auto-escalated vitals card + Morning Sweep → click a flagged patient → <span class="click">Apply</span> → <span class="click">⚡ Auto-apply top action</span> (optional, if time)
+    <div class="h"><span class="t">4 · CARE TEAM — we predict, with the prescription</span><span class="tm">4:15–5:45</span></div>
+    <span class="click">Care Team</span> (tab) → point at the 📡 auto-escalated vitals card + Morning Sweep → click <span class="click">Darlene Fontenot</span> in the roster → <span class="click">Apply</span> on <b>Arrange rides (NEMT)</b>
     <div class="spk"><b>Say</b>
       <p>"Now the care team side. One dashboard for the whole Ochsner pilot cohort. Every patient carries a seven-day risk forecast — and not just a warning: the one action that changes the outcome. Today: one critical forecast, five watch forecasts."</p>
-      <p>"Click this patient — here's their counterfactual: do this one thing and the projected risk drops. Hit Apply and the model re-runs live — you can watch the board move."</p>
-      <p>"The Morning Sweep puts every patient's device data in one view — no EHR logins, no clipboard. And BayouCare auto-drafts the visit summary, so the clinician edits in one click instead of typing for twenty minutes. Across this cohort: two avoidable hospital events per thirty days, and about two hours of admin time back per clinician per week."</p>
+      <p>"Here's Darlene's counterfactual. She's 42 miles from the clinic with an unstable social situation — so watch. We apply one thing, arranging rides, and the model re-runs live: the risk drops in front of you."</p>
+      <p>"<b>Remember that. In two minutes I'll show you what it did somewhere else.</b>"</p>
     </div>
+    <div class="opt"><b>Setup for section 5:</b> applying that counterfactual is what makes the Clinic Ops payoff land. Don't skip it.</div>
   </div>
 
   <!-- 5 -->
+  <div class="sec new">
+    <div class="h"><span class="t">5 · CLINIC OPS — the provider side · NEW</span><span class="tm">5:45–8:15</span></div>
+    <span class="click">Clinic Ops</span> (tab) → land on <b>Prior-Auth</b> (Darlene already selected) → point at criterion 6, now <b>met</b> → <span class="click">📨 Submit to payer</span> → let the rail run → <span class="click">📅</span> scroll to the slot board
+    <div class="spk"><b>Say</b>
+      <p>"This is the part of the brief most teams skip — <b>administrative burden</b>. Five workflows that decide whether a patient actually gets treated. And here's the thing: every number on this tab is the same engine you just watched."</p>
+      <p>"This is Darlene's prior authorization, assembled from her chart — her stage, her regimen, the right J-codes, the NCCN citation. Criterion six was <b>pending</b> a minute ago, because transport barriers weren't addressed. You just addressed them on the care-team tab. <b>It's met now.</b> The packet got stronger because someone booked a ride."</p>
+      <p>"Submit it — and the authorization runs its real path: transmitted, reviewed, approved."</p>
+      <p>"Same story in the schedule. Every slot in the next fourteen days is scored for no-show risk using the <b>same features</b> — distance, social instability, missed check-ins. Darlene's row dropped when you applied that counterfactual. This is one system, not a bag of features."</p>
+      <p>"And the PCP feed — <b>Probe in patient app</b> — watch: it loads that patient's exact inputs into the calculator Darlene would use herself. Same engine, same numbers, both sides of the desk."</p>
+    </div>
+    <div class="opt"><b>If you only have 60 seconds here:</b> show the criterion flip + <span class="click">🔍 Probe in patient app</span>. Those two prove the whole claim.</div>
+  </div>
+
+  <!-- 6 -->
   <div class="sec">
-    <div class="h"><span class="t">5 · SURVIVORSHIP — the population everyone ignores</span><span class="tm">6:30–8:00</span></div>
+    <div class="h"><span class="t">6 · SURVIVORSHIP — the population everyone ignores</span><span class="tm">8:15–9:30</span></div>
     <span class="click">Survivorship</span> (tab) → click <span class="click">Alicia · Hodgkin, 2016</span> → point at the radar, click a spoke or two
     <div class="spk"><b>Say</b>
       <p>"The largest population this brief names is the one everyone forgets — the survivors. Three hundred fifty thousand of them in Louisiana. BayouCare generates an ASCO-format survivorship care plan from the treatment record in seconds."</p>
@@ -90,19 +106,30 @@
     </div>
   </div>
 
-  <!-- 6 -->
+  <!-- 7 -->
   <div class="sec">
-    <div class="h"><span class="t">6 · PARISHES — burden, not city size</span><span class="tm">8:00–9:00</span></div>
-    <span class="click">Screen &amp; Prevent</span> (tab) → <span class="click">🚐 Deploy van to top-10</span> → let 2–3 stops play → if network is up: <span class="click">Patient App → Access → TrialMatch</span>
+    <div class="h"><span class="t">7 · PARISHES — burden, not city size</span><span class="tm">9:30–10:30</span></div>
+    <span class="click">Screen &amp; Prevent</span> (tab) → <span class="click">🚐 Deploy van to top-10</span> → let 2–3 stops play → point at the follow-up queue below
     <div class="spk"><b>Say</b>
-      <p>"Finally, prevention at the population level. All sixty-four parishes are scored on unmet need — unscreened people times late-stage share. Not city size — burden. We deploy a screening van to the top ten parishes, and the route follows the need, parish by parish. The same engine drives SMS nudges and community health worker visits. Screening goes where the disease is."</p>
+      <p>"Prevention at the population level. All sixty-four parishes scored on unmet need — unscreened people times late-stage share. Not city size — <b>burden</b>."</p>
+      <p>"And these are <b>real numbers</b>: CDC PLACES for screening coverage, State Cancer Profiles for incidence and late stage. Where a parish had fewer than sixteen cases, the rate is suppressed and we show <b>suppressed</b> — we never estimate a number the data won't support."</p>
+      <p>"Screening only helps if results get followed up, so the queue underneath tracks abnormal results with no documented follow-up in fourteen days, and FIT kit returns — because a mailed kit beats a colonoscopy you never schedule."</p>
     </div>
     <div class="opt"><b>Network line (30s, only if TrialMatch chip shows "live"):</b> "And real clinical trials — pulled from ClinicalTrials.gov — with eligibility pre-scored against Darlene's profile, and the reason for every criterion." <b>If offline:</b> "same trials, cached for rural broadband."</div>
   </div>
 
-  <!-- 7 -->
+  <!-- 8 -->
+  <div class="sec new">
+    <div class="h"><span class="t">8 · LANGUAGES · NEW</span><span class="tm">10:30–11:00</span></div>
+    <span class="click">Language dropdown</span> (top right) → <span class="click">Kreyòl ayisyen</span> → <span class="click">Tiếng Việt</span> → back to <span class="click">EN</span>
+    <div class="spk"><b>Say</b>
+      <p>"One last thing. Louisiana's most underserved communities don't all read English or Spanish. The whole patient journey runs in <b>four languages</b> — English, Spanish, Haitian Creole, and Vietnamese. Not a translation page: the check-ins, the symptoms, the mood screening, the crisis lines."</p>
+    </div>
+  </div>
+
+  <!-- 9 -->
   <div class="sec">
-    <div class="h"><span class="t">7 · CLOSE — the ask</span><span class="tm">9:00–10:00</span></div>
+    <div class="h"><span class="t">9 · CLOSE — the ask</span><span class="tm">11:00–11:30</span></div>
     <span class="click">(no clicks — stop on the parish map)</span>
     <div class="spk"><b>Say</b>
       <p>"Five barriers in the brief — five answers. One connected platform — patient, caregiver, care team — and one file that runs anywhere."</p>
@@ -111,10 +138,10 @@
   </div>
 
   <div class="warn">
-    <b>⚠ If you lose the thread:</b> come back to the story — problem → gap → Louisiana solution → live demo. <b>ASCO</b> is the official data partner: say it at least twice. Keep each section to ~90 seconds. Details and Q&amp;A answers are in <b>demo-cheatsheet.html</b>.
+    <b>⚠ If you lose the thread:</b> come back to the story — problem → gap → Louisiana solution → live demo. <b>ASCO</b> is the official data partner: say it at least twice. Sections 5 and 8 are the new material — if you're running long, <b>cut section 8 first</b>, never section 5. Details and Q&amp;A answers are in <b>demo-cheatsheet.html</b>.
   </div>
 
-  <div class="foot">BayouCare · DevDays 2026 Semi-Finals · Aug 26–27 · one demo, one file, one story</div>
+  <div class="foot">BayouCare · DevDays 2026 Finals · Sep 25 · one demo, one file, one story</div>
 </div>
 </body>
 </html>

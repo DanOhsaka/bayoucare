@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BayouCare — Semi-Final Demo Cheat Sheet</title>
+<title>BayouCare — Finals Demo Cheat Sheet</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:"Segoe UI",system-ui,sans-serif;background:#faf7f1;color:#1d2a24;font-size:10.5px;line-height:1.42;padding:14px}
@@ -17,6 +17,7 @@
   h2::after{content:"";flex:1;height:1px;background:#e4e0d6}
   .cols{display:grid;grid-template-columns:1.45fr 1fr;gap:18px}
   .sec{border:1px solid #e4e0d6;border-radius:10px;padding:9px 12px;margin-bottom:8px;page-break-inside:avoid}
+  .sec.new{border-color:#e8960c;background:#fffdf7}
   .sec .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
   .sec .t{font-size:12px;font-weight:800;color:#0b3523}
   .sec .tm{font-size:10px;font-weight:800;color:#7a4a00;background:#fdf0d7;border-radius:999px;padding:1px 8px;white-space:nowrap}
@@ -38,8 +39,8 @@
 <body>
 <div class="page">
   <header>
-    <h1>🌿 BayouCare — Semi-Final Demo <small>DevDays 2026 · Virtual · ~10 min · 6 tabs, one journey</small></h1>
-    <div class="setup"><b>BEFORE YOU START:</b> Full screen · reload the tab · <b>test the network</b> (TrialMatch live chip) · mute screen-share audio · teammate ready to reload if a timer hangs</div>
+    <h1>🌿 BayouCare — Finals Demo <small>DevDays 2026 · Sep 25 · ~11½ min · 7 tabs, one journey</small></h1>
+    <div class="setup"><b>BEFORE YOU START:</b> Full screen · reload the tab · <b>test the network</b> (TrialMatch live chip) · mute screen-share audio · teammate ready to reload if a timer hangs · <b>amber sections are new for finals</b></div>
   </header>
 
   <div class="cols">
@@ -49,20 +50,20 @@
       <h2>Run of show — click this, say this</h2>
 
       <div class="sec">
-        <div class="h"><span class="t">1 · OPENING — the burden</span><span class="tm">0:00–1:30</span></div>
+        <div class="h"><span class="t">1 · OPENING — the burden</span><span class="tm">0:00–1:15</span></div>
         <p class="say"><b>Say:</b> "~30,000 new cancer cases a year; mortality above the national average; 64 mostly-rural parishes where a diagnosis arrives with no roadmap. BayouCare answers all five solution areas — built on ASCO, the brief's data partner."</p>
         <span class="click">▶ Try the patient demo</span> (hero CTA)
       </div>
 
       <div class="sec">
-        <div class="h"><span class="t">2 · THE PATIENT — meet Darlene</span><span class="tm">1:30–3:00</span></div>
-        <p class="say"><b>Say:</b> "58, Alexandria, Stage II breast, day 4 of chemo. She sees one thing: what matters today. Family circle — Renee & Marcus already helping. The whole journey is mapped."</p>
+        <div class="h"><span class="t">2 · THE PATIENT — meet Darlene</span><span class="tm">1:15–2:45</span></div>
+        <p class="say"><b>Say:</b> "58, Alexandria, Stage II breast, day 4 of chemo. She sees one thing: what matters today. Family circle — Renee &amp; Marcus already helping. The whole journey is mapped."</p>
         <span class="click">My Journey</span> (sidebar) → show timeline → <span class="click">Home</span>
         <p class="say" style="margin-top:3px">Optional 15s: <span class="click">Understand</span> — "pathology report in plain English, plus questions to ask the doctor."</p>
       </div>
 
       <div class="sec">
-        <div class="h"><span class="t">3 · CHECK-IN + THE 2 AM MOMENT</span><span class="tm">3:00–4:30</span></div>
+        <div class="h"><span class="t">3 · CHECK-IN + THE 2 AM MOMENT</span><span class="tm">2:45–4:15</span></div>
         <span class="click">Log today's check-in</span> → answer <b>2 / 4 / 5 / 4</b> → mood <b>2 · 2 · 2</b> → <span class="click">Submit check-in</span>
         <p class="say"><b>Say:</b> "Fever pattern hits the 100.4°F red flag — on-call nurse alerted now. The mood check routes to Louisiana's real support: NAMI and 988."</p>
         <span class="click">Vitals</span> (sidebar) → <span class="click">▶ Simulate the 2 am fever spike</span> → let it play ~5s → point at the SMS receipt
@@ -70,27 +71,44 @@
       </div>
 
       <div class="sec">
-        <div class="h"><span class="t">4 · CARE TEAM — we predict, with the prescription</span><span class="tm">4:30–6:30</span></div>
-        <span class="click">Care Team</span> (tab) → point at the 📡 auto-escalated vitals card + Morning Sweep → click a flagged patient in the roster → <span class="click">Apply</span>
-        <p class="say"><b>Say:</b> "Every patient carries a 7-day risk forecast AND the one action that changes it — apply and the model re-runs live. Two avoidable hospital events per 30 days across the cohort; 2 hours of admin time back per patient per week."</p>
+        <div class="h"><span class="t">4 · CARE TEAM — we predict, with the prescription</span><span class="tm">4:15–5:45</span></div>
+        <span class="click">Care Team</span> (tab) → point at the 📡 auto-escalated vitals card + Morning Sweep → click <span class="click">Darlene Fontenot</span> → <span class="click">Apply</span> on <b>Arrange rides (NEMT)</b>
+        <p class="say"><b>Say:</b> "Every patient carries a 7-day risk forecast AND the one action that changes it. Darlene is 42 miles out with an unstable social situation — we apply one thing and the model re-runs live."</p>
+        <p class="say" style="margin-top:3px;color:#a03a22"><b>⚠ Don't skip this click — section 5 depends on it.</b></p>
+      </div>
+
+      <div class="sec new">
+        <div class="h"><span class="t">5 · CLINIC OPS — the provider side · NEW</span><span class="tm">5:45–8:15</span></div>
+        <span class="click">Clinic Ops</span> (tab) → Prior-Auth lands on Darlene → point at criterion 6, now <b>met</b> → <span class="click">📨 Submit to payer</span> → let the rail run → scroll to the <b>slot board</b>
+        <p class="say"><b>Say:</b> "The part most teams skip — <b>administrative burden</b>. Five workflows that decide whether a patient actually gets treated. Every number here is the same engine you just watched."</p>
+        <p class="say" style="margin-top:3px"><b>Say:</b> "Criterion six was <b>pending</b> a minute ago — transport barriers unaddressed. You just addressed them. <b>It's met now.</b> The packet got stronger because someone booked a ride."</p>
+        <p class="say" style="margin-top:3px"><b>Say:</b> "Same in the schedule — every slot scored for no-show risk from the same features. Darlene's row dropped when you applied that counterfactual. One system, not a bag of features."</p>
+        <p class="say" style="margin-top:3px"><b>60-second version:</b> the criterion flip + <span class="click">🔍 Probe in patient app</span> in the PCP feed — "same engine, same numbers, both sides of the desk."</p>
       </div>
 
       <div class="sec">
-        <div class="h"><span class="t">5 · SURVIVORSHIP — the population everyone ignores</span><span class="tm">6:30–8:00</span></div>
+        <div class="h"><span class="t">6 · SURVIVORSHIP — the population everyone ignores</span><span class="tm">8:15–9:30</span></div>
         <span class="click">Survivorship</span> (tab) → click <span class="click">Alicia · Hodgkin, 2016</span> → point at the radar
         <p class="say"><b>Say:</b> "350,000 survivors — the largest population the brief names. ASCO-format plan from the treatment record in seconds; the late-effects radar turns doxorubicin + chest radiation into echo, breast MRI, thyroid checks — overdue items flagged for the clinic."</p>
       </div>
 
       <div class="sec">
-        <div class="h"><span class="t">6 · PARISHES — burden, not city size</span><span class="tm">8:00–9:00</span></div>
-        <span class="click">Screen &amp; Prevent</span> (tab) → <span class="click">🚐 Deploy van to top-10</span> → let 2–3 stops play
-        <p class="say"><b>Say:</b> "All 64 parishes scored on unmet need — unscreened × late-stage. Vans and SMS nudges route to rural parishes with the worst burden, not the biggest cities."</p>
+        <div class="h"><span class="t">7 · PARISHES — burden, not city size</span><span class="tm">9:30–10:30</span></div>
+        <span class="click">Screen &amp; Prevent</span> (tab) → <span class="click">🚐 Deploy van to top-10</span> → let 2–3 stops play → point at the <b>follow-up queue</b> below
+        <p class="say"><b>Say:</b> "All 64 parishes scored on unmet need — unscreened × late-stage. And these are <b>real numbers</b>: CDC PLACES for coverage, State Cancer Profiles for incidence and late stage. Under 16 cases, the rate is suppressed — we never estimate what the data won't support."</p>
+        <p class="say" style="margin-top:3px"><b>Say:</b> "Screening only helps if results get followed up — so the queue tracks abnormal results with no follow-up at 14 days, and FIT kit returns."</p>
         <p class="say" style="margin-top:3px">If network is up (30s): Patient App → <span class="click">Access</span> → TrialMatch — "real ClinicalTrials.gov trials, eligibility pre-scored per patient with reasons."</p>
       </div>
 
+      <div class="sec new">
+        <div class="h"><span class="t">8 · LANGUAGES · NEW</span><span class="tm">10:30–11:00</span></div>
+        <span class="click">Language dropdown</span> (top right) → <span class="click">Kreyòl ayisyen</span> → <span class="click">Tiếng Việt</span> → back to <span class="click">EN</span>
+        <p class="say"><b>Say:</b> "Louisiana's most underserved communities don't all read English or Spanish. The whole patient journey runs in <b>four languages</b> — the check-ins, the symptoms, the mood screening, the crisis lines. Not a translation page."</p>
+      </div>
+
       <div class="sec">
-        <div class="h"><span class="t">7 · CLOSE — the ask</span><span class="tm">9:00–10:00</span></div>
-        <p class="say"><b>Say:</b> "Five barriers in the brief — five answers, one connected platform, one file that runs anywhere. Pilot with two Ochsner clinics Q1 2027, benchmarked against ASCO quality measures. This is what improving the cancer journey looks like. Thank you."</p>
+        <div class="h"><span class="t">9 · CLOSE — the ask</span><span class="tm">11:00–11:30</span></div>
+        <p class="say"><b>Say:</b> "Five barriers in the brief — five answers, one connected platform, one file that runs anywhere. Pilot with two Ochsner clinics Q1 2027, benchmarked against ASCO quality measures on treatment-start delay, check-in adherence, and clinician time. Thank you."</p>
       </div>
     </div>
 
@@ -98,35 +116,40 @@
     <div>
       <h2>If they ask</h2>
       <div class="qa">
-        <p><b>"Is this real data?"</b> — "Every module runs on synthetic data, and the models are transparent — you can see the logistic regression, the ASCO rules, the eligibility criteria. Nothing hidden; that's the point. TrialMatch pulls live from ClinicalTrials.gov."</p>
-        <p><b>"What does Ochsner actually get?"</b> — "2 hours of admin time back per clinician per week, earlier intervention on the patients who need it, and a parish heat index that directs outreach spend."</p>
-        <p><b>"How is this different from a national app?"</b> — "They remind; we predict. They build for broadband cities; we build for Vermilion Parish. Offline-first, SMS fallback, caregiver-inclusive, Louisiana's languages next."</p>
+        <p><b>"Is this real data?"</b> — "Mixed, and we label which is which. The <b>parish numbers are real</b>: CDC PLACES 2025 for screening coverage and population, State Cancer Profiles / USCS for incidence and late stage — and where a parish had under 16 cases we show <b>suppressed</b> rather than an estimate. Everything else — patient records, risk models, payer packets — is synthetic, and every model is visible on screen. TrialMatch pulls live from ClinicalTrials.gov."</p>
+        <p><b>"Are these validated clinical models?"</b> — "The lung risk figure is a labelled <b>approximation</b> of PLCOm2012 over the four inputs the app collects; the breast card is family-history criteria, not Tyrer-Cuzick. Both say so on screen. The counterfactual model is a transparent logistic regression with published weights — you can read it. We'd rather show our work than imply a validation we can't demonstrate."</p>
+        <p><b>"What does Ochsner actually get?"</b> — "Two hours of clinician admin time back per week, earlier intervention on flagged patients, prior-auth packets drafted from the chart, and a parish heat index that directs outreach spend — plus a no-show model that protects the infusion chairs."</p>
+        <p><b>"How is this different from a national app?"</b> — "They remind; we predict. They build for broadband cities; we build for Vermilion Parish. Offline-first, SMS fallback, caregiver-inclusive — and four languages, including Creole and Vietnamese."</p>
         <p><b>"What's the pilot?"</b> — "Two Ochsner oncology clinics, 50 patients, Q1 2027 — measuring treatment-start delay, check-in adherence, and admin time against ASCO quality measures."</p>
       </div>
 
       <h2>Watch-fors</h2>
       <div class="warn">
         <b>⚠ Check-in click order:</b> answer all 4 scales + mood BEFORE Submit, or it toasts "answer all 4 questions."<br>
-        <b>⚠ Replay:</b> it runs ~5s — don't click Simulate twice (button disables; let it finish).<br>
+        <b>⚠ Apply the counterfactual in §4:</b> section 5's payoff doesn't happen without it.<br>
+        <b>⚠ Replay:</b> runs ~5s and now resets cleanly — a second click is safe, but don't race it.<br>
+        <b>⚠ Language toggle:</b> switch back to EN before the close, or judges read the closing slide in Vietnamese.<br>
         <b>⚠ Network:</b> no internet → TrialMatch shows "offline snapshot" — say "same trials, cached for rural broadband."<br>
         <b>⚠ Screen share:</b> if the shared window is small, zoom the browser (Ctrl +) so text is readable.<br>
-        <b>⚠ Keep moving:</b> each section is ~90 seconds — don't read cards, point and talk.
+        <b>⚠ Keep moving:</b> don't read cards, point and talk. Cut §8 before §5 if you're long.
       </div>
 
       <h2>Sticky points</h2>
       <ul>
         <li><b>Differentiator:</b> counterfactual forecasts — "the one action that changes the outcome."</li>
+        <li><b>New for finals:</b> Clinic Ops carries brief area 5, and it reads the <b>same engine</b> as the patient app — one system, not a bag of features.</li>
         <li><b>ASCO</b> = official data partner — say it at least twice.</li>
+        <li><b>Real vs synthetic:</b> parish data is real and cited; the rest is labelled. Say which is which before they ask.</li>
         <li><b>Story:</b> problem → gap → Louisiana solution → live demo.</li>
         <li><b>Close on the pilot</b> — they fund plans, not screens.</li>
       </ul>
 
       <h2>Demo path at a glance</h2>
-      <p style="font-size:10px">Overview → Patient App (Home → Journey → Check-in → Vitals replay) → Care Team (vitals card → counterfactual) → Survivorship (Alicia → radar) → Screen &amp; Prevent (van tour) → optional TrialMatch → Close</p>
+      <p style="font-size:10px">Overview → Patient App (Home → Journey → Check-in → Vitals replay) → Care Team (vitals card → <b>apply transport counterfactual</b>) → <b>Clinic Ops (prior-auth criterion flip → submit → slot board → CDS probe)</b> → Survivorship (Alicia → radar) → Screen &amp; Prevent (van tour → follow-up queue) → <b>Languages</b> → Close</p>
     </div>
   </div>
 
-  <div class="foot">BayouCare · DevDays 2026 Semi-Finals · Aug 26–27 · one demo, one file, one story</div>
+  <div class="foot">BayouCare · DevDays 2026 Finals · Sep 25 · one demo, one file, one story</div>
 </div>
 </body>
 </html>
