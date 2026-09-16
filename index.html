@@ -313,8 +313,113 @@ try{
   }
   .msg.user{flex-direction:row-reverse}
   .msg.user .b{background:var(--green-700);color:#fff;border:none}
-  .msg .b b{display:block;font-size:12px;margin-bottom:2px;color:var(--green-600)}
-  .msg.user .b b{color:#bfe8d4}
+  /* Only the speaker label is a block. A <b> used for emphasis INSIDE an answer must stay
+     inline — otherwise every bolded phrase in a Remi reply breaks onto its own line. */
+  .msg .b > b:first-child{display:block;font-size:12px;margin-bottom:2px;color:var(--green-600)}
+  .msg.user .b > b:first-child{color:#bfe8d4}
+
+  /* ===== Remi chat =====
+     Scoped to #remiLog / .remi-* so the Understand dialogue — which shares the bare
+     .chat/.msg classes — keeps exactly the look it already had. */
+  #remiLog{
+    max-height:56vh;overflow-y:auto;overscroll-behavior:contain;
+    scroll-behavior:smooth;padding-right:4px;
+  }
+  #remiLog .msg{margin-bottom:14px;align-items:flex-start;animation:remiIn .26s ease both}
+  #remiLog .msg .b{
+    border-radius:15px;padding:11px 15px;line-height:1.55;max-width:86%;
+    box-shadow:0 1px 2px rgba(0,0,0,.05);
+  }
+  /* The patient's turns read as a distinct voice: filled gradient, right-hand tail. */
+  #remiLog .msg.user .b{
+    background:linear-gradient(135deg,var(--green-700),var(--green-600));
+    border-bottom-right-radius:5px;box-shadow:0 2px 10px -3px rgba(19,81,58,.5);
+  }
+  #remiLog .msg:not(.user) .b{border-bottom-left-radius:5px}
+  #remiLog .msg .b > b:first-child{
+    font-size:11px;letter-spacing:.045em;text-transform:uppercase;margin-bottom:3px;opacity:.9;
+  }
+  @keyframes remiIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  /* Settling an answer into the bubble it already occupies — softer than a new bubble. */
+  .remi-resolve{animation:remiFade .3s ease both}
+  @keyframes remiFade{from{opacity:.25}to{opacity:1}}
+
+  /* Assistant avatar — BayouCare's leaf, sized to sit against the bubble. */
+  .remi-avatar{
+    flex:none;width:28px;height:28px;border-radius:50%;margin-top:2px;
+    background:var(--green-100);display:flex;align-items:center;justify-content:center;
+  }
+  .remi-avatar svg{display:block}
+
+  /* Typing indicator */
+  .remi-thinking{display:inline-flex;align-items:center;gap:9px;color:var(--ink-soft);font-size:13px}
+  .remi-dots{display:inline-flex;gap:4px}
+  .remi-dots i{
+    width:6px;height:6px;border-radius:50%;background:var(--green-500);
+    animation:remiDot 1.15s ease-in-out infinite;
+  }
+  .remi-dots i:nth-child(2){animation-delay:.16s}
+  .remi-dots i:nth-child(3){animation-delay:.32s}
+  @keyframes remiDot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+  .remi-quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  /* Same token pair as .chip.green, so the dark override below matches the rest of the app.
+     (--green-800 in dark mode is #0e3a2a — near-black, and unreadable on --green-50.) */
+  .remi-q{
+    font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+    background:var(--green-100);border:1px solid transparent;color:var(--green-600);
+    border-radius:999px;padding:7px 13px;
+    transition:border-color .15s ease, transform .12s ease;
+  }
+  .remi-q:hover{border-color:var(--green-500);transform:translateY(-1px)}
+  .remi-q:active{transform:translateY(0)}
+  html[data-theme="dark"] .remi-q{color:#7fd4ae}
+
+  /* Composer — a rule between conversation and input, so each reads as its own region. */
+  .remi-composer{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+  .remi-input{display:flex;gap:9px;align-items:center}
+  .remi-input input{
+    flex:1;min-width:0;font:inherit;font-size:14px;color:var(--ink);
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 15px;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .remi-input input:focus{outline:none;border-color:var(--green-500);box-shadow:0 0 0 3px var(--green-50)}
+  #remiSend{
+    display:inline-flex;align-items:center;gap:7px;
+    transition:transform .12s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  #remiSend:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 12px -3px rgba(19,81,58,.5)}
+  #remiSend:active:not(:disabled){transform:translateY(0);box-shadow:none}
+  #remiSend:disabled{opacity:.55;cursor:progress}
+  #remiSend svg{display:block}
+  .remi-foot{font-size:11.5px;color:var(--ink-soft);margin-top:9px}
+  /* Badges read as status, not as plain labels: pill with a leading state dot. */
+  .remi-chip{margin-top:8px;letter-spacing:.01em}
+  .remi-chip::before{
+    content:"";display:inline-block;width:5px;height:5px;border-radius:50%;
+    background:currentColor;opacity:.75;margin-right:6px;vertical-align:middle;
+  }
+
+  /* Motion here is decoration — honour the OS setting. */
+  @media (prefers-reduced-motion: reduce){
+    #remiLog{scroll-behavior:auto}
+    #remiLog .msg,.remi-resolve{animation:none}
+    .remi-dots i{animation:none;opacity:.55}
+    .remi-q,#remiSend,.remi-input input,.remi-launcher{transition:none}
+  }
+  .remi-launcher{
+    position:fixed;right:22px;bottom:22px;z-index:60;display:none;
+    align-items:center;gap:9px;cursor:pointer;border:none;font:inherit;
+    background:var(--green-700);color:#fff;border-radius:999px;padding:11px 18px 11px 13px;
+    font-weight:700;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.22);
+    transition:transform .15s ease;
+  }
+  .remi-launcher:hover{transform:translateY(-2px)}
+  .remi-launcher svg{display:block;flex:none}
+  /* Patient mode only — in admin mode the user is in the god-view, and a patient
+     assistant floating over it would blur the mode split. One line to flip. */
+  :root[data-mode="patient"] .remi-launcher{display:flex}
+  :root[data-mode="admin"]   .remi-launcher{display:none}
 
   .report-sec{border:1px solid var(--line);border-radius:11px;margin-bottom:10px;overflow:hidden}
   .report-sec summary{
@@ -900,6 +1005,7 @@ try{
       <button class="side-btn" data-screen="checkins"><span class="emoji">📈</span><span data-i18n="side.checkins">Check-ins</span></button>
       <button class="side-btn" data-screen="vitals"><span class="emoji">📡</span><span data-i18n="side.vitals">Vitals</span></button>
       <button class="side-btn" data-screen="access"><span class="emoji">🚗</span><span data-i18n="side.access">Access &amp; Help</span></button>
+      <button class="side-btn" data-screen="remi"><span class="emoji">🌿</span><span data-i18n="side.remi">Ask Remi</span></button>
       <div class="caregiver-toggle">
         <label><span class="switch"><input type="checkbox" id="caregiverMode"><span class="sl"></span></span> <span data-i18n="side.cgLabel">Caregiver mode</span></label>
         <div style="margin-top:6px;color:#7a5a20;font-weight:500" id="cgNote">Off — viewing as patient</div>
@@ -1224,6 +1330,49 @@ try{
             </div>
           </div>
           <button class="btn btn-green" id="helpSubmit" style="margin-top:14px">Send request to Keisha (social worker)</button>
+        </div>
+      </div>
+
+      <!-- REMI — patient assistant. Answers from the record, routes everything clinical. -->
+      <div class="screen" data-name="remi">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head">
+            <h3 data-i18n="remi.head">🌿 Remi — your care assistant</h3>
+            <span class="chip green" id="remiEngineChip">On-device</span>
+          </div>
+          <p style="font-size:13.5px;color:var(--ink-soft)" data-i18n="remi.sub">Ask about your own record — your diagnosis, your plan, what's next, rides, and costs. Remi reads your chart and never guesses at medical advice.</p>
+          <div class="remi-quick">
+            <button class="remi-q" data-q="when is my next appointment" data-i18n="remi.q1">When's my next appointment?</button>
+            <button class="remi-q" data-q="how have i been feeling" data-i18n="remi.q2">How have I been feeling?</button>
+            <button class="remi-q" data-q="how do i get a ride" data-i18n="remi.q3">How do I get a ride?</button>
+            <button class="remi-q" data-q="what is my diagnosis" data-i18n="remi.q4">What is my diagnosis?</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="chat" id="remiLog" role="log" aria-live="polite" aria-label="Conversation with Remi"></div>
+          <div class="remi-composer">
+            <div class="remi-input">
+              <input id="remiText" type="text" autocomplete="off" aria-label="Ask Remi">
+              <button class="btn btn-green" id="remiSend">
+                <span data-i18n="remi.send">Send</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m0 0-6-6m6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <p class="remi-foot" data-i18n="remi.foot">Not medical advice — your care team is one tap away.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h3 style="font-size:15px" data-i18n="remi.connectHead">⚙️ Connect a model (optional)</h3>
+            <span class="chip gray" data-i18n="remi.connectChip">Off by default</span>
+          </div>
+          <p style="font-size:12.5px;color:var(--ink-soft)" data-i18n="remi.connectSub">Remi answers from your record on the device — no wifi needed. Paste an Anthropic or DeepSeek API key to have a model phrase the answers instead. The key is stored in this browser only and is never written into the app.</p>
+          <div class="remi-input" style="margin-top:10px">
+            <input id="remiKey" type="password" autocomplete="off" placeholder="Paste your API key">
+            <button class="btn btn-outline" id="remiKeySave" data-i18n="remi.connectSave">Save</button>
+            <button class="btn btn-outline" id="remiKeyClear" data-i18n="remi.connectClear">Clear</button>
+          </div>
+          <p class="remi-foot" id="remiKeyNote"></p>
         </div>
       </div>
 
@@ -1626,6 +1775,16 @@ try{
 <div class="map-tip" id="mapTip"></div>
 <div class="toast" id="toast"></div>
 
+<!-- Remi launcher — a speech bubble whose mark is BayouCare's leaf. Patient mode only. -->
+<button class="remi-launcher" id="remiLauncher" aria-label="Ask Remi">
+  <svg width="27" height="27" viewBox="0 0 28 28" aria-hidden="true">
+    <path d="M14 3.2C7.9 3.2 3 7.5 3 12.8c0 3 1.7 5.6 4.3 7.3-.3 1.3-1 2.4-1.9 3.3 1.8-.2 3.4-.9 4.8-1.8 1.2.3 2.5.4 3.8.4 6.1 0 11-4.3 11-9.5S20.1 3.2 14 3.2z" fill="#fff"/>
+    <path d="M9.4 17.4c-1.5-4.7 1-9.1 5.4-10.5 1-.3 2.1-.4 3.1-.2.4 1.3.3 2.7-.2 3.9-1.4 4-5.1 6.6-8.3 6.8z" fill="#2f9e6b"/>
+    <path d="M9.6 17.2c1.8-3.1 4.4-5.6 7.5-7.3" stroke="#fff" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  </svg>
+  <span data-i18n="remi.launcher">Ask Remi</span>
+</button>
+
 <script>
 /* Louisiana parish boundaries — Census Bureau TIGER/500k (public domain), Douglas-Peucker simplified · generated, Aug 2026 */
 const LA_MAP={"w":515,"h":469,"d":{"Acadia":"M175.9 326.2L162.4 337.1L152.1 330.6L143.4 332.3L146.7 322.3L143.3 317.0L142.8 289.2L179.7 289.3L186.3 294.1L189.5 309.4L175.9 326.2Z","Bienville":"M66.7 94.8L72.0 75.5L85.0 75.5L93.6 70.5L90.5 56.1L119.0 56.1L119.2 70.6L128.9 70.7L129.1 94.7L125.3 104.7L89.7 104.5L87.2 94.8L66.7 94.8Z","East Baton Rouge":"M296.6 306.9L285.0 307.1L285.0 306.7L275.6 302.9L279.8 286.4L273.5 286.6L270.2 270.6L274.3 264.4L313.0 262.8L307.1 270.6L300.4 277.2L299.4 291.4L309.0 304.3L296.6 306.9Z","Jefferson Davis":"M95.1 295.6L101.4 294.0L129.1 294.1L134.1 288.5L142.9 288.5L143.0 289.0L142.6 289.0L142.8 289.2L143.3 317.0L146.7 322.3L143.4 332.3L132.6 338.4L130.9 338.2L108.0 338.3L118.4 333.4L117.8 325.2L108.0 325.2L104.7 300.5L95.1 297.9L95.1 295.6Z","Ouachita":"M196.9 40.8L211.6 47.7L211.4 64.9L202.7 78.8L199.8 90.2L173.3 90.2L173.3 85.4L163.4 75.8L163.5 56.4L177.1 56.6L196.9 40.8Z","Pointe Coupee":"M259.0 283.3L252.3 287.5L226.4 287.4L228.6 264.8L220.8 248.6L221.7 234.8L227.0 229.7L235.4 235.0L235.5 247.6L249.4 247.1L245.8 261.6L262.3 258.5L264.9 262.6L266.1 268.3L267.0 269.6L259.0 283.3Z","St. Charles":"M377.6 361.7L372.3 376.7L361.1 376.5L358.6 369.2L348.7 363.4L342.4 354.6L342.7 340.7L351.2 338.9L367.6 317.0L367.4 346.1L371.2 357.8L377.6 361.7Z","Tangipahoa":"M358.8 231.7L361.0 231.7L369.7 263.7L370.9 317.7L367.6 317.0L365.7 310.0L355.8 310.9L342.0 294.9L340.0 270.5L340.0 231.8L358.8 231.7Z","Vernon":"M54.7 245.3L56.9 240.1L56.0 230.8L57.2 223.5L56.8 211.7L56.5 211.2L54.9 211.2L56.5 201.1L65.4 201.1L70.3 191.4L85.1 191.4L109.4 193.3L119.1 196.6L123.9 203.8L124.4 243.9L109.7 245.2L54.7 245.3Z","West Baton Rouge":"M259.0 283.3L267.0 269.6L270.2 270.6L273.5 286.6L279.8 286.4L275.6 302.9L285.0 306.7L268.9 306.8L252.3 287.5L259.0 283.3Z","Winn":"M168.5 143.5L144.0 143.4L143.9 153.1L110.1 153.2L110.8 145.2L119.8 126.9L113.4 104.6L173.3 104.8L173.3 129.0L168.5 143.5Z","Lafourche":"M391.3 405.5L391.0 406.0L390.9 409.8L391.3 410.3L391.2 411.8L390.6 413.1L391.1 415.2L390.8 417.6L391.4 419.3L392.8 419.8L393.2 420.7L392.3 422.1L391.1 422.3L390.0 422.0L388.7 422.2L388.3 422.7L388.3 423.7L387.4 424.3L385.8 424.6L384.8 424.3L384.5 424.6L384.9 426.7L387.1 428.2L387.1 430.0L387.4 430.2L390.0 429.9L392.2 427.7L393.6 426.7L397.0 425.0L398.0 423.7L398.8 423.9L398.9 424.2L398.3 425.2L392.0 429.4L388.5 433.0L384.2 436.7L377.5 441.7L372.8 443.9L372.0 443.6L370.7 443.8L361.3 447.0L360.8 446.9L360.7 446.3L363.0 445.0L366.1 444.6L369.9 443.0L370.3 442.2L370.2 441.4L370.8 441.1L371.8 441.1L371.7 439.1L370.4 438.0L368.4 437.9L367.3 437.6L367.5 436.6L365.2 433.9L365.4 431.6L366.1 431.2L367.1 432.0L367.8 431.9L368.2 430.7L366.7 428.3L364.4 427.0L364.4 424.9L363.9 424.0L362.3 422.7L359.1 423.0L359.1 424.0L358.5 424.7L357.1 425.3L357.5 427.2L356.0 431.1L355.0 431.6L358.1 419.8L357.4 412.8L339.2 391.4L320.9 376.3L317.0 367.4L310.1 373.9L298.0 374.1L309.5 353.0L319.1 351.2L331.4 354.8L342.4 354.6L348.7 363.4L358.6 369.2L361.1 376.5L372.3 376.7L379.2 378.3L376.3 390.9L381.0 400.5L391.3 405.5Z","Lincoln":"M163.5 56.4L163.5 66.0L143.7 65.9L143.8 70.8L119.2 70.6L119.0 56.1L124.0 36.9L133.8 36.8L148.6 38.0L153.6 46.6L163.5 46.7L163.5 56.4Z","Livingston":"M320.1 314.9L309.0 304.3L299.4 291.4L300.4 277.2L307.1 270.6L340.0 270.5L342.0 294.9L355.8 310.9L346.6 314.2L340.8 321.1L333.7 318.0L328.2 323.0L320.1 314.9Z","Natchitoches":"M65.5 138.1L65.5 130.5L73.7 128.5L84.7 131.6L84.8 124.0L95.9 124.0L89.7 104.5L113.4 104.6L119.8 126.9L110.8 145.2L110.1 153.2L116.4 162.5L126.1 165.4L134.5 174.4L115.9 190.9L109.4 193.3L85.1 191.4L85.0 172.1L75.4 172.1L75.2 152.6L65.4 152.6L65.5 138.1Z","Plaquemines":"M402.6 357.1L406.6 365.2L420.8 369.4L429.6 377.9L440.1 381.4L443.1 384.5L439.7 382.5L438.5 381.5L433.9 381.0L431.5 380.5L430.3 380.5L429.2 378.9L428.1 378.5L427.6 378.8L428.4 381.6L428.4 382.9L427.8 384.1L426.8 384.2L425.2 383.9L424.3 384.1L423.9 385.2L424.3 386.5L425.5 388.2L425.8 389.0L424.3 390.9L424.6 394.1L422.8 395.4L422.7 395.6L422.7 396.2L423.4 397.0L426.0 399.1L428.1 398.8L428.9 399.1L430.6 401.5L432.7 402.8L433.0 403.5L433.3 404.9L434.5 405.3L434.7 405.1L434.7 404.5L437.2 401.7L439.2 403.0L438.8 406.2L441.1 410.6L443.1 409.8L443.6 408.3L444.1 407.8L444.7 408.9L445.9 409.8L449.3 410.1L453.3 409.9L454.0 410.4L455.7 411.1L457.1 411.1L457.5 411.4L456.4 412.9L456.1 414.6L458.8 415.2L460.6 413.7L462.6 413.8L464.3 415.1L465.0 416.0L465.4 417.6L466.6 419.0L468.2 418.6L468.6 417.4L470.1 415.8L470.5 415.2L470.5 414.8L471.5 415.1L472.5 415.7L472.7 416.2L472.6 417.1L473.9 419.8L474.6 420.5L476.2 421.1L476.8 422.4L476.5 422.8L477.2 423.9L480.1 425.6L480.5 427.0L480.2 427.5L479.5 427.7L479.5 429.4L480.0 430.5L481.0 431.2L483.1 430.7L483.2 430.2L486.8 428.9L487.5 429.2L488.2 429.9L489.6 433.4L489.1 435.1L488.4 435.3L487.3 434.5L485.4 435.3L485.1 435.9L485.9 437.6L486.6 437.3L487.3 438.1L487.3 438.5L484.7 441.5L484.3 444.0L483.7 445.6L480.9 445.9L480.3 445.8L479.6 445.2L478.0 445.7L475.9 448.1L474.7 450.2L474.1 452.0L473.9 452.4L473.4 452.4L471.9 451.4L472.2 450.5L471.5 449.7L470.7 450.1L470.3 449.8L469.5 448.8L468.9 445.9L468.1 444.6L467.1 444.0L465.3 444.1L465.1 444.4L465.1 445.2L465.4 446.1L464.9 446.9L461.8 447.5L459.5 449.0L459.2 449.4L459.5 449.7L458.6 451.8L457.6 451.7L457.3 451.9L453.0 459.2L450.3 461.7L449.5 461.1L450.2 458.1L450.6 457.2L451.6 455.9L453.8 455.0L457.7 448.9L457.2 447.6L455.7 445.3L453.9 444.0L450.9 443.7L450.4 441.6L450.5 439.2L449.7 438.0L448.7 437.3L448.3 436.8L446.9 433.6L446.1 432.2L444.5 430.3L443.5 429.5L438.4 427.2L431.7 425.4L425.5 421.3L423.0 420.5L420.3 419.7L414.9 418.9L408.4 418.8L408.0 416.2L408.1 415.6L409.9 413.6L411.6 410.8L411.6 409.2L410.7 407.3L409.1 406.6L408.9 405.2L409.7 403.0L410.0 402.7L409.9 401.2L408.5 400.4L407.2 400.6L403.5 402.4L400.6 405.8L398.4 405.9L397.8 405.4L396.0 386.0L386.9 367.8L393.4 354.1L402.6 357.1Z","Rapides":"M146.0 243.3L124.4 243.9L123.9 203.8L119.1 196.6L109.4 193.3L115.9 190.9L134.5 174.4L136.8 186.6L142.8 188.5L184.4 178.8L194.8 194.6L180.8 196.1L180.7 217.2L183.2 235.9L176.3 235.6L166.6 231.6L157.2 237.0L154.5 243.3L146.0 243.3Z","Red River":"M48.9 94.6L87.2 94.8L89.7 104.5L95.9 124.0L84.8 124.0L84.7 131.6L73.7 128.5L65.5 122.1L55.9 109.2L56.4 99.5L48.9 94.6Z","Sabine":"M29.4 170.3L27.9 166.8L28.7 163.6L30.0 152.5L27.4 143.0L23.8 138.2L65.5 138.1L65.4 152.6L75.2 152.6L75.4 172.1L85.0 172.1L85.1 191.4L70.3 191.4L65.4 201.1L56.5 201.1L54.9 211.2L52.3 213.2L51.4 213.4L50.4 212.4L50.1 211.6L48.9 202.8L48.3 201.7L46.1 201.0L43.5 198.6L46.4 190.5L43.6 188.8L41.2 186.4L37.9 177.7L31.4 172.6L29.4 170.3Z","Ascension":"M288.5 335.6L293.0 318.9L296.6 306.9L309.0 304.3L320.1 314.9L328.2 323.0L333.7 318.0L332.8 324.1L306.7 330.0L302.1 335.2L288.5 335.6Z","St. Helena":"M315.3 231.8L340.0 231.8L340.0 270.5L307.1 270.6L313.0 262.8L311.7 238.2L315.3 231.8Z","St. James":"M302.1 335.2L306.7 330.0L332.8 324.1L328.3 338.6L331.4 354.8L319.1 351.2L309.5 353.0L302.5 345.0L302.1 335.2Z","St. Landry":"M156.0 289.3L162.9 282.8L178.0 282.9L182.9 279.6L186.6 263.5L182.8 248.5L220.8 248.6L228.6 264.8L226.4 287.4L233.8 298.8L215.6 296.3L204.2 301.7L197.8 300.6L189.5 309.4L186.3 294.1L179.7 289.3L156.0 289.3Z","St. Martin":"M253.5 347.4L274.2 345.7L281.2 359.6L289.8 364.5L289.1 375.9L278.1 370.1L261.7 366.5L262.9 360.9L253.5 347.4ZM231.7 287.4L237.5 293.5L239.3 308.2L244.9 315.7L253.2 317.1L254.3 331.2L263.4 336.0L241.3 338.9L235.7 330.6L225.5 330.5L220.4 337.7L207.8 334.4L212.1 325.4L205.0 322.0L208.6 316.3L204.2 301.7L215.6 296.3L233.8 298.8L226.4 287.4L231.7 287.4Z","St. Tammany":"M423.7 291.7L424.4 292.5L429.5 304.9L429.5 307.0L428.4 309.2L428.2 310.7L431.6 318.5L434.2 321.9L434.9 322.5L439.5 322.5L438.3 323.5L435.9 323.9L433.6 325.9L432.8 325.9L432.5 325.7L430.6 325.2L430.1 325.7L418.1 323.0L413.8 325.8L405.7 320.5L394.7 325.9L384.0 321.3L370.9 317.7L369.7 263.7L394.7 268.8L409.2 268.8L411.0 275.1L412.6 279.2L417.0 285.4L419.7 288.0L420.4 288.0L423.7 291.7Z","Vermilion":"M199.2 388.9L198.7 388.6L193.0 388.4L188.0 388.9L182.8 391.0L179.1 393.6L176.3 394.2L173.6 394.3L164.7 392.3L149.8 390.2L144.1 389.2L144.3 338.3L132.6 338.4L143.4 332.3L152.1 330.6L162.4 337.1L175.9 326.2L190.9 329.7L206.5 338.5L204.0 345.8L205.9 364.2L204.7 365.3L199.7 366.7L192.9 370.9L189.3 374.0L188.9 376.1L190.3 379.2L190.4 380.2L192.4 384.5L194.2 384.8L196.9 384.7L198.6 384.1L200.7 384.0L201.6 384.8L203.1 385.4L202.5 386.0L202.2 387.0L201.3 387.6L200.7 388.5L199.4 388.5L199.2 388.9Z","Washington":"M361.0 231.7L417.7 231.5L419.7 231.2L420.1 231.5L420.1 234.9L418.5 240.7L417.4 242.8L415.8 243.1L410.7 260.9L409.2 268.8L394.7 268.8L369.7 263.7L361.0 231.7Z","Beauregard":"M36.8 297.9L40.5 294.9L41.0 293.4L39.8 286.4L36.9 282.9L38.1 278.9L52.4 253.7L53.8 251.9L54.3 246.2L54.7 245.3L109.7 245.2L109.8 256.8L109.6 276.3L95.2 276.3L95.1 297.9L70.8 297.9L70.9 288.2L61.2 288.2L61.2 297.9L36.8 297.9Z","Bossier":"M66.7 94.8L62.6 94.7L44.7 76.0L42.1 77.1L44.5 73.6L40.8 65.8L34.3 61.3L37.0 55.5L32.9 42.0L29.4 39.4L32.8 34.0L28.9 33.1L32.6 26.0L27.2 16.0L29.8 8.0L57.9 8.1L57.0 12.9L64.8 25.0L65.5 75.5L72.0 75.5L66.7 94.8Z","Caddo":"M8.0 44.2L8.0 8.0L29.8 8.0L27.2 16.0L32.6 26.0L28.9 33.1L32.8 34.0L29.4 39.4L32.9 42.0L37.0 55.5L34.3 61.3L40.8 65.8L44.5 73.6L42.1 77.1L44.7 76.0L62.6 94.7L48.9 94.6L44.0 85.8L32.1 83.2L16.8 99.3L8.1 99.2L8.0 44.2Z","Cameron":"M27.3 352.0L32.2 343.9L35.8 340.7L38.6 336.9L95.4 336.7L108.0 338.3L144.3 338.3L144.1 389.2L140.7 388.2L132.1 384.9L110.1 374.2L99.2 370.3L90.7 368.0L85.9 367.2L82.1 367.1L79.4 367.5L74.9 368.8L74.5 369.2L65.7 368.1L62.2 368.1L42.3 370.6L36.8 371.8L34.5 372.5L31.3 374.1L27.6 376.8L21.8 367.9L22.6 359.9L27.3 352.0Z","De Soto":"M10.6 123.2L8.0 121.0L8.1 99.2L16.8 99.3L32.1 83.2L44.0 85.8L48.9 94.6L56.4 99.5L55.9 109.2L65.5 122.1L73.7 128.5L65.5 130.5L65.5 138.1L23.8 138.2L19.7 133.3L18.6 132.7L14.5 129.4L10.6 123.2Z","East Carroll":"M290.0 58.5L285.9 61.3L254.9 61.4L257.5 58.8L256.1 56.5L265.7 37.1L269.1 17.3L273.3 9.6L282.8 9.7L279.3 14.4L278.2 17.9L278.3 18.8L278.7 19.5L279.8 20.5L281.9 21.2L283.3 21.2L284.8 20.6L285.8 19.3L286.0 18.7L286.1 14.2L285.4 13.3L285.8 12.3L288.4 11.4L289.6 11.9L290.3 12.8L292.5 18.6L292.5 20.8L291.9 22.5L288.5 25.8L286.4 26.2L284.8 27.6L283.5 29.8L283.2 30.9L282.9 33.9L282.8 37.7L283.0 38.2L283.9 38.7L286.9 38.6L291.3 39.8L292.8 40.3L293.4 40.9L293.2 42.0L292.5 43.1L291.4 44.1L289.2 45.0L287.3 46.3L284.1 49.9L283.9 51.0L284.2 52.7L285.1 54.8L286.4 56.0L288.7 56.2L289.4 57.1L290.0 58.5Z","Franklin":"M243.6 134.0L241.6 124.3L236.8 124.2L229.0 134.0L221.8 132.8L213.7 124.1L213.2 104.2L224.6 94.0L225.6 84.4L238.0 76.0L253.1 76.0L248.3 87.6L251.6 98.4L251.8 110.7L243.6 134.0Z","Grant":"M110.1 153.2L143.9 153.1L144.0 143.4L168.5 143.5L169.9 154.6L166.4 163.0L173.8 166.4L177.7 177.1L184.4 178.8L142.8 188.5L136.8 186.6L134.5 174.4L126.1 165.4L116.4 162.5L110.1 153.2Z","Jackson":"M173.3 90.2L173.3 104.8L125.3 104.7L129.1 94.7L128.9 70.7L143.8 70.8L143.7 65.9L163.5 66.0L163.4 75.8L173.3 85.4L173.3 90.2Z","Jefferson":"M372.3 376.7L377.6 361.7L371.2 357.8L367.4 346.1L367.6 317.0L384.0 321.3L382.2 345.2L380.7 348.3L388.5 348.6L393.4 354.1L386.9 367.8L396.0 386.0L397.8 405.4L394.9 402.0L392.9 402.1L391.3 405.5L381.0 400.5L376.3 390.9L379.2 378.3L372.3 376.7Z","Lafayette":"M175.9 326.2L189.5 309.4L197.8 300.6L204.2 301.7L208.6 316.3L205.0 322.0L212.1 325.4L207.8 334.4L206.5 338.5L190.9 329.7L175.9 326.2Z","St. John the Baptist":"M332.8 324.1L333.7 318.0L340.8 321.1L346.6 314.2L355.8 310.9L365.7 310.0L367.6 317.0L351.2 338.9L342.7 340.7L342.4 354.6L331.4 354.8L328.3 338.6L332.8 324.1Z","Union":"M196.9 40.8L177.1 56.6L163.5 56.4L163.5 46.7L153.6 46.6L148.6 38.0L133.8 36.8L133.9 8.6L196.5 9.2L196.9 40.8Z","Webster":"M72.0 75.5L65.5 75.5L64.8 25.0L57.0 12.9L57.9 8.1L84.8 8.2L85.0 41.6L89.8 41.5L90.5 56.1L93.6 70.5L85.0 75.5L72.0 75.5Z","West Feliciana":"M267.0 269.6L266.1 268.3L264.9 262.6L262.3 258.5L245.8 261.6L249.4 247.1L235.5 247.6L235.4 235.0L236.9 233.3L237.4 232.2L237.8 231.8L281.8 231.8L276.1 254.5L268.0 265.1L269.0 270.1L267.0 269.6Z","Assumption":"M277.2 339.7L288.5 335.6L302.1 335.2L302.5 345.0L309.5 353.0L298.0 374.1L290.7 383.9L288.6 382.2L289.8 364.5L281.2 359.6L274.2 345.7L273.8 342.5L276.1 342.4L277.2 339.7Z","Caldwell":"M173.3 129.0L173.3 90.2L199.8 90.2L205.0 102.5L213.2 104.2L213.7 124.1L212.3 129.0L173.3 129.0Z","Catahoula":"M202.3 195.6L202.6 129.0L212.3 129.0L213.7 124.1L221.8 132.8L229.0 134.0L236.8 124.2L241.6 124.3L246.6 148.5L241.2 147.3L232.3 150.3L231.2 160.5L224.5 159.9L219.9 165.3L228.1 183.9L221.5 183.1L216.8 177.0L216.9 184.8L224.4 189.1L217.9 190.1L216.3 198.3L218.9 202.2L210.1 199.1L203.6 206.3L202.3 195.6Z","Iberville":"M253.2 317.1L244.9 315.7L239.3 308.2L237.5 293.5L231.7 287.4L252.3 287.5L268.9 306.8L285.0 306.7L285.0 307.1L296.6 306.9L293.0 318.9L288.5 335.6L277.2 339.7L263.4 336.0L254.3 331.2L253.2 317.1Z","La Salle":"M184.4 178.8L177.7 177.1L173.8 166.4L166.4 163.0L169.9 154.6L168.5 143.5L173.3 129.0L202.6 129.0L202.3 195.6L194.8 194.6L184.4 178.8Z","Morehouse":"M211.4 64.9L211.6 47.7L196.9 40.8L196.5 9.2L257.0 9.5L249.8 23.6L244.5 26.2L237.7 47.0L227.7 59.0L221.8 57.6L211.4 64.9Z","Richland":"M253.1 76.0L238.0 76.0L225.6 84.4L224.6 94.0L213.2 104.2L205.0 102.5L199.8 90.2L202.7 78.8L211.4 64.9L221.8 57.6L227.7 59.0L237.7 47.0L241.7 56.4L256.1 56.5L257.5 58.8L254.9 61.4L253.1 76.0Z","Madison":"M290.0 58.6L290.1 59.6L289.3 60.6L287.5 65.5L287.5 67.4L288.2 68.6L289.5 70.1L291.9 71.6L293.6 72.4L295.8 72.9L299.2 76.2L298.2 80.2L298.6 81.3L299.9 82.0L308.0 83.5L308.3 84.5L307.7 86.0L298.2 97.1L298.0 96.1L296.6 94.8L294.9 94.1L286.9 96.9L285.8 93.3L268.0 98.5L251.6 98.4L248.3 87.6L253.1 76.0L254.9 61.4L285.9 61.3L290.0 58.6Z","Orleans":"M382.2 345.2L384.0 321.3L394.7 325.9L405.7 320.5L413.8 325.8L418.1 323.0L430.1 325.7L428.4 327.2L426.9 329.4L425.7 330.3L424.9 330.5L424.3 334.1L422.9 334.7L421.5 334.9L420.1 335.6L419.8 336.2L419.8 337.0L421.2 339.4L421.2 339.6L420.4 340.1L419.6 340.1L416.7 337.9L414.9 337.5L411.4 337.7L408.0 341.7L395.1 343.7L393.0 348.5L401.7 351.9L402.6 357.1L393.4 354.1L388.5 348.6L380.7 348.3L382.2 345.2Z","St. Bernard":"M402.6 357.1L401.7 351.9L393.0 348.5L395.1 343.7L408.0 341.7L407.7 342.1L408.2 345.0L409.0 347.5L409.5 348.6L410.4 349.3L411.5 349.8L412.8 350.0L415.6 349.5L418.1 348.5L420.1 347.1L420.9 347.7L421.5 348.5L419.3 349.6L418.7 349.6L418.4 350.5L418.7 352.7L421.7 355.9L423.5 357.1L425.5 357.2L426.5 357.7L428.7 357.6L431.1 356.7L432.5 355.7L433.2 354.0L433.1 351.7L433.9 350.1L433.9 348.6L434.7 347.0L434.8 344.3L434.1 343.1L435.0 342.6L437.0 341.9L441.7 338.8L442.4 338.0L442.4 336.9L441.9 336.0L442.5 334.5L443.6 333.8L445.8 335.5L447.2 335.8L448.6 336.8L449.7 337.0L454.1 336.5L454.4 337.3L454.1 338.5L453.2 339.2L452.0 339.2L449.2 340.8L448.3 341.7L448.2 343.5L448.3 344.9L450.9 346.3L453.4 346.6L453.5 351.5L454.5 352.4L457.9 351.9L459.5 351.1L462.5 345.5L463.5 343.2L465.7 342.3L466.3 342.9L465.7 345.3L468.8 345.6L468.3 346.8L467.5 350.8L466.2 350.3L464.5 350.4L462.9 350.9L459.2 353.8L458.8 355.0L459.9 355.7L462.0 355.8L463.6 355.1L466.6 354.8L467.1 355.1L467.1 356.2L465.3 357.6L463.8 358.1L461.5 358.4L459.3 359.1L454.9 359.6L453.0 360.4L453.0 361.3L454.0 361.9L456.6 362.5L456.9 364.9L457.9 365.8L459.2 365.9L461.6 364.4L463.1 363.9L463.1 364.7L462.5 365.2L462.4 368.0L463.9 369.0L463.7 369.5L460.5 369.5L459.4 369.0L458.6 367.8L457.4 367.0L455.8 366.8L454.5 367.5L452.8 365.9L451.9 366.4L451.5 368.0L450.0 370.0L448.7 371.2L449.1 376.0L446.8 375.4L444.5 373.7L441.3 372.3L439.0 370.9L438.0 370.9L436.1 371.9L434.9 370.6L432.5 370.5L429.1 369.9L427.4 370.3L427.6 373.6L428.1 374.6L430.6 375.7L432.4 375.2L433.0 375.6L432.4 376.9L432.6 377.5L434.8 378.7L436.4 379.1L438.6 379.1L443.0 383.5L443.3 384.2L443.1 384.5L440.1 381.4L429.6 377.9L420.8 369.4L406.6 365.2L402.6 357.1ZM502.5 369.9L500.1 373.8L495.3 380.5L494.9 380.4L494.7 379.9L495.2 378.6L498.0 375.9L500.1 372.6L501.7 369.4L502.2 367.8L502.2 365.7L502.9 364.1L504.3 362.8L504.6 361.8L505.3 358.6L505.2 358.2L504.6 357.6L505.7 356.0L506.0 351.3L505.2 348.7L505.0 346.7L505.3 346.1L505.3 345.4L504.9 344.3L504.8 343.0L503.2 339.5L502.1 337.7L500.9 336.7L502.0 337.1L503.4 338.7L504.8 341.1L505.5 342.7L506.4 345.8L507.1 349.8L507.0 354.8L506.2 359.5L505.6 362.0L504.5 365.2L502.5 369.9Z","Evangeline":"M142.9 288.5L146.1 277.8L146.0 243.3L154.5 243.3L157.2 237.0L166.6 231.6L176.3 235.6L182.8 248.5L186.6 263.5L182.9 279.6L178.0 282.9L162.9 282.8L156.0 289.3L143.0 289.3L142.6 289.0L143.0 289.0L142.9 288.5Z","West Carroll":"M273.3 9.6L269.1 17.3L265.7 37.1L256.1 56.5L241.7 56.4L237.7 47.0L244.5 26.2L249.8 23.6L257.0 9.5L273.3 9.6Z","Calcasieu":"M38.6 336.9L39.6 335.1L41.2 327.5L41.2 326.2L39.6 321.0L38.8 309.8L38.5 309.9L37.3 309.4L34.5 305.6L35.3 299.3L36.8 297.9L61.2 297.9L61.2 288.2L70.9 288.2L70.8 297.9L95.1 297.9L104.7 300.5L108.0 325.2L117.8 325.2L118.4 333.4L108.0 338.3L95.4 336.7L38.6 336.9Z","Claiborne":"M119.0 56.1L90.5 56.1L89.8 41.5L85.0 41.6L84.8 8.2L133.9 8.6L133.8 36.8L124.0 36.9L119.0 56.1Z","Concordia":"M262.3 150.5L260.6 153.1L260.4 155.5L260.6 159.1L260.0 161.1L258.3 161.8L255.4 161.8L254.2 162.1L253.3 162.9L253.0 164.1L253.0 166.1L253.7 166.9L258.0 167.7L258.9 168.9L258.8 169.5L258.3 170.3L255.6 172.0L252.8 173.0L249.8 172.7L249.4 172.9L248.7 174.1L249.4 182.0L250.4 183.8L250.8 185.3L250.4 187.3L249.6 188.9L248.4 189.8L246.9 192.2L247.1 194.4L249.0 197.3L250.0 199.4L249.4 200.9L248.7 201.5L246.3 202.4L243.8 202.8L241.5 209.0L240.9 214.6L243.5 223.1L244.7 224.3L245.0 225.0L245.1 225.8L244.9 227.0L244.0 228.4L242.8 229.5L237.8 231.8L236.9 233.3L235.4 235.0L227.0 229.7L233.9 210.9L218.9 202.2L216.3 198.3L217.9 190.1L224.4 189.1L216.9 184.8L216.8 177.0L221.5 183.1L228.1 183.9L219.9 165.3L224.5 159.9L231.2 160.5L232.3 150.3L241.2 147.3L246.6 148.5L262.3 150.5Z","East Feliciana":"M315.2 231.8L311.7 238.2L313.0 262.8L274.3 264.4L270.2 270.6L269.1 270.3L268.0 265.1L276.1 254.5L281.8 231.8L315.2 231.8Z","Allen":"M146.1 277.8L142.9 288.5L134.1 288.5L129.1 294.1L101.4 294.0L95.1 295.6L95.2 276.3L109.6 276.3L109.8 256.8L109.7 245.2L124.4 243.9L146.0 243.3L146.1 277.8Z","Avoyelles":"M220.8 248.6L182.8 248.5L176.3 235.6L183.2 235.9L180.7 217.2L180.8 196.1L194.8 194.6L202.3 195.6L203.6 206.3L210.1 199.1L218.9 202.2L233.9 210.9L227.0 229.7L221.7 234.8L220.8 248.6Z","St. Mary":"M290.7 383.9L281.6 385.8L273.7 393.0L273.3 401.0L271.8 400.0L270.5 400.5L266.6 399.5L265.8 398.8L265.6 397.4L264.6 396.3L260.2 396.6L258.5 396.2L257.8 395.7L257.3 394.3L255.9 393.0L253.9 393.0L249.2 394.7L247.9 394.5L248.4 392.2L248.1 391.5L247.3 390.6L246.9 387.5L245.8 383.2L245.1 382.7L244.1 382.6L238.9 384.0L236.6 383.1L236.7 382.8L237.8 381.6L238.7 380.0L238.9 378.9L238.8 377.5L239.0 375.9L239.6 374.6L239.6 373.5L239.3 371.9L238.2 371.1L234.9 370.7L230.7 371.5L228.2 370.3L226.8 370.4L223.8 371.3L219.3 373.7L216.6 375.4L214.5 374.6L214.5 374.3L215.0 373.3L230.7 359.6L239.0 348.6L253.5 347.4L262.9 360.9L261.7 366.5L278.1 370.1L289.1 375.9L288.6 382.2L290.7 383.9Z","Tensas":"M296.0 108.5L295.3 109.7L286.4 122.5L274.9 135.4L266.3 137.4L265.6 138.4L264.3 143.2L263.9 145.3L263.8 148.3L262.3 150.5L246.6 148.5L243.6 134.0L251.8 110.7L251.6 98.4L268.0 98.5L285.8 93.3L286.9 96.9L283.5 98.6L282.9 99.1L282.3 101.4L282.0 103.8L282.2 105.0L282.8 106.1L286.1 107.0L292.2 106.3L294.2 105.6L295.3 106.0L295.7 106.6L296.0 107.2L296.0 108.5Z","Terrebonne":"M298.0 374.1L310.1 373.9L317.0 367.4L320.9 376.3L339.2 391.4L357.4 412.8L358.1 419.8L355.0 431.6L352.8 432.5L351.7 431.6L349.0 432.0L348.9 431.7L349.5 430.9L347.7 430.1L346.9 429.3L347.2 428.9L349.4 428.1L349.6 426.4L349.9 425.7L351.1 424.1L350.9 423.8L349.0 423.1L346.8 421.5L345.4 421.1L343.9 422.7L341.4 422.5L340.1 421.8L338.5 422.8L337.8 425.8L338.4 426.4L340.1 426.5L342.1 427.8L342.1 428.5L341.0 429.0L340.9 430.3L340.6 430.7L339.2 430.4L335.1 430.8L334.5 430.0L333.6 430.2L333.0 431.6L332.5 433.9L333.3 435.1L332.3 439.1L329.4 440.2L327.2 439.9L325.5 440.4L324.3 439.7L321.1 440.8L320.3 442.3L317.8 443.7L317.5 444.1L317.4 446.3L317.8 447.3L319.4 447.9L321.0 447.9L322.5 447.4L324.9 446.0L328.0 446.7L333.1 445.3L333.4 445.6L333.2 446.0L324.3 448.7L322.0 449.0L317.9 448.9L316.6 449.3L314.0 449.0L313.4 447.9L313.8 447.3L313.5 445.9L311.7 442.8L311.2 442.8L310.3 441.7L308.3 438.8L305.7 436.4L304.2 435.4L303.6 434.1L302.3 433.3L300.4 434.4L298.6 434.6L296.3 434.0L295.6 433.2L293.0 433.2L289.6 432.5L287.7 430.3L286.3 429.4L279.6 428.8L277.7 428.3L272.0 425.9L269.7 423.9L266.6 420.2L266.8 419.5L269.1 419.5L270.8 418.8L272.2 416.8L272.8 413.8L273.2 413.3L274.8 412.4L275.8 412.1L277.4 413.4L278.8 413.4L279.8 412.4L279.5 410.2L277.8 408.2L278.4 406.7L277.9 405.4L277.5 405.0L274.0 403.8L273.8 402.1L273.3 401.0L273.7 393.0L281.6 385.8L290.7 383.9L298.0 374.1Z","Iberia":"M203.1 385.4L206.5 386.0L208.9 385.7L209.3 385.5L209.8 384.8L210.5 383.2L212.8 382.8L214.4 383.6L216.2 383.1L218.3 383.6L218.5 384.2L218.3 384.7L218.6 385.1L220.1 386.2L223.7 387.4L224.3 388.1L224.6 388.8L224.6 389.5L227.3 389.7L230.6 390.8L230.9 391.2L230.7 391.9L228.5 393.6L227.3 394.1L225.5 395.6L224.9 397.4L225.0 399.2L223.9 399.8L223.3 399.9L221.9 399.4L220.8 399.9L220.2 400.8L217.6 399.7L217.2 398.5L216.3 397.7L214.7 397.6L213.9 397.3L212.1 395.9L211.2 395.9L208.2 394.3L206.1 393.9L204.5 392.7L200.6 390.5L199.7 389.2L199.2 388.9L199.4 388.5L200.7 388.5L201.3 387.6L202.2 387.0L202.5 386.0L203.1 385.4ZM263.4 336.0L277.2 339.7L276.1 342.4L273.8 342.5L274.2 345.7L239.0 348.6L230.7 359.6L215.0 373.3L214.6 371.1L214.7 370.1L215.1 369.1L216.6 366.6L217.0 363.9L215.5 361.6L213.7 360.7L212.0 361.3L211.1 363.0L208.8 362.8L206.8 363.6L205.9 364.2L204.0 345.8L207.8 334.4L220.4 337.7L225.5 330.5L235.7 330.6L241.3 338.9L263.4 336.0Z"}};
@@ -1708,6 +1867,20 @@ en: {
   'hero.s3':'are rural — where specialists, transport, and support are hardest to reach',
   'hero.s4':'this is built for Louisiana patients in treatment and the caregivers beside them',
   'side.whoMeta':'Alexandria, LA · Stage II breast','side.home':'Home','side.calendar':'Appointments','cal.head':'🗓️ My appointments','cal.sub':'Every visit, infusion and scan in one place. Pick a day to see what is on — and whether a ride is already arranged.','cal.chip':'Reminders on','side.prevent':'Screen & Prevent','side.journey':'My Journey','side.understand':'Understand','side.checkins':'Check-ins','side.vitals':'Vitals','side.access':'Access & Help',
+  'side.remi':'Ask Remi',
+  'remi.launcher':'Ask Remi','remi.head':'🌿 Remi — your care assistant',
+  'remi.sub':'Ask about your own record — your diagnosis, your plan, what\'s next, rides, and costs. Remi reads your chart and never guesses at medical advice.',
+  'remi.q1':'When\'s my next appointment?','remi.q2':'How have I been feeling?','remi.q3':'How do I get a ride?','remi.q4':'What is my diagnosis?',
+  'remi.send':'Send','remi.ph':'Ask Remi about your care…','remi.thinking':'Remi is thinking…',
+  'remi.foot':'Not medical advice — your care team is one tap away.',
+  'remi.chipFoot':'Not medical advice — your care team is one tap away',
+  'remi.chipLocal':'On-device','remi.chipConnected':'connected','remi.degraded':'Fell back to on-device',
+  'remi.keyNone':'No key saved — Remi is answering on-device.',
+  'remi.keySaved':'✓ A key is saved in this browser. Remi will use it to phrase answers, and fall back to on-device if anything fails.',
+  'remi.connectHead':'⚙️ Connect a model (optional)','remi.connectChip':'Off by default',
+  'remi.connectSub':'Remi answers from your record on the device — no wifi needed. Paste an Anthropic or DeepSeek API key to have a model phrase the answers instead. The key is stored in this browser only and is never written into the app.',
+  'remi.connectSave':'Save','remi.connectClear':'Clear',
+  'remi.greet':'Hi Darlene 🌿 I\'m Remi. I can read your own record for you — ask about your diagnosis, your plan, what\'s next on your calendar, how you\'ve been feeling, rides, or costs.<br><br>I don\'t give medical advice. Anything clinical goes to Dr. Peters and Marie, RN — I\'ll tell you that rather than guess.',
   'side.cgLabel':'Caregiver mode','side.cgOff':'Off — viewing as patient','side.cgOn':'On — viewing as Renee (daughter)',
   'vitals.head':'📡 Vitals — devices watching between visits','vitals.chip':'Temp patch + smart scale · BLE',
   'vitals.sub':'Off-the-shelf devices send objective vitals into the same alert engine as your check-ins — a 2 am fever will not wait until morning.',
@@ -1789,6 +1962,20 @@ es: {
   'hero.s3':'son rurales — donde es más difícil llegar a especialistas, transporte y apoyo',
   'hero.s4':'esto es para los pacientes de Luisiana en tratamiento y los cuidadores a su lado',
   'side.whoMeta':'Alexandria, LA · Cáncer de seno etapa II','side.home':'Inicio','side.calendar':'Citas','cal.head':'🗓️ Mis citas','cal.sub':'Cada visita, infusión y estudio en un solo lugar. Elige un día para ver qué hay — y si ya tienes transporte arreglado.','cal.chip':'Recordatorios activos','side.prevent':'Detección y prevención','side.journey':'Mi camino','side.understand':'Entiende','side.checkins':'Controles diarios','side.vitals':'Signos vitales','side.access':'Acceso y ayuda',
+  'side.remi':'Pregunta a Remi',
+  'remi.launcher':'Pregunta a Remi','remi.head':'🌿 Remi — tu asistente de cuidado',
+  'remi.sub':'Pregunta por tu propio expediente — tu diagnóstico, tu plan, lo que sigue, transporte y costos. Remi lee tu expediente y nunca adivina consejos médicos.',
+  'remi.q1':'¿Cuándo es mi próxima cita?','remi.q2':'¿Cómo me he sentido?','remi.q3':'¿Cómo consigo transporte?','remi.q4':'¿Cuál es mi diagnóstico?',
+  'remi.send':'Enviar','remi.ph':'Pregúntale a Remi sobre tu cuidado…','remi.thinking':'Remi está pensando…',
+  'remi.foot':'No es consejo médico — tu equipo de cuidado está a un toque.',
+  'remi.chipFoot':'No es consejo médico — tu equipo está a un toque',
+  'remi.chipLocal':'En el dispositivo','remi.chipConnected':'conectado','remi.degraded':'Volvió al dispositivo',
+  'remi.keyNone':'No hay clave guardada — Remi responde en el dispositivo.',
+  'remi.keySaved':'✓ Hay una clave guardada en este navegador. Remi la usará para redactar las respuestas y volverá al dispositivo si algo falla.',
+  'remi.connectHead':'⚙️ Conectar un modelo (opcional)','remi.connectChip':'Apagado por defecto',
+  'remi.connectSub':'Remi responde desde tu expediente en el dispositivo — sin necesidad de wifi. Pega una clave de API de Anthropic o DeepSeek para que un modelo redacte las respuestas. La clave se guarda solo en este navegador y nunca se escribe en la aplicación.',
+  'remi.connectSave':'Guardar','remi.connectClear':'Borrar',
+  'remi.greet':'Hola Darlene 🌿 Soy Remi. Puedo leer tu propio expediente — pregunta por tu diagnóstico, tu plan, lo que sigue en tu calendario, cómo te has sentido, transporte o costos.<br><br>No doy consejos médicos. Todo lo clínico va a la Dra. Peters y a Marie, RN — te lo diré en vez de adivinar.',
   'side.cgLabel':'Modo cuidador','side.cgOff':'Apagado — viendo como paciente','side.cgOn':'Encendido — viendo como Renee (hija)',
   'vitals.head':'📡 Signos vitales — dispositivos que te cuidan entre citas','vitals.chip':'Parche de temperatura + báscula inteligente · BLE',
   'vitals.sub':'No todos pueden escribir durante la quimio. Dispositivos de venta libre envían signos vitales objetivos directamente al mismo motor de alertas que tus controles — una fiebre a las 2 am no espera hasta la mañana.',
@@ -1885,6 +2072,16 @@ ht: {
   'side.checkins':'Rapò chak jou',
   'side.vitals':'Siy vital',
   'side.access':'Aksè ak Èd',
+  'side.remi':'Mande Remi',
+  'remi.launcher':'Mande Remi','remi.head':'🌿 Remi — asistan swen ou',
+  'remi.sub':'Mande sou dosye pa ou — dyagnostik ou, plan ou, sa ki annapre, transpò ak depans. Remi li fich ou e li pa janm devine konsèy medikal.',
+  'remi.q1':'Kilè pwochen randevou mwen?','remi.q2':'Kijan mwen santi mwen?','remi.q3':'Kijan pou mwen jwenn transpò?','remi.q4':'Ki dyagnostik mwen?',
+  'remi.send':'Voye','remi.ph':'Mande Remi sou swen ou…','remi.thinking':'Remi ap reflechi…',
+  'remi.foot':'Se pa konsèy medikal — ekip swen ou se yon sèl tap.',
+  'remi.chipFoot':'Se pa konsèy medikal — ekip ou se yon sèl tap',
+  'remi.chipLocal':'Sou aparèy la','remi.chipConnected':'konekte','remi.degraded':'Retounen sou aparèy la',
+  'remi.connectHead':'⚙️ Konekte yon modèl (opsyonèl)','remi.connectChip':'Fèmen pa defo',
+  'remi.connectSave':'Anrejistre','remi.connectClear':'Efase',
   'side.cgLabel':'Mòd moun k ap pran swen',
   'side.cgOff':'Fèmen — w ap gade kòm pasyan',
   'side.cgOn':'Ouvè — w ap gade kòm Renee (pitit fi)',
@@ -2021,6 +2218,16 @@ vi: {
   'hero.s3':'sống ở vùng nông thôn — nơi bác sĩ chuyên khoa, phương tiện đi lại và hỗ trợ khó tiếp cận nhất',
   'hero.s4':'dành cho bệnh nhân Louisiana đang điều trị và người thân bên cạnh họ',
   'side.whoMeta':'Alexandria, LA · Ung thư vú giai đoạn II','side.home':'Trang chủ','side.calendar':'Cuộc hẹn','cal.head':'🗓️ Cuộc hẹn của tôi','cal.sub':'Mọi lần khám, truyền thuốc và chụp chiếu ở một nơi. Chọn một ngày để xem có gì — và đã có xe chưa.','cal.chip':'Đã bật nhắc nhở','side.prevent':'Tầm soát & Phòng ngừa','side.journey':'Hành trình của tôi','side.understand':'Hiểu rõ bệnh','side.checkins':'Khai báo sức khỏe','side.vitals':'Sinh hiệu','side.access':'Tiếp cận & Hỗ trợ',
+  'side.remi':'Hỏi Remi',
+  'remi.launcher':'Hỏi Remi','remi.head':'🌿 Remi — trợ lý chăm sóc của bạn',
+  'remi.sub':'Hỏi về hồ sơ của chính bạn — chẩn đoán, kế hoạch, việc sắp tới, đi lại và chi phí. Remi đọc hồ sơ của bạn và không bao giờ đoán lời khuyên y tế.',
+  'remi.q1':'Lần hẹn tới của tôi là khi nào?','remi.q2':'Tôi đã cảm thấy thế nào?','remi.q3':'Tôi đi lại bằng cách nào?','remi.q4':'Chẩn đoán của tôi là gì?',
+  'remi.send':'Gửi','remi.ph':'Hỏi Remi về việc chăm sóc của bạn…','remi.thinking':'Remi đang suy nghĩ…',
+  'remi.foot':'Không phải lời khuyên y tế — đội ngũ chăm sóc chỉ cách một lần chạm.',
+  'remi.chipFoot':'Không phải lời khuyên y tế — đội ngũ chỉ cách một lần chạm',
+  'remi.chipLocal':'Trên thiết bị','remi.chipConnected':'đã kết nối','remi.degraded':'Quay về thiết bị',
+  'remi.connectHead':'⚙️ Kết nối mô hình (tùy chọn)','remi.connectChip':'Mặc định tắt',
+  'remi.connectSave':'Lưu','remi.connectClear':'Xóa',
   'side.cgLabel':'Chế độ người chăm sóc','side.cgOff':'Tắt — đang xem với tư cách bệnh nhân','side.cgOn':'Bật — đang xem với tư cách Renee (con gái)',
   'vitals.head':'📡 Sinh hiệu — thiết bị theo dõi giữa các lần khám','vitals.chip':'Miếng dán nhiệt độ + cân thông minh · BLE',
   'vitals.sub':'Thiết bị phổ thông, bán sẵn gửi sinh hiệu khách quan vào cùng hệ thống cảnh báo với phần khai báo của bạn — cơn sốt lúc 2 giờ sáng sẽ không đợi đến sáng mới báo.',
@@ -4006,6 +4213,24 @@ const calDayKey = d => d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
 const CAL_BY_DAY = {};
 CAL_PLAN.forEach(a => { const k = calDayKey(a.date); (CAL_BY_DAY[k] = CAL_BY_DAY[k] || []).push(a); });
 
+/* The patient record, in one place. Before this, Darlene's MRN, subtype, grade, stage and
+   cycle day existed only as prose scattered across six hardcoded strings, so nothing could
+   ground an answer in them. Remi reads from here. The display strings above are untouched —
+   this is additive, and wiring them to it is optional follow-up.
+   Appointments are deliberately NOT duplicated here: CAL_PLAN is the one live source for
+   those, so the assistant and the calendar can never disagree. */
+const PATIENT = {
+  name:'Darlene Fontenot', age:58, mrn:'44012', city:'Alexandria',
+  dx:'Invasive ductal carcinoma, left breast', grade:'Grade 2',
+  subtype:'ER+/PR+, HER2−', stage:'Stage IIA',
+  dxDate:'March 2026', cycle:'Cycle 1 of 6', cycleDay:4,
+  careTeam:[
+    {name:'Dr. Simone Peters',    role:'Medical Oncologist', org:'Ochsner Baton Rouge'},
+    {name:'Marie Thibodeaux, RN', role:'Patient Navigator'},
+    {name:'Keisha Brown',         role:'Social Worker',      note:'Financial & transport help'}
+  ]
+};
+
 let calMonth = new Date(CAL_ANCHOR.getFullYear(), CAL_ANCHOR.getMonth(), 1);
 let calSel = CAL_ANCHOR.getDate();
 const calLoc = () => ((document.getElementById('langSel') || {}).value === 'es' ? 'es-ES' : 'en-US');
@@ -4065,6 +4290,562 @@ function renderCalAgenda(){
 }
 renderCalendar();
 RERENDER.push(renderCalendar);
+
+/* ================= Remi · patient assistant =================
+   Answers from the record; routes everything clinical. Triage runs BEFORE intent matching,
+   so a crisis can never be pattern-matched into a cheerful answer about the calendar.
+   remiAnswer() is pure — no DOM, no network — so every answer is a read of the app's own
+   data and the whole engine works with the wifi off. The shell below is a thin layer over it.
+
+   The optional Claude path never sees a crisis/urgent/clinical question: those are decided
+   on-device and answered on-device, always. */
+const REMI_DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+
+const REMI_TRIAGE = [
+  { tier:'crisis', rx:[
+    /suicid/i, /kill myself/i, /killing myself/i, /end (it all|my life)/i, /want to die/i,
+    /don'?t want to (be here|live)/i, /hurt myself/i, /self[- ]?harm/i, /better off dead/i,
+    /no (point|reason) in (living|going on|being here)/i
+  ]},
+  { tier:'urgent', rx:[
+    /chest pain/i, /\bchest\b[^.]{0,24}\b(tight|hurts?|pressure|heavy)\b/i,
+    /can'?t breathe/i, /cannot breathe/i, /trouble breathing/i, /short(ness)? of breath/i,
+    /heavy bleeding/i, /bleeding a lot/i, /won'?t stop bleeding/i,
+    /\bfaint(ed|ing)?\b/i, /passed out/i, /unconscious/i, /seizure/i,
+    /\bfever\b/i, /100\.4/, /\bchills\b/i
+  ]},
+  { tier:'clinical', rx:[
+    /\bshould i (take|stop|skip|double|change)\b/i, /\bcan i take\b/i, /\bis it safe\b/i,
+    /safe to take/i, /\bdos(e|age)\b/i,
+    /\bhow much\b[^.]{0,30}\b(take|medicine|medication|mg|dose|painkiller)/i,
+    /\bpainkillers?\b/i, /\bpain pills?\b/i,
+    /oxycodone|ibuprofen|tylenol|advil|acetaminophen|morphine|opioid|chemo brain/i,
+    /should i (worry|be worried|be concerned)/i, /am i going to die/i
+  ]}
+];
+
+/* Grounded reads of the app's own data ------------------------------------- */
+const remiLoc      = () => (lang === 'es' ? 'es-ES' : 'en-US');
+const fmtDay       = d => d.toLocaleDateString(remiLoc(), {weekday:'long', month:'short', day:'numeric'});
+const remiUpcoming = () => CAL_PLAN.filter(a => a.date >= TODAY_S).sort((a, b) => a.date - b.date);
+const remiNext     = () => remiUpcoming()[0];
+const apptLine     = a => `<b>${fmtDay(a.date)} at ${a.time}</b> — ${CAL_TYPES[a.type].ico} ${CAL_TYPES[a.type].label}, ${CAL_TYPES[a.type].where} (${CAL_TYPES[a.type].dur} min)`;
+
+/* Resolve "what's on Thursday" / "today" / "tomorrow" to a real CAL_PLAN day.
+   Word boundaries matter here: without them "money" contains "mon". */
+function remiDayLookup(txt){
+  const t = String(txt || '').toLowerCase();
+  let target = null;
+  if (/\btoday\b/.test(t)) target = new Date(TODAY_S);
+  else if (/\btomorrow\b/.test(t)){ target = new Date(TODAY_S); target.setDate(target.getDate() + 1); }
+  else {
+    const i = REMI_DAYS.findIndex(d => new RegExp('\\b(' + d + '|' + d.slice(0,3) + ')\\b').test(t));
+    if (i < 0) return null;
+    const add = ((i - TODAY_S.getDay()) + 7) % 7 || 7;   /* the coming one — never "today" */
+    target = new Date(TODAY_S); target.setDate(target.getDate() + add);
+  }
+  return {date:target, list:CAL_BY_DAY[calDayKey(target)] || []};
+}
+
+/* Intent table — an ordered {id, kw, build}. Highest keyword-hit count wins; build() may
+   return null to abstain, in which case the next-best intent gets its turn. */
+const REMI_INTENTS = [
+  { id:'nextappt', kw:[/\bnext appointment\b/, /\bnext (visit|appt)\b/, /when.*\b(appointment|appt|visit|infusion)\b/, /\bcoming up\b/, /\bwhat.?s next for me\b/],
+    build(){
+      const a = remiNext();
+      if (!a) return `Nothing is on your calendar right now.`;
+      return `Your next appointment is ${apptLine(a)}.<br><br>` +
+        (a.ride
+          ? `🚗 A ride is already arranged — <b>Cora's Wheels</b>, pickup 7:45 am. Nothing for you to do.`
+          : `No ride is booked for this one yet. You can ask for one on the <b>Access &amp; Help</b> tab, or tell Keisha (social worker).`) +
+        `<br><br>Everything on your schedule is on the <b>Appointments</b> tab.`;
+    }},
+
+  { id:'day', kw:[/\btoday\b/, /\btomorrow\b/, /\bthis week\b/, /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/, /\b(mon|tue|wed|thu|fri|sat|sun)\b/],
+    build(t){
+      const hit = remiDayLookup(t);
+      if (!hit) return null;
+      if (!hit.list.length)
+        return `<b>${fmtDay(hit.date)}</b> — nothing scheduled. A good day to rest.`;
+      return `<b>${fmtDay(hit.date)}:</b><br><br>` + hit.list.map(a => {
+        const c = CAL_TYPES[a.type];
+        return `• ${c.ico} <b>${a.time}</b> — ${c.label}, ${c.where}${a.ride ? ' · 🚗 ride arranged' : ''}`;
+      }).join('<br>') + `<br><br>Full calendar is on the <b>Appointments</b> tab.`;
+    }},
+
+  { id:'scans', kw:[/\bscans?\b/, /\bimaging\b/, /\bct\b/, /\bmri\b/, /\bmammogram\b/, /\bx-?ray\b/],
+    build(){
+      const imgs = remiUpcoming().filter(a => a.type === 'imaging');
+      if (!imgs.length) return `No scans are on your calendar right now.`;
+      const [a, b] = imgs;
+      return `Your next scan is ${apptLine(a)}.<br><br>` +
+        (b ? `After that: ${fmtDay(b.date)} at ${b.time}.<br><br>` : '') +
+        `Results get explained in plain words on the <b>Understand</b> tab — and Dr. Peters goes through them with you.`;
+    }},
+
+  { id:'dx', kw:[/\bdiagnos/, /what do i have/, /what.?s wrong with me/, /\bmy cancer\b/, /what kind of cancer/, /\bmy condition\b/],
+    build(){ return `From your record: <b>${PATIENT.dx}</b>.<br><br>` +
+      `${PATIENT.grade} · ${PATIENT.subtype} · ${PATIENT.stage}<br>` +
+      `Diagnosed ${PATIENT.dxDate} — you're on <b>${PATIENT.cycle}</b>, day ${PATIENT.cycleDay}.<br><br>` +
+      `The <b>Understand</b> tab walks through what each of those terms means, in plain words.`; }},
+
+  { id:'stage', kw:[/\bstage\b/, /\bsubtype\b/, /\breceptors?\b/, /\ber\b|\bpr\b|\bher2\b/, /grade/],
+    build(){ return `<b>${PATIENT.stage}</b> — ${PATIENT.subtype}, ${PATIENT.grade}.<br><br>` +
+      `In plain words: the cancer is in the breast (not spread beyond it), it is driven by hormones (ER+ and PR+), and it is not driven by the HER2 protein. That combination is why your team chose this treatment.<br><br>` +
+      `The <b>Understand</b> tab explains each marker with the ASCO-aligned wording your team uses.`; }},
+
+  { id:'treatment', kw:[/\btreatment so far\b/, /what have i (had|done)/, /\bchemo\b/, /chemotherapy/, /\bsurgery\b/, /\bhistory\b/, /\bso far\b/],
+    build(){ return `<b>Where you are in treatment</b><br><br>` +
+      `• ${T('journey.j3tw')} — ${T('journey.j3td')}<br>` +
+      `• ${T('journey.j4tw')} — ${T('journey.j4td')}<br><br>` +
+      `Coming up: ${T('journey.j5tw')} — ${T('journey.j5td')}<br><br>` +
+      `Your whole timeline is on the <b>My Journey</b> tab, checked off as you go.`; }},
+
+  { id:'plan', kw:[/\bmy plan\b/, /survivorship/, /\bnext step\b/, /\bwhat.?s next\b/, /the plan\b/, /\btreatment plan\b/],
+    build(){ return `<b>Your plan</b><br><br>` +
+      `${T('journey.j2tw')} — ${T('journey.j2td')}<br><br>` +
+      `Right now: <b>${PATIENT.cycle}</b>, day ${PATIENT.cycleDay}.<br><br>` +
+      `Then: ${T('journey.j6tw')} — ${T('journey.j6td')}<br><br>` +
+      `It's all on the <b>My Journey</b> tab, and Dr. Peters reviews it with you at each visit.`; }},
+
+  { id:'feeling', kw:[/\bfeeling\b/, /\bhow am i doing\b/, /\bcheck.?ins?\b/, /\bmood\b/, /\benergy\b/, /\btrend\b/, /\bnausea\b/],
+    build(){
+      const n = trendBars.length, avg = trendBars.reduce((s, d) => s + d.v, 0) / n;
+      const done = Object.keys(answers).length;
+      return `Your last <b>${n} check-ins</b> average <b>${avg.toFixed(1)}/5</b> on how you've been feeling.<br><br>` +
+        trendBars.map(d => `${d.label} <b>${d.v}</b>`).join(' · ') + `<br><br>` +
+        (done
+          ? `Today's check-in is partly done — ${done} question${done === 1 ? '' : 's'} answered so far.`
+          : `Today's check-in isn't logged yet — it takes about a minute, and your nurse sees it the same day.`) +
+        `<br><br>Your care team watches this trend on the <b>Check-ins</b> tab.`;
+    }},
+
+  { id:'vitals', kw:[/\btemp/, /\bweight\b/, /\bweigh\b/, /\bvitals?\b/, /\bdevices?\b/, /\bscale\b/, /\bpatch\b/],
+    build(){
+      const me = SWEEP[0];
+      return `Latest from your devices:<br><br>🌡️ Temp <b>${me.temp}</b><br>⚖️ Weight <b>${me.w}</b> (${me.wd} over 7 days)<br><br>` +
+        `Your temp patch and scale stream into the same alert engine as your check-ins — a fever at 2 am doesn't wait until morning. See the <b>Vitals</b> tab.`;
+    }},
+
+  { id:'alerts', kw:[/\balerts?\b/, /\bwarning/, /\bflagged\b/, /\banything wrong\b/, /\bconcerning\b/],
+    build(){
+      if (!vitalsAlerts.length)
+        return `No alerts on your record right now — your recent device readings and check-ins are in your normal range.<br><br>If anything changes, the <b>Vitals</b> tab shows what your nurse would see.`;
+      return `<b>Alerts on your record:</b><br><br>` + vitalsAlerts.map(v =>
+        `🚨 <b>${v.when}</b> — ${v.reading}: ${v.msg}<br>${v.followup}`).join('<br><br>') +
+        `<br><br>This already went to your care team. The <b>Vitals</b> tab has the full replay.`;
+    }},
+
+  { id:'rides', kw:[/\brides?\b/, /\btransport/, /\bget there\b/, /\bdrive\b/, /\bmileage\b/, /\blodging\b/, /\bget a ride\b/],
+    build(){
+      const a = remiNext();
+      return `🚗 <b>Getting to your appointments</b><br><br>` +
+        (a && a.ride
+          ? `<b>${fmtDay(a.date)}</b> is already covered — Cora's Wheels (non-emergency medical transport) is confirmed, pickup 7:45 am.<br><br>`
+          : '') +
+        `<b>Mileage reimbursement</b> — you may qualify for about <b>$0.655/mile</b> through the Louisiana Cancer Fund; your round trip is 92 miles.<br><br>` +
+        `<b>Free lodging near Ochsner Baton Rouge</b> — a partner room is available if a treatment day runs long.<br><br>` +
+        `Need a ride that isn't booked? Keisha (social worker) arranges them — <b>Access &amp; Help</b> → Request help.`;
+    }},
+
+  { id:'money', kw:[/\bcost/, /\bpay\b/, /\bafford\b/, /\bmoney\b/, /\bfinancial\b/, /\bcopay/, /\binsurance\b/, /\bmedicaid\b/, /\bbills?\b/],
+    build(){ return `💰 <b>Help paying for care</b><br><br>` +
+      `<b>Copay assistance</b> — 2 programs matched your treatment, averaging <b>$1,900/yr</b> in savings.<br><br>` +
+      `<b>Medicaid navigation</b> — a step-by-step renewal guide with a caseworker chat line.<br><br>` +
+      `<b>Mileage reimbursement</b> — about $0.655/mile through the Louisiana Cancer Fund.<br><br>` +
+      `Keisha Brown (social worker) handles financial and transport help — send her a request from <b>Access &amp; Help</b>.`; }},
+
+  { id:'team', kw:[/\bcare team\b/, /\bmy team\b/, /\bwho.*(doctor|nurse|team|social worker)\b/, /\bmy (doctor|oncologist)\b/],
+    build(){ return `Your care team:<br><br>` + PATIENT.careTeam.map(m =>
+      `• <b>${m.name}</b> — ${m.role}${m.org ? ' · ' + m.org : ''}${m.note ? ' · ' + m.note : ''}`).join('<br>') +
+      `<br><br>They're also on the <b>Home</b> tab, and you can send Keisha a request any time from <b>Access &amp; Help</b>.`; }},
+
+  { id:'where', kw:[/\bwhere do i go\b/, /\bdirections?\b/, /\baddress\b/, /\blocation\b/, /\bwhich building\b/, /\bwhere is\b/],
+    build(){
+      const a = remiNext();
+      if (!a) return `Most of your care is at <b>Rapides Regional</b> in Alexandria.`;
+      return `Your next visit is at <b>${CAL_TYPES[a.type].where}</b>.<br><br>` +
+        `Most of your care is at <b>Rapides Regional</b> in Alexandria — labs, imaging, and the infusion suite are all in that building. Dr. Peters sees you at <b>Ochsner Baton Rouge</b> for oncology follow-ups.<br><br>` +
+        `Your ride is set for 7:45 am, so you'll have time to check in.`;
+    }},
+
+  { id:'bring', kw:[/\bbring\b/, /\bwhat should i (expect|have)/, /\bprepare\b/, /\bhow long (will|does) (it|the visit|infusion)\b/],
+    build(){ return `For most visits: your <b>photo ID</b>, your <b>insurance card</b>, and a current list of your medications.<br><br>` +
+      `For infusion days — about <b>${CAL_TYPES.infusion.dur} minutes</b> in the chair — bring a charger, a blanket, and something to eat. It's a long sit.<br><br>` +
+      `If you're unsure about a specific visit, Marie Thibodeaux (your nurse navigator) can tell you exactly what to expect.`; }},
+
+  { id:'support', kw:[/\bsupport\b/, /\btalk to someone\b/, /\bcounsel/, /\bpeer\b/, /\btherapy\b/, /\bmental health\b/],
+    build(){ return `👭 <b>Support group — Central LA</b><br>Meets the 2nd &amp; 4th Tuesday at 6 pm in Alexandria. Childcare is on site.<br><br>` +
+      `<b>NAMI Louisiana</b> (nami-louisiana.org) runs free peer support groups.<br><br>` +
+      `If you'd rather talk to someone on your own team first, <b>Keisha Brown</b> (social worker) is there for exactly this — <b>Access &amp; Help</b> → Request help.<br><br>` +
+      `And if things feel heavy right now, <b>988</b> is free, 24/7, and confidential.`; }},
+
+  { id:'trials', kw:[/\btrials?\b/, /\bclinical trial\b/, /\bstudy\b/, /\benroll\b/, /\beligib/],
+    build(){
+      const scored = TRIALS.map(t => ({t, pass:t.crits.filter(c => c.ok === true).length, tot:t.crits.length}))
+                           .sort((a, b) => (b.pass / b.tot) - (a.pass / a.tot));
+      const best = scored[0];
+      if (!best) return `No trials are loaded right now.`;
+      return `🔬 <b>TrialMatch</b><br><br>Your profile was checked against <b>${TRIALS.length} trials</b> near Louisiana. The closest is <b>${best.t.nct}</b> — ${best.pass} of ${best.tot} criteria met:<br><br>` +
+        best.t.crits.map(c => `${c.ok === true ? '✅' : c.ok === 'warn' ? '⚠️' : '❌'} ${c.txt}`).join('<br>') +
+        `<br><br>Nothing matches every criterion yet, and eligibility is a call for your oncology team — not something I'd guess at. The full list is on <b>Access &amp; Help</b>.`;
+    }},
+
+  { id:'cando', kw:[/\bwhat can you do\b/, /\bhow can you help\b/, /\bwhat do you do\b/, /\byour features\b/],
+    build(){ return `I read <b>your own record</b> and answer from it. I can help with:<br><br>` +
+      `• Your diagnosis, stage, and what the terms mean<br>` +
+      `• Your plan and where you are in treatment<br>` +
+      `• Your next appointment, or what's on any day<br>` +
+      `• How you've been feeling, and your device readings<br>` +
+      `• Rides, costs, support groups, and clinical trials<br>` +
+      `• Who's on your care team and how to reach them<br><br>` +
+      `What I <b>won't</b> do is give medical advice. Medication and symptom questions go to Dr. Peters or Marie, RN — I'll tell you so rather than guess.`; }},
+
+  { id:'privacy', kw:[/\bprivate\b/, /\bprivacy\b/, /\bwho can see\b/, /\bis this secure\b/, /\bdata\b/, /\brecorded\b/],
+    build(){ return `By default everything I say is generated <b>on this device</b> from your own record — no network, nothing leaves the phone.<br><br>` +
+      `If a model is connected in the settings below, only then does your question and a summary of your record go to Anthropic to be phrased. The key stays in this browser and is never written into the app.<br><br>` +
+      `Your care team sees the same record they always have.`; }},
+
+  { id:'whoareyou', kw:[/\bwho are you\b/, /\bare you (a )?(doctor|real|human)\b/, /\bare you an ai\b/, /\bwhat are you\b/, /\byour name\b/],
+    build(){ return `I'm <b>Remi</b> — the assistant inside BayouCare. I'm not a doctor and I'm not on your care team.<br><br>` +
+      `What I am is a reader of your record: I can tell you your diagnosis, your plan, your appointments, your rides and costs, and who to call.<br><br>` +
+      `Anything clinical goes to <b>Dr. Simone Peters</b> (oncologist) or <b>Marie Thibodeaux, RN</b> (navigator). Every answer I give carries that reminder.`; }}
+];
+
+/* ---- the three routed tiers + the graceful unknown ---- */
+const REMI_ROUTED = {
+  crisis(){ return `<b>Please reach out right now — you do not have to carry this alone.</b><br><br>` +
+    `<b>988</b> — call or text. Free, 24/7, confidential. You can say anything.<br><br>` +
+    `If you are in immediate danger, call <b>911</b>.<br><br>` +
+    `I've flagged this for your care team: <b>Keisha Brown</b> (social worker) and <b>Marie Thibodeaux, RN</b>. They will reach out.<br><br>` +
+    `I'm not going to try to talk you through this myself — a person should be with you for it.`; },
+  urgent(){ return `<b>Call your care team now — don't wait for your next appointment.</b><br><br>` +
+    `<b>Dr. Simone Peters</b> · Medical Oncologist, Ochsner Baton Rouge — oncology line, 24/7<br>` +
+    `<b>Marie Thibodeaux, RN</b> · Patient Navigator<br><br>` +
+    `If this feels severe — or if it's chest pain, trouble breathing, or you can't stay awake — call <b>911</b>.<br><br>` +
+    `I won't guess at whether a symptom is serious. That's a call for your team, and they would much rather hear from you now than later.`; },
+  clinical(){ return `<b>That's a question for your care team, and I won't guess at it.</b><br><br>` +
+    `Medication and symptom decisions depend on your labs, your other prescriptions, and exactly where you are in the cycle — things only Dr. Peters and Marie can weigh.<br><br>` +
+    `<b>Dr. Simone Peters</b> · Medical Oncologist, Ochsner Baton Rouge — oncology line, 24/7<br>` +
+    `<b>Marie Thibodeaux, RN</b> · Patient Navigator<br><br>` +
+    `If it feels urgent, call them now rather than waiting for the next visit.`; }
+};
+const REMI_FALLBACK = `I don't have that in your record, and I won't guess at it.<br><br>` +
+  `Things I can answer: your diagnosis and stage, your plan, your next appointment or what's on any day, how you've been feeling, your device readings, rides, costs, support groups, and who's on your care team.<br><br>` +
+  `For anything clinical, <b>Dr. Peters</b> and <b>Marie Thibodeaux, RN</b> are the ones to ask. Keisha (social worker) handles rides and money.`;
+
+/* Pure engine — no DOM, no network. */
+function remiAnswer(text){
+  const raw = String(text == null ? '' : text).trim();
+  if (!raw) return null;
+  const t = raw.toLowerCase();
+
+  for (const tier of REMI_TRIAGE)
+    if (tier.rx.some(r => r.test(t)))
+      return {text:REMI_ROUTED[tier.tier](), tier:tier.tier, engine:'local'};
+
+  let best = null, bestScore = 0;
+  for (const it of REMI_INTENTS){
+    const s = it.kw.reduce((n, r) => n + (r.test(t) ? 1 : 0), 0);
+    if (s > bestScore){ best = it; bestScore = s; }
+  }
+  if (best){
+    const out = best.build(raw);
+    if (out) return {text:out, tier:'record', intent:best.id, engine:'local'};
+  }
+  return {text:REMI_FALLBACK, tier:'unknown', engine:'local'};
+}
+
+/* ================= Remi · DOM shell ================= */
+const remiLog        = document.getElementById('remiLog');
+const remiText       = document.getElementById('remiText');
+const remiEngineChip = document.getElementById('remiEngineChip');
+const REMI_KEY_SLOT  = 'bc-remi-key';   /* the key lives here and nowhere else — never in the file */
+let remiKey = '';
+try{ remiKey = localStorage.getItem(REMI_KEY_SLOT) || ''; }catch(e){}
+let remiHistory = [];
+
+const REMI_AVATAR_SVG = '<svg width="16" height="16" viewBox="0 0 28 28" aria-hidden="true">'
+  + '<path d="M9.4 17.4c-1.5-4.7 1-9.1 5.4-10.5 1-.3 2.1-.4 3.1-.2.4 1.3.3 2.7-.2 3.9-1.4 4-5.1 6.6-8.3 6.8z" fill="#2f9e6b"/></svg>';
+
+/* Pacing for the simulated reply. An answer that lands instantly reads as a lookup; one
+   that arrives after a beat reads as an assistant. Both are stage-tunable — set to 0/0
+   if the demo would rather show the offline engine answering with no delay at all. */
+const REMI_THINK_MIN = 700, REMI_THINK_MAX = 1500;
+const remiDelay = ms => new Promise(r => setTimeout(r, ms));
+const remiThinkMs = () => REMI_THINK_MIN + Math.round(Math.random() * (REMI_THINK_MAX - REMI_THINK_MIN));
+const remiReducedMotion = () =>
+  !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+let remiBusy = false;
+
+function remiScroll(){
+  if (!remiLog) return;
+  remiLog.scrollTo({top:remiLog.scrollHeight, behavior: remiReducedMotion() ? 'auto' : 'smooth'});
+}
+function remiBubble(role, html){
+  const wrap = document.createElement('div');
+  wrap.className = 'msg' + (role === 'user' ? ' user' : '');
+  if (role !== 'user'){
+    const av = document.createElement('div');
+    av.className = 'remi-avatar';
+    av.setAttribute('aria-hidden', 'true');
+    av.innerHTML = REMI_AVATAR_SVG;
+    wrap.appendChild(av);
+  }
+  const b = document.createElement('div');
+  b.className = 'b';
+  if (role === 'user') b.textContent = html;
+  else b.innerHTML = '<b>Remi</b>' + (html || '');
+  wrap.appendChild(b);
+  remiLog.appendChild(wrap);
+  remiScroll();
+  return b;
+}
+/* Three dots in the bubble Remi is about to answer in. aria-hidden because the log is a
+   live region — only the settled answer should be announced, not the churn before it. */
+function remiTypingBubble(){
+  const b = remiBubble('remi', '');
+  const s = document.createElement('span');
+  s.className = 'remi-thinking';
+  s.setAttribute('aria-hidden', 'true');
+  s.innerHTML = '<span class="remi-dots"><i></i><i></i><i></i></span>';
+  const lbl = document.createElement('span');
+  lbl.textContent = T('remi.thinking');
+  s.appendChild(lbl);
+  b.appendChild(s);
+  return b;
+}
+function remiResolve(b, res, degraded){
+  b.innerHTML = '<b>Remi</b>' + res.text;
+  remiChip(b, T('remi.chipFoot'), 'gray');
+  remiChip(b, remiEngineLabel(res), res.engine === 'cloud' ? 'green' : 'gray');
+  if (degraded) remiChip(b, T('remi.degraded'), 'amber');
+  b.classList.add('remi-resolve');
+  remiScroll();
+}
+function remiSetBusy(on){
+  remiBusy = on;
+  const btn = document.getElementById('remiSend');
+  if (btn) btn.disabled = on;
+  if (remiText) remiText.setAttribute('aria-busy', on ? 'true' : 'false');
+}
+/* Reuses the app's .chip classes, so a chip picks up the existing dark-mode overrides. */
+function remiChip(b, label, kind){
+  const s = document.createElement('span');
+  s.className = 'chip ' + (kind || 'gray') + ' remi-chip';
+  s.textContent = label;
+  b.appendChild(document.createElement('br'));
+  b.appendChild(s);
+}
+function remiGreet(){
+  const old = remiLog.querySelector('[data-remi-greet]');
+  if (old) old.remove();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg'; wrap.dataset.remiGreet = '1';
+  const av = document.createElement('div');
+  av.className = 'remi-avatar';
+  av.setAttribute('aria-hidden', 'true');
+  av.innerHTML = REMI_AVATAR_SVG;
+  const b = document.createElement('div');
+  b.className = 'b';
+  b.innerHTML = '<b>Remi</b>' + T('remi.greet');
+  wrap.appendChild(av);
+  wrap.appendChild(b);
+  remiLog.insertBefore(wrap, remiLog.firstChild);
+}
+
+/* The Claude path. Optional, and every failure path — no key, offline, non-2xx, timeout —
+   lands back on the local engine rather than leaving the patient with nothing. */
+function remiSystemPrompt(){
+  const a = remiNext();
+  return [
+    'You are Remi, the patient assistant inside BayouCare, a cancer-care app for Louisiana patients.',
+    'Answer ONLY from the patient record below. If something is not in it, say you do not have it and point to the care team. Never invent dates, results, or numbers.',
+    'NEVER give medical advice: no doses, no "should I take", no interpreting symptoms, no prognosis. Route every clinical question to the care team.',
+    'If the patient mentions self-harm or suicide, lead with 988 (call or text, free, 24/7) and say their care team is being notified. Do not counsel them yourself.',
+    'If the patient describes an emergency — chest pain, trouble breathing, heavy bleeding, fainting, fever at or above 100.4F — tell them to call their care team now, and 911 if severe. Do not reassure them.',
+    'Keep answers short, warm, and plain-spoken at about a 6th-grade reading level. Use <b> for emphasis. No markdown headers or bullets beyond simple dashes.',
+    '',
+    'PATIENT RECORD',
+    'Name: ' + PATIENT.name + ', age ' + PATIENT.age,
+    'MRN: ' + PATIENT.mrn + ' · ' + PATIENT.city + ', LA',
+    'Diagnosis: ' + PATIENT.dx + ' · ' + PATIENT.grade + ' · ' + PATIENT.subtype + ' · ' + PATIENT.stage,
+    'Diagnosed ' + PATIENT.dxDate + ' · currently ' + PATIENT.cycle + ', day ' + PATIENT.cycleDay,
+    'Care team: ' + PATIENT.careTeam.map(m => m.name + ' (' + m.role + ')').join('; '),
+    a ? ('Next appointment: ' + fmtDay(a.date) + ' at ' + a.time + ' — ' + CAL_TYPES[a.type].label + ', ' + CAL_TYPES[a.type].where + (a.ride ? " (ride arranged: Cora's Wheels)" : '')) : '',
+    'Last check-ins (/5): ' + trendBars.map(d => d.label + ' ' + d.v).join(', '),
+    'Latest device vitals: temp ' + SWEEP[0].temp + ', weight ' + SWEEP[0].w
+  ].join('\n');
+}
+/* Two providers, picked from the key prefix. Anthropic keys are sk-ant-…; DeepSeek keys
+   are sk- followed by hex. DeepSeek also serves an Anthropic-Messages-shaped endpoint, so
+   the same request body works against both — only the host, model and one header differ.
+
+   Verified from a browser origin: DeepSeek returns CORS headers for a file:// page, so it
+   is reachable directly from this app with no proxy. Anthropic needs the explicit
+   dangerous-direct-browser-access opt-in instead. Both are exercised by the harnesses. */
+const REMI_PROVIDERS = {
+  anthropic: {
+    label:'Claude',
+    url:'https://api.anthropic.com/v1/messages',
+    model:'claude-opus-4-8',
+    headers(k){
+      return {'x-api-key':k, 'anthropic-version':'2023-06-01', 'content-type':'application/json',
+              'anthropic-dangerous-direct-browser-access':'true'};   /* required for a browser origin */
+    }
+  },
+  deepseek: {
+    label:'DeepSeek',
+    /* deepseek-chat is the stable alias; it resolves to deepseek-v4-flash. Asking for
+       deepseek-v4-flash by name returned an empty completion, so the alias it is. */
+    url:'https://api.deepseek.com/anthropic/v1/messages',
+    model:'deepseek-chat',
+    headers(k){ return {'x-api-key':k, 'anthropic-version':'2023-06-01', 'content-type':'application/json'}; }
+  }
+};
+const remiProviderOf = k => /^sk-ant-/.test(String(k || '')) ? 'anthropic' : 'deepseek';
+const remiEngineLabel = res => res.engine === 'cloud'
+  ? 'Remi · ' + REMI_PROVIDERS[res.provider || 'anthropic'].label
+  : 'Remi · on-device';
+/* The header chip names whichever provider the pasted key belongs to. */
+function remiSyncEngineChip(){
+  if (!remiEngineChip) return;
+  remiEngineChip.textContent = remiKey
+    ? (REMI_PROVIDERS[remiProviderOf(remiKey)].label + ' ' + T('remi.chipConnected'))
+    : T('remi.chipLocal');
+}
+
+/* Model output is untrusted text rendered via innerHTML, so escape it — then restore ONLY
+   the <b>/</b> pair the system prompt asks the model to use. Escaping first means a literal
+   "&lt;b&gt;" from the model stays escaped, and <img onerror=…> stays inert.
+   (Escaping everything and restoring nothing is what made answers show raw "<b>" tags.) */
+function remiSafeHtml(s){
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/&lt;(\/?b)&gt;/g, '<$1>');
+}
+
+async function remiAskCloud(q){
+  const p = REMI_PROVIDERS[remiProviderOf(remiKey)];
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 15000);   /* same idiom as loadTrials() */
+  try{
+    const r = await fetch(p.url, {
+      method:'POST',
+      signal:ctl.signal,
+      headers:p.headers(remiKey),
+      body:JSON.stringify({
+        model:p.model,
+        max_tokens:1024,
+        system:remiSystemPrompt(),
+        messages:remiHistory.concat([{role:'user', content:q}])
+      })
+    });
+    if (!r.ok) throw new Error('http ' + r.status);
+    const data = await r.json();
+    const out = (data.content || []).filter(c => c.type === 'text').map(c => c.text).join('').trim();
+    if (!out) throw new Error('empty');
+    return {text:remiSafeHtml(out), tier:'record',
+            engine:'cloud', provider:remiProviderOf(remiKey)};
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function remiAsk(raw){
+  const q = String(raw == null ? '' : raw).trim();
+  if (!q || remiBusy) return;
+  remiBubble('user', q);
+
+  const local = remiAnswer(q) || {text:REMI_FALLBACK, tier:'unknown', engine:'local'};
+  /* A crisis, an emergency, or a clinical question is decided ON-DEVICE and answered
+     on-device — it never reaches the model, connected or not.
+     Those tiers also SKIP the thinking beat below. The pause is theatre, and we are not
+     going to make someone wait a beat-and-a-half for a 988 number. Routed answers land
+     the instant they are computed. */
+  const routed = local.tier === 'crisis' || local.tier === 'urgent' || local.tier === 'clinical';
+
+  remiSetBusy(true);
+  const b = remiTypingBubble();
+  let res = local, degraded = false;
+  try{
+    if (remiKey && !routed){
+      /* The real round trip drives the indicator, with the thinking beat as a floor so a
+         fast connection still feels like an answer being composed. */
+      const [cloud] = await Promise.all([
+        remiAskCloud(q).catch(() => { degraded = true; return null; }),
+        remiDelay(remiThinkMs())
+      ]);
+      if (cloud) res = cloud;
+    } else if (!routed){
+      await remiDelay(remiThinkMs());
+    }
+  } finally {
+    remiSetBusy(false);
+  }
+  remiResolve(b, res, degraded);
+
+  if (res.engine === 'cloud'){
+    remiHistory = remiHistory.concat([{role:'user', content:q}, {role:'assistant', content:res.text}]).slice(-8);
+  }
+  remiSyncEngineChip();
+}
+function remiAskInput(){
+  if (remiBusy) return;
+  const v = remiText ? remiText.value : '';
+  if (remiText) remiText.value = '';
+  remiAsk(v);
+}
+
+function remiSyncKeyNote(){
+  const note = document.getElementById('remiKeyNote');
+  const field = document.getElementById('remiKey');
+  if (field) field.value = '';
+  if (note) note.textContent = remiKey ? T('remi.keySaved') : T('remi.keyNone');
+  remiSyncEngineChip();
+}
+const remiKeySave = document.getElementById('remiKeySave');
+const remiKeyClear = document.getElementById('remiKeyClear');
+if (remiKeySave) remiKeySave.addEventListener('click', () => {
+  const v = (document.getElementById('remiKey').value || '').trim();
+  if (!v){ toast('Paste a key first.'); return; }
+  if (!/^sk-/.test(v)){ toast('That does not look like an API key — they start with sk-.'); return; }
+  remiKey = v;
+  try{ localStorage.setItem(REMI_KEY_SLOT, v); }catch(e){}
+  remiSyncKeyNote();
+  toast('🔑 Key saved in this browser only — never written into the app.');
+});
+if (remiKeyClear) remiKeyClear.addEventListener('click', () => {
+  remiKey = ''; remiHistory = [];
+  try{ localStorage.removeItem(REMI_KEY_SLOT); }catch(e){}
+  remiSyncKeyNote();
+  toast('Key cleared — Remi is back on-device.');
+});
+
+const remiSend = document.getElementById('remiSend');
+if (remiSend) remiSend.addEventListener('click', remiAskInput);
+if (remiText) remiText.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); remiAskInput(); }
+});
+document.querySelectorAll('.remi-q').forEach(b => b.addEventListener('click', () => remiAsk(b.dataset.q)));
+const remiLauncher = document.getElementById('remiLauncher');
+if (remiLauncher) remiLauncher.addEventListener('click', () => {
+  gotoView('app');
+  showScreen('remi');
+  if (remiText) remiText.focus();
+});
+
+/* Idempotent + self-guarding, like every other renderer in this file. */
+function renderRemi(){
+  if (!remiLog) return;   /* RERENDER entries are swept inside a swallowing try/catch */
+  if (remiText) remiText.placeholder = T('remi.ph');
+  remiSyncKeyNote();
+  remiGreet();
+}
+renderRemi();
+RERENDER.push(renderRemi);
 </script>
 </body>
 </html>
