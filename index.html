@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-mode="patient">
+<html lang="en" data-mode="patient" data-auth="pending">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -90,6 +90,39 @@ try{
   .mode-btn:hover:not(.active){color:#fff}
   :root[data-mode="admin"] .topbar{background:var(--green-800)}
   .container{max-width:1180px;margin:0 auto;padding:0 20px}
+
+  /* ---------- Sign-in gate ----------
+     data-auth sits on <html>, the same idiom as data-mode and data-theme.
+     "pending" paints nothing at all: rendering the app and then covering it would
+     flash a patient's record at whoever is signing in, which is the one thing a
+     gate exists to prevent. Specificity beats .view.active, like the block above. */
+  .login-gate{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;
+    padding:24px;overflow-y:auto;background:linear-gradient(160deg,var(--green-900),var(--green-700))}
+  :root[data-auth="out"] .login-gate{display:flex}
+  :root[data-auth="pending"] body>*:not(#loginGate),
+  :root[data-auth="out"]     body>*:not(#loginGate){display:none}
+  .login-card{width:100%;max-width:400px;margin:auto}
+  .login-sub{font-size:12.5px;color:var(--ink-soft)}
+  .login-err{color:#c0392b;font-size:12.5px;font-weight:600;min-height:17px;margin:10px 0 0}
+  :root[data-theme="dark"] .login-err{color:#ff8f7a}
+  .login-demo{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+  .login-demo b{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft)}
+  .login-demo .btn{justify-content:flex-start;font-size:11.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+  /* Role gates the mode switch. Without this a patient account clicks "Admin" and
+     reads the god-view, which makes the sign-in decoration rather than a gate. */
+  :root[data-role="patient"] .mode-switch{display:none}
+
+  /* Signed-in identity — same recipe as .lang-sel / .theme-btn beside it. */
+  .who-am-i{display:flex;align-items:center;gap:8px;flex:none;margin-left:10px;height:34px;
+    max-width:230px;padding:0 4px 0 10px;font-size:12px;color:#eaf5ee;
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:9px}
+  .who-am-i[hidden]{display:none}
+  #whoEmail{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .acct-btn{border:0;background:rgba(255,255,255,.16);color:#eaf5ee;font:inherit;font-size:11.5px;
+    font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer;white-space:nowrap}
+  .acct-btn:hover{background:rgba(255,255,255,.3)}
 
   /* ---------- Overview ---------- */
   .hero{
@@ -820,6 +853,40 @@ try{
 </head>
 <body>
 
+<!-- ======================= SIGN-IN GATE =======================
+     Shown until GET /api/session returns 200. The demo credentials below are
+     deliberately published — this is a judged demo and judges have to get in — and
+     the buttons fill the form instead of making anyone type them. They are not real
+     credentials and are not reused anywhere. Everything else lives server-side:
+     only bcrypt hashes are stored (lib/users.js), and the browser never sees one. -->
+<div class="login-gate" id="loginGate">
+  <div class="card form login-card">
+    <div class="card-head">
+      <h3 style="font-size:17px" data-i18n="login.title">Sign in to BayouCare</h3>
+      <span class="chip green">DevDays 2026</span>
+    </div>
+    <p class="login-sub" data-i18n="login.sub">Your care record is private. Sign in to continue.</p>
+
+    <label for="loginEmail" data-i18n="login.email">Email</label>
+    <input id="loginEmail" type="email" autocomplete="username" spellcheck="false"
+           autocapitalize="none" placeholder="you@example.com">
+
+    <label for="loginPass" data-i18n="login.password">Password</label>
+    <input id="loginPass" type="password" autocomplete="current-password">
+
+    <p class="login-err" id="loginErr" role="alert" aria-live="polite"></p>
+
+    <button class="btn btn-green" id="loginSubmit"
+            style="width:100%;justify-content:center;margin-top:14px" data-i18n="login.submit">Sign in</button>
+
+    <div class="login-demo">
+      <b data-i18n="login.demoHead">Demo accounts — tap to fill</b>
+      <button class="btn btn-outline btn-sm" data-fill="patient">patient@bayoucare.demo · patient2026</button>
+      <button class="btn btn-outline btn-sm" data-fill="clinician">clinician@bayoucare.demo · clinician2026</button>
+    </div>
+  </div>
+</div>
+
 <!-- ======================= TOP BAR ======================= -->
 <header class="topbar">
   <div class="logo"><div class="mark">🌿</div>BayouCare</div>
@@ -844,6 +911,12 @@ try{
     <option value="vi">Tiếng Việt</option>
   </select>
   <button class="theme-btn" id="themeBtn" title="Toggle dark mode">🌙</button>
+  <!-- Signed-in identity. Hidden until a session resolves, and while the gate is up
+       the whole topbar is hidden anyway, so this never flashes an empty pill. -->
+  <span class="who-am-i" id="whoAmI" hidden>
+    <span id="whoEmail"></span>
+    <button class="acct-btn" id="signOutBtn" data-i18n="login.signOut">Sign out</button>
+  </span>
 </header>
 
 <!-- ======================= OVERVIEW ======================= -->
@@ -1949,7 +2022,21 @@ en: {
   'trial.live':'● live · ClinicalTrials.gov','trial.snapshot':'offline snapshot · same trials',
   'trial.elig':'Eligibility pre-check vs. Darlene\'s profile: {p}% ({a}/{b} criteria pass — reasons above)',
   'trial.ask':'Ask my care team','trial.save':'Save for later',
-  'trial.empty':'No breast-cancer trials in Louisiana match the current search — try again later or widen to neighboring states.'
+  'trial.empty':'No breast-cancer trials in Louisiana match the current search — try again later or widen to neighboring states.',
+
+  /* Sign-in gate. Authored in EN only: T() falls back to this block for es/ht/vi, so
+     an untranslated string renders as English rather than as a raw `login.` key.
+     Deliberately no string here names which half of the credentials was wrong. */
+  'login.title':'Sign in to BayouCare',
+  'login.sub':'Your care record is private. Sign in to continue.',
+  'login.email':'Email','login.password':'Password','login.submit':'Sign in',
+  'login.signOut':'Sign out',
+  'login.demoHead':'Demo accounts — tap to fill',
+  'login.missing':'Enter your email and password.',
+  'login.bad':'That email and password combination is not recognized.',
+  'login.throttled':'Too many attempts. Wait a few minutes, then try again.',
+  'login.offline':'Cannot reach the server. Check your connection and try again.',
+  'login.welcome':'Signed in.'
 },
 es: {
   'nav.overview':'Inicio','nav.app':'Mi atención','nav.myplan':'Mi plan','nav.team':'Equipo médico','nav.clinicops':'Operaciones clínicas','nav.surv':'Supervivencia','nav.pop':'Población','nav.roadmap':'Plan',
@@ -4846,6 +4933,109 @@ function renderRemi(){
 }
 renderRemi();
 RERENDER.push(renderRemi);
+
+/* ================= Sign-in gate · session =================
+   This gate is the only thing between a visitor and a patient record, so it fails
+   closed: any outcome other than an explicit 200 from /api/session leaves the app
+   hidden. A network failure shows "cannot reach the server" rather than falling
+   through to the app.
+
+   data-auth on <html> drives all of it from CSS — pending / out / in — so nothing
+   paints before the answer arrives.
+
+   Note `session`/`login` throughout, never `auth`: in this file `auth` already
+   means insurance prior-authorization (AUTH_CASES, authSel, renderAuth). */
+const loginEmail  = document.getElementById('loginEmail');
+const loginPass   = document.getElementById('loginPass');
+const loginErr    = document.getElementById('loginErr');
+const loginSubmit = document.getElementById('loginSubmit');
+const whoAmI      = document.getElementById('whoAmI');
+const whoEmail    = document.getElementById('whoEmail');
+const signOutBtn  = document.getElementById('signOutBtn');
+
+function setAuth(state){ document.documentElement.dataset.auth = state; }
+function loginError(msg){ if (loginErr) loginErr.textContent = msg || ''; }
+
+function enterApp(user){
+  /* Role drives both the landing mode and whether the switch is offered at all —
+     :root[data-role="patient"] .mode-switch hides it. */
+  document.documentElement.dataset.role = user.role;
+  if (whoEmail) whoEmail.textContent = user.email;
+  if (whoAmI) whoAmI.hidden = false;
+  if (loginPass) loginPass.value = '';
+  setMode(user.role === 'clinician' ? 'admin' : 'patient');
+  setAuth('in');
+}
+
+async function checkSession(){
+  try{
+    const r = await fetch('/api/session', { headers:{ 'Accept':'application/json' } });
+    if (r.status === 200){ enterApp(await r.json()); return; }
+    setAuth('out');
+  }catch(e){
+    setAuth('out');
+    loginError(T('login.offline'));
+  }
+}
+
+async function submitLogin(){
+  const email    = ((loginEmail && loginEmail.value) || '').trim();
+  const password = (loginPass && loginPass.value) || '';
+  loginError('');
+  if (!email || !password){ loginError(T('login.missing')); return; }
+
+  if (loginSubmit) loginSubmit.disabled = true;
+  try{
+    const r = await fetch('/api/login', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (r.ok){
+      const user = await r.json();
+      enterApp(user);
+      toast('🌿 ' + T('login.welcome') + ' ' + user.email);
+      return;
+    }
+    /* Clear the password on any rejection — a failed attempt should not leave the
+       secret sitting in a field for the next person at the keyboard. */
+    if (loginPass) loginPass.value = '';
+    loginError(r.status === 429 ? T('login.throttled') : T('login.bad'));
+  }catch(e){
+    loginError(T('login.offline'));
+  }finally{
+    if (loginSubmit) loginSubmit.disabled = false;
+  }
+}
+
+/* Reload rather than reset in place. A user switch has to invalidate a dozen
+   module-scope holdovers that were never built to be cleared — remiHistory, the
+   check-in answers, trendBars, the admin applied-maps — and the file's own
+   RERENDER list covers only six renderers. A reload is the one reset that is
+   actually complete, and signing out is rare enough that the cost does not matter. */
+async function signOut(){
+  try{ await fetch('/api/logout', { method:'POST' }); }catch(e){}
+  location.reload();
+}
+
+if (loginSubmit) loginSubmit.addEventListener('click', submitLogin);
+if (loginPass)   loginPass.addEventListener('keydown', e => { if (e.key === 'Enter') submitLogin(); });
+if (loginEmail)  loginEmail.addEventListener('keydown', e => { if (e.key === 'Enter' && loginPass) loginPass.focus(); });
+if (signOutBtn)  signOutBtn.addEventListener('click', signOut);
+
+/* The demo buttons fill the form rather than making a judge type credentials on
+   stage. The values are already printed next to them — this just saves the typing. */
+document.querySelectorAll('.login-demo [data-fill]').forEach(b => {
+  b.addEventListener('click', () => {
+    const isPatient = b.dataset.fill === 'patient';
+    if (loginEmail) loginEmail.value = isPatient ? 'patient@bayoucare.demo' : 'clinician@bayoucare.demo';
+    if (loginPass)  loginPass.value  = isPatient ? 'patient2026' : 'clinician2026';
+    loginError('');
+    if (loginSubmit) loginSubmit.focus();
+  });
+});
+
+checkSession();
 </script>
 </body>
 </html>

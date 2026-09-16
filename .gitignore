@@ -1,2 +1,6 @@
 .vercel
 .env*
+
+# Added with the login backend — bcryptjs and its transitive deps. Never commit
+# this: it is large, platform-specific, and rebuilt from package-lock.json.
+node_modules/
