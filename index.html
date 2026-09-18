@@ -5376,10 +5376,16 @@ async function enterApp(user){
      pending paints nothing — so the record can never visibly flip from the bundled patient
      to the real one. loadPatient() is bounded and swallows every failure, so this cannot
      hang and cannot throw. */
-  await loadPatient();
-  /* Roster after the record, and not awaited: an unreachable database should cost the
-     switcher, not the sign-in. populatePatientPick() warns and gives up on its own. */
-  if (user.role === 'clinician') populatePatientPick();
+  /* A clinician has no patient record of their own — /api/patient would answer 404 by
+     design, which is a console error on every admin load for no benefit. They keep the
+     default record and use the switcher instead. */
+  if (user.role === 'clinician'){
+    /* Not awaited: an unreachable database should cost the switcher, not the sign-in.
+       populatePatientPick() warns and gives up on its own. */
+    populatePatientPick();
+  } else {
+    await loadPatient();
+  }
   setAuth('in');
 }
 
