@@ -113,6 +113,12 @@ try{
   /* Role gates the mode switch. Without this a patient account clicks "Admin" and
      reads the god-view, which makes the sign-in decoration rather than a gate. */
   :root[data-role="patient"] .mode-switch{display:none}
+  /* Admin patient switcher. Keyed on data-role, NOT data-mode, on purpose: a clinician who
+     flips to Patient mode should still be able to choose WHOSE patient app they are looking
+     at — that is the best demo in the feature. A patient never gets one.
+     Hidden by default so it cannot flash while the gate is at data-auth="pending". */
+  .patient-pick{display:none}
+  :root[data-role="clinician"] .patient-pick{display:block;margin-right:10px;max-width:210px}
 
   /* Signed-in identity — same recipe as .lang-sel / .theme-btn beside it. */
   .who-am-i{display:flex;align-items:center;gap:8px;flex:none;margin-left:10px;height:34px;
@@ -904,6 +910,9 @@ try{
     <button class="nav-tab" data-view="population" data-mode="admin" data-i18n="nav.pop">Population</button>
     <button class="nav-tab" data-view="roadmap" data-mode="admin" data-i18n="nav.roadmap">Roadmap</button>
   </nav>
+  <!-- Populated from GET /api/patients for clinicians only. Named patientPick, not
+       "roster": #roster is already the Clinic Ops patient list further down the file. -->
+  <select class="lang-sel patient-pick" id="patientPick" title="Viewing as patient" aria-label="Viewing as patient"></select>
   <select class="lang-sel" id="langSel" title="Language · Idioma · Lang · Ngôn ngữ" aria-label="Language">
     <option value="en">EN</option>
     <option value="es">Español</option>
@@ -1168,7 +1177,10 @@ try{
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">
               <button class="btn btn-outline btn-sm" onclick="fillLung('tom')">Tom · 62, 40 pk-yr</button>
               <button class="btn btn-outline btn-sm" onclick="fillLung('rita')">Rita · 70, quit 3y</button>
-              <button class="btn btn-outline btn-sm" onclick="fillLung('darlene')">Darlene · never smoked</button>
+              <!-- A scenario, not a person. Tom and Rita above are population personas from
+                   CDS_PANEL; this third one used to be the logged-in patient, which read as
+                   a claim about whoever was signed in. -->
+              <button class="btn btn-outline btn-sm" onclick="fillLung('neversmoker')">Never smoked · 58</button>
             </div>
             <label>Age</label><input id="lungAge" type="number" value="62" min="18" max="90">
             <label>Smoking history (pack-years)</label><input id="lungPacks" type="number" value="40" min="0" max="200">
@@ -2025,7 +2037,7 @@ en: {
   'trial.live':'● live · ClinicalTrials.gov','trial.snapshot':'offline snapshot · same trials',
   'trial.elig':'Eligibility pre-check vs. {name}\'s profile: {p}% ({a}/{b} criteria pass — reasons above)',
   'trial.ask':'Ask my care team','trial.save':'Save for later',
-  'trial.empty':'No breast-cancer trials in Louisiana match the current search — try again later or widen to neighboring states.',
+  'trial.notApplicable':'Trial matching in this build is written for breast cancer. There is no equivalent set for this patient yet — ask the care team about trials for their cancer type.','trial.empty':'No breast-cancer trials in Louisiana match the current search — try again later or widen to neighboring states.',
 
   /* Sign-in gate. Authored in EN only: T() falls back to this block for es/ht/vi, so
      an untranslated string renders as English rather than as a raw `login.` key.
@@ -2134,7 +2146,7 @@ es: {
   'trial.live':'● en vivo · ClinicalTrials.gov','trial.snapshot':'instantánea sin conexión · mismos ensayos',
   'trial.elig':'Verificación de elegibilidad vs. perfil de {name}: {p}% ({a}/{b} criterios pasan — razones arriba)',
   'trial.ask':'Preguntar a mi equipo','trial.save':'Guardar para después',
-  'trial.empty':'No hay ensayos de cáncer de seno en Luisiana que coincidan con la búsqueda actual — intenta de nuevo más tarde o amplía a estados vecinos.'
+  'trial.notApplicable':'La búsqueda de ensayos en esta versión está escrita para cáncer de seno. Todavía no hay un conjunto equivalente para este paciente — pregunta al equipo de cuidado por ensayos para su tipo de cáncer.','trial.empty':'No hay ensayos de cáncer de seno en Luisiana que coincidan con la búsqueda actual — intenta de nuevo más tarde o amplía a estados vecinos.'
 },
 ht: {
   'nav.overview':'Akèy',
@@ -2295,7 +2307,7 @@ ht: {
   'trial.elig':'Pre-verifikasyon elijibilite ak pwofil {name}: {p}% ({a}/{b} kritè pase — rezon yo anwo)',
   'trial.ask':'Mande ekip swen mwen',
   'trial.save':'Sove pou pita',
-  'trial.empty':'Pa gen esè kansè tete nan Lwiziana ki matche ak rechèch aktyèl la — eseye ankò pita oswa elaji nan eta vwazen yo.'
+  'trial.notApplicable':'Rechèch esè klinik nan vèsyon sa a ekri pou kansè tete. Poko gen yon seri ekivalan pou pasyan sa a — mande ekip swen an pou esè pou kalite kansè li.','trial.empty':'Pa gen esè kansè tete nan Lwiziana ki matche ak rechèch aktyèl la — eseye ankò pita oswa elaji nan eta vwazen yo.'
 },
 vi: {
   'nav.overview':'Trang chủ','nav.app':'Chăm sóc của tôi','nav.myplan':'Kế hoạch của tôi','nav.team':'Nhóm chăm sóc','nav.clinicops':'Vận hành lâm sàng','nav.surv':'Sống khỏe sau điều trị','nav.pop':'Dân số','nav.roadmap':'Lộ trình',
@@ -2386,7 +2398,7 @@ vi: {
   'trial.live':'● trực tiếp · ClinicalTrials.gov','trial.snapshot':'bản lưu ngoại tuyến · cùng các thử nghiệm',
   'trial.elig':'Kiểm tra sơ bộ điều kiện tham gia so với hồ sơ của {name}: {p}% ({a}/{b} tiêu chí đạt — lý do ở trên)',
   'trial.ask':'Hỏi nhóm chăm sóc của tôi','trial.save':'Lưu lại sau',
-  'trial.empty':'Không có thử nghiệm ung thư vú nào ở Louisiana khớp với tìm kiếm hiện tại — hãy thử lại sau hoặc mở rộng sang các tiểu bang lân cận.'
+  'trial.notApplicable':'Tính năng tìm thử nghiệm trong bản này được viết cho ung thư vú. Chưa có bộ tiêu chí tương đương cho bệnh nhân này — hãy hỏi nhóm chăm sóc về thử nghiệm cho loại ung thư của họ.','trial.empty':'Không có thử nghiệm ung thư vú nào ở Louisiana khớp với tìm kiếm hiện tại — hãy thử lại sau hoặc mở rộng sang các tiểu bang lân cận.'
 },
 };
 let lang = 'en';
@@ -2483,6 +2495,7 @@ const PATIENTS = {
       {name:'Keisha Brown',         role:'Social Worker',      note:'Financial & transport help'}
     ],
     surv:null,                      /* active treatment — no survivorship plan yet */
+    trialSet:'breast',              /* trial matching below is written for a breast record */
     vitals:{temp:'36.9°C', tr:'↘', w:'164.2 lb', wd:'+0.4', flag:'—', flagCls:'ok'},
     trend:[
       {v:3.2,label:'Sun',cls:'lo'},{v:3.6,label:'Mon',cls:'lo'},{v:3.0,label:'Tue',cls:'lo'},
@@ -2525,6 +2538,7 @@ const PATIENTS = {
       {name:'Keisha Brown',         role:'Social Worker',      note:'Financial & transport help'}
     ],
     surv:null,                      /* mid-treatment */
+    trialSet:null,                  /* NSCLC — the breast criteria do not describe her */
     vitals:{temp:'37.3°C', tr:'↗', w:'141.0 lb', wd:'−2.8', flag:'—', flagCls:'ok'},
     trend:[
       {v:3.8,label:'Sun',cls:'lo'},{v:3.0,label:'Mon',cls:'lo'},{v:2.6,label:'Tue',cls:'lo'},
@@ -2563,6 +2577,7 @@ const PATIENTS = {
       {name:'Dr. Arceneaux',        role:'Primary Care'}
     ],
     surv:'yolanda',                 /* has a survivorship care plan */
+    trialSet:'breast',
     vitals:{temp:'36.7°C', tr:'→', w:'138.6 lb', wd:'+0.2', flag:'—', flagCls:'ok'},
     trend:[
       {v:4.2,label:'Sun',cls:'hi'},{v:4.4,label:'Mon',cls:'hi'},{v:4.0,label:'Tue',cls:'hi'},
@@ -2598,6 +2613,7 @@ const PATIENTS = {
       {name:'Keisha Brown',         role:'Social Worker',      note:'Financial & transport help'}
     ],
     surv:'marcus',                  /* has a survivorship care plan */
+    trialSet:null,                  /* lymphoma — the breast criteria do not describe him */
     vitals:{temp:'36.8°C', tr:'→', w:'186.4 lb', wd:'+0.6', flag:'—', flagCls:'ok'},
     trend:[
       {v:4.0,label:'Sun',cls:'hi'},{v:4.2,label:'Mon',cls:'hi'},{v:4.4,label:'Tue',cls:'hi'},
@@ -2803,33 +2819,33 @@ const TRIALS = [
   {nct:'NCT06966700', title:'Sacituzumab Tirumotecan (Sac-TMT, MK-2870) in People With Breast Cancer — MK-2870-032', status:'RECRUITING', phase:'PHASE3', sites:['Ochsner Clinic Foundation — New Orleans'],
    crits:[
      {txt:'Recruiting in Louisiana — Ochsner, New Orleans', ok:true},
-     {txt:'Requires TNBC or HR-low+ (ER 1–10%) — Darlene is ER+ (high)', ok:false},
-     {txt:'Requires previously untreated early-stage disease — Darlene is in cycle 1 of neoadjuvant AC', ok:false},
+     {txt:'Requires TNBC or HR-low+ (ER 1–10%) — you are ER+ (high)', ok:false},
+     {txt:'Requires previously untreated early-stage disease — you are in cycle 1 of neoadjuvant AC', ok:false},
      {txt:'ECOG 0–1 performance status — confirm at screening', ok:'warn'}
    ]},
   {nct:'NCT06393374', title:'Sacituzumab Tirumotecan + Pembrolizumab vs TPC in TNBC with non-pCR — MK-2870-012', status:'RECRUITING', phase:'PHASE3', sites:['CHRISTUS St. Frances Cabrini — Alexandria'],
    crits:[
-     {txt:'Recruiting 30 minutes from Darlene — Alexandria', ok:true},
-     {txt:'Requires triple-negative subtype — Darlene is ER+/PR+', ok:false},
-     {txt:'Enrolls after surgery with residual disease — Darlene hasn\'t reached surgery yet', ok:false}
+     {txt:'Recruiting 30 minutes from Alexandria', ok:true},
+     {txt:'Requires triple-negative subtype — you are ER+/PR+', ok:false},
+     {txt:'Enrolls after surgery with residual disease — you haven\'t reached surgery yet', ok:false}
    ]},
   {nct:'NCT06312176', title:'Sacituzumab Tirumotecan (MK-2870) ± Pembrolizumab vs Physician\'s Choice in HR+/HER2− advanced breast cancer — MK-2870-010', status:'RECRUITING', phase:'PHASE3', sites:['Mary Bird Perkins Cancer Center — Baton Rouge'],
    crits:[
-     {txt:'HR+/HER2− subtype — matches Darlene\'s tumor exactly', ok:true},
-     {txt:'Enrolls unresectable locally advanced or metastatic disease — Darlene is early stage; revisit if disease ever advances', ok:'warn'},
-     {txt:'Prior lines 0–2 — Darlene has 1 (neoadjuvant AC)', ok:true},
+     {txt:'HR+/HER2− subtype — matches your tumor exactly', ok:true},
+     {txt:'Enrolls unresectable locally advanced or metastatic disease — you are early stage; revisit if disease ever advances', ok:'warn'},
+     {txt:'Prior lines 0–2 — you have 1 (neoadjuvant AC)', ok:true},
      {txt:'Recruiting at Mary Bird Perkins — Baton Rouge (2 hr drive; on the heat-index van route)', ok:true}
    ]},
   {nct:'NCT04622319', title:'T-DXd vs T-DM1 in high-risk HER2+ residual disease after neoadjuvant therapy — DESTINY-Breast05', status:'ACTIVE_NOT_RECRUITING', phase:'PHASE3', sites:['LSU Health Baton Rouge North Clinic'],
    crits:[
-     {txt:'Requires HER2+ disease — Darlene is HER2−', ok:false},
+     {txt:'Requires HER2+ disease — you are HER2−', ok:false},
      {txt:'Requires residual disease after neoadjuvant + surgery', ok:false},
      {txt:'Status: active, not recruiting — enrollment closed', ok:false}
    ]},
   {nct:'NCT05879926', title:'Adjuvant chemo + ovarian suppression + endocrine therapy in premenopausal ER+/HER2− breast cancer (Oncotype ≤ 25)', status:'RECRUITING', phase:'PHASE3', sites:['Abbeville General Hospital — Abbeville'],
    crits:[
      {txt:'ER+/HER2− — matches', ok:true},
-     {txt:'Requires premenopausal status — Darlene is post-menopausal', ok:false},
+     {txt:'Requires premenopausal status — you are post-menopausal', ok:false},
      {txt:'Oncotype RS ≤ 25 — tumor not yet scored', ok:'warn'},
      {txt:'Recruiting in Abbeville (Vermilion Parish)', ok:true}
    ]}
@@ -2867,14 +2883,29 @@ function trialCard(t){
 let lastTrials = null;
 function renderTrials(ts, source){
   lastTrials = {ts, source};
-  const src = document.getElementById('trialSource');
-  src.textContent = source === 'live' ? T('trial.live') : T('trial.snapshot');
-  src.className = 'chip ' + (source === 'live' ? 'green' : 'gray');
-  document.getElementById('trialList').innerHTML = ts.length
+  const list = document.getElementById('trialList');
+  const src  = document.getElementById('trialSource');
+  if (!list) return;
+  /* Every criterion in this module names a BREAST-specific fact (ER/PR, HER2, TNBC,
+     neoadjuvant AC). Rendering it for another cancer would assert clinical facts that are
+     not about this patient at all — and the judges are oncologists. Patients without a
+     trialSet get an honest panel instead. See `trialSet` in the patient registry. */
+  if (!PATIENTS[PID].trialSet){
+    if (src){ src.textContent = T('trial.snapshot'); src.className = 'chip gray'; }
+    list.innerHTML = '<p style="font-size:13px;color:var(--ink-soft)">' + T('trial.notApplicable') + '</p>';
+    return;
+  }
+  if (src){
+    src.textContent = source === 'live' ? T('trial.live') : T('trial.snapshot');
+    src.className = 'chip ' + (source === 'live' ? 'green' : 'gray');
+  }
+  list.innerHTML = ts.length
     ? ts.map(trialCard).join('')
     : '<p style="font-size:13px;color:var(--ink-soft)">' + T('trial.empty') + '</p>';
 }
 function loadTrials(){
+  /* Don't reach out to clinicaltrials.gov for a patient this module cannot describe. */
+  if (!PATIENTS[PID].trialSet){ renderTrials([], 'snapshot'); return; }
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 4000);
   const fields = 'protocolSection.identificationModule.nctId,protocolSection.identificationModule.briefTitle,protocolSection.statusModule.overallStatus,protocolSection.designModule.phases,protocolSection.contactsLocationsModule.locations';
@@ -2887,12 +2918,12 @@ function loadTrials(){
         const locs = (p.contactsLocationsModule.locations || []).filter(l => l.state === 'Louisiana');
         const title = p.identificationModule.briefTitle;
         const st = p.statusModule.overallStatus;
-        const sub = /TNBC|triple[- ]negative/i.test(title) ? 'TNBC cohort — Darlene is ER+/PR+'
-          : /HER2\+/.test(title) && !/HER2[- ]low/i.test(title) ? 'HER2+ cohort — Darlene is HER2−'
-          : /HER2[- ]low/i.test(title) ? 'HER2-low cohort — confirm her exact level'
-          : /HR\+|ER\+|ER-positive|hormone receptor/i.test(title) ? 'HR+/ER+ — matches Darlene\'s subtype'
-          : 'Subtype — confirm against her pathology report';
-        const stage = /metastatic|unresectable|advanced/i.test(title) ? 'Advanced/metastatic — Darlene is early stage; revisit if disease advances' : 'Early-stage friendly — matches Darlene\'s stage';
+        const sub = /TNBC|triple[- ]negative/i.test(title) ? 'TNBC cohort — you are ER+/PR+'
+          : /HER2\+/.test(title) && !/HER2[- ]low/i.test(title) ? 'HER2+ cohort — you are HER2−'
+          : /HER2[- ]low/i.test(title) ? 'HER2-low cohort — confirm your exact level'
+          : /HR\+|ER\+|ER-positive|hormone receptor/i.test(title) ? 'HR+/ER+ — matches your subtype'
+          : 'Subtype — confirm against your pathology report';
+        const stage = /metastatic|unresectable|advanced/i.test(title) ? 'Advanced/metastatic — you are early stage; revisit if disease advances' : 'Early-stage friendly — matches your stage';
         return {
           nct: p.identificationModule.nctId,
           title: title, status: st, phase: (p.designModule.phases || ['NA'])[0],
@@ -3753,7 +3784,7 @@ function riskLung({age, packs, status, quit}){
   return {score, tier, msg, ldct, plco:plco2012({age, packs, status, quit}).pct};
 }
 function fillLung(p){
-  const m = {tom:[62,40,'current',0], rita:[70,35,'former',3], darlene:[58,0,'never',0]}[p];
+  const m = {tom:[62,40,'current',0], rita:[70,35,'former',3], neversmoker:[58,0,'never',0]}[p];
   if (!m) return;
   document.getElementById('lungAge').value = m[0];
   document.getElementById('lungPacks').value = m[1];
@@ -4599,8 +4630,73 @@ function applyPatient(id){
   renderIdentity();
   renderCalendar();
   renderRemi();
+  /* Re-render rather than re-fetch: the list is fetched once, and the gate inside
+     renderTrials() is what changes when the patient does. */
+  if (lastTrials) renderTrials(lastTrials.ts, lastTrials.source); else loadTrials();
   return true;
 }
+
+/* ---- admin patient switcher -------------------------------------------------------
+   Clinicians only — see the .patient-pick rule, which keys on data-role rather than
+   data-mode so a clinician in Patient mode keeps it and a patient never sees one.
+
+   The roster comes from /api/patients, which deliberately has NO fallback of its own. So
+   an empty switcher is an honest signal that the database is unreachable — even in the
+   case where signing in itself succeeded through lib/users.js's bundled accounts. That
+   asymmetry is the point: without it a broken DATABASE_URL looks exactly like a healthy
+   system, because everything else still works.
+
+   Named populatePatientPick, not renderRoster: renderRoster() already exists and is the
+   Clinic Ops patient list. */
+async function populatePatientPick(){
+  const sel = document.getElementById('patientPick');
+  if (!sel) return;
+  try{
+    const r = await fetch('/api/patients', { headers:{ 'Accept':'application/json' } });
+    if (r.status !== 200){
+      console.warn('roster unavailable — /api/patients returned ' + r.status +
+                   '; sign-in may still be working via the bundled fallback');
+      return;
+    }
+    const d = await r.json();
+    const list = (d && d.patients) || [];
+    if (!list.length) return;
+    sel.innerHTML = list.map(p =>
+      '<option value="' + p.id + '"' + (p.id === PID ? ' selected' : '') + '>' +
+      p.name + ' · MRN ' + p.mrn + '</option>').join('');
+  }catch(e){
+    console.warn('roster unavailable —', (e && e.message) || e);
+  }
+}
+
+/* Best-effort focus for the admin tabs. The four selection globals are independent
+   per-tab pickers by design and are NOT unified here: this nudges only the tabs that
+   actually have an entry for the chosen patient, and leaves the rest where they were
+   rather than blanking them. */
+function focusPatient(id){
+  radarSel = null;
+  if (SURVIVORS[id]) survSel = id;
+  if (AUTH_CASES[id]) authSel = id;
+  if (TB_CASES[id]) tbSel = id;
+  renderSurvivor();
+  renderAuth();
+  renderTB();
+  /* renderAuth() and renderTB() rebuild their chips from their own globals, so setting
+     those moves the highlight by itself. The survivorship chips are static markup and
+     toggle .active by element identity, so a programmatic survSel moves the CONTENT while
+     leaving the highlight on whoever was clicked last — which reads as a broken switcher.
+     Re-derive it. */
+  document.querySelectorAll('#survChips .sel-chip')
+    .forEach(x => x.classList.toggle('active', x.dataset.s === survSel));
+}
+
+(function(){
+  const sel = document.getElementById('patientPick');
+  if (!sel) return;
+  sel.addEventListener('change', e => {
+    if (applyPatient(e.target.value)) focusPatient(e.target.value);
+  });
+})();
 
 /* Asks the server which patient this session resolves to. Reachable ONLY from
    enterApp(), which is only reached on an explicit 200 from /api/session or /api/login —
@@ -5281,6 +5377,9 @@ async function enterApp(user){
      to the real one. loadPatient() is bounded and swallows every failure, so this cannot
      hang and cannot throw. */
   await loadPatient();
+  /* Roster after the record, and not awaited: an unreachable database should cost the
+     switcher, not the sign-in. populatePatientPick() warns and gives up on its own. */
+  if (user.role === 'clinician') populatePatientPick();
   setAuth('in');
 }
 
