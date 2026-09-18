@@ -1265,7 +1265,7 @@ try{
         <div class="card" style="margin-bottom:14px">
           <div class="card-head"><h3 data-i18n="understand.head">Understand — your report, in plain words</h3><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><span class="chip green" data-i18n="understand.chipA">ASCO-aligned education</span><span class="chip amber" data-i18n="understand.chipB">AI-assisted · not medical advice</span></span></div>
           <div class="chat">
-            <div class="msg user"><div class="b"><b>Darlene</b>I got my biopsy report and I'm scared. What does "ER+/PR+, HER2−" mean for me?</div></div>
+            <div class="msg user"><div class="b"><b id="understandWho">Darlene</b>I got my biopsy report and I'm scared. What does "ER+/PR+, HER2−" mean for me?</div></div>
             <div class="msg"><div class="b"><b>BayouCare</b>That's completely understandable — let's take it one line at a time. ER+/PR+ means your tumor uses estrogen/progesterone to grow, and HER2− means it doesn't use that protein. Good news: this type of breast cancer has many effective treatments, and hormone therapy can target it directly. I've simplified each section of your report below.</div></div>
           </div>
         </div>
@@ -1942,7 +1942,7 @@ en: {
   'hero.s2':'cancer mortality rate per 100k — higher than the US average',
   'hero.s3':'are rural — where specialists, transport, and support are hardest to reach',
   'hero.s4':'this is built for Louisiana patients in treatment and the caregivers beside them',
-  'side.whoMeta':'Alexandria, LA · Stage II breast','side.home':'Home','side.calendar':'Appointments','cal.head':'🗓️ My appointments','cal.sub':'Every visit, infusion and scan in one place. Pick a day to see what is on — and whether a ride is already arranged.','cal.chip':'Reminders on','side.prevent':'Screen & Prevent','side.journey':'My Journey','side.understand':'Understand','side.checkins':'Check-ins','side.vitals':'Vitals','side.access':'Access & Help',
+  'side.whoMeta':'{short}','side.home':'Home','side.calendar':'Appointments','cal.head':'🗓️ My appointments','cal.sub':'Every visit, infusion and scan in one place. Pick a day to see what is on — and whether a ride is already arranged.','cal.chip':'Reminders on','side.prevent':'Screen & Prevent','side.journey':'My Journey','side.understand':'Understand','side.checkins':'Check-ins','side.vitals':'Vitals','side.access':'Access & Help',
   'side.remi':'Ask Remi',
   'remi.launcher':'Ask Remi','remi.head':'🌿 Remi — your care assistant',
   'remi.sub':'Ask about your own record — your diagnosis, your plan, what\'s next, rides, and costs. Remi reads your chart and never guesses at medical advice.',
@@ -1956,7 +1956,7 @@ en: {
   'remi.connectHead':'⚙️ Connect a model (optional)','remi.connectChip':'Off by default',
   'remi.connectSub':'Remi answers from your record on the device — no wifi needed. Paste an Anthropic or DeepSeek API key to have a model phrase the answers instead. The key is stored in this browser only and is never written into the app.',
   'remi.connectSave':'Save','remi.connectClear':'Clear',
-  'remi.greet':'Hi Darlene 🌿 I\'m Remi. I can read your own record for you — ask about your diagnosis, your plan, what\'s next on your calendar, how you\'ve been feeling, rides, or costs.<br><br>I don\'t give medical advice. Anything clinical goes to Dr. Peters and Marie, RN — I\'ll tell you that rather than guess.',
+  'remi.greet':'Hi {name} 🌿 I\'m Remi. I can read your own record for you — ask about your diagnosis, your plan, what\'s next on your calendar, how you\'ve been feeling, rides, or costs.<br><br>I don\'t give medical advice. Anything clinical goes to Dr. Peters and Marie, RN — I\'ll tell you that rather than guess.',
   'side.cgLabel':'Caregiver mode','side.cgOff':'Off — viewing as patient','side.cgOn':'On — viewing as Renee (daughter)',
   'vitals.head':'📡 Vitals — devices watching between visits','vitals.chip':'Temp patch + smart scale · BLE',
   'vitals.sub':'Off-the-shelf devices send objective vitals into the same alert engine as your check-ins — a 2 am fever will not wait until morning.',
@@ -1969,14 +1969,14 @@ en: {
   'vitals.replayBtn':'▶ Simulate the 2 am fever spike',
   'vitals.replayIdle':'▶ Hit simulate — watch a 2 am neutropenic fever get caught at the threshold.',
   'vitals.smsHead':'Renee\'s phone — caregiver SMS · 2:14 am',
-  'vitals.smsBody':'[BayouCare] ⚠️ Darlene\'s temp patch: 38.6°C (101.5°F) at 2:14 am. On-call RN notified. Please call mom in the morning if she doesn\'t answer.',
+  'vitals.smsBody':'[BayouCare] ⚠️ {name}\'s temp patch: 38.6°C (101.5°F) at 2:14 am. On-call RN notified. Please call mom in the morning if she doesn\'t answer.',
   'vitals.alertMsg':'Fever threshold crossed (≥100.4°F) on the temp patch — flagged before any symptom was reported.',
   'vitals.alertFollow':'ANC draw scheduled 9 am · watch for chills overnight',
   'vitals.sweepHead':'📡 Morning Sweep — objective vitals, one view','vitals.sweepChip':'temp patch · scale · 24h stream',
   'vitals.sweepHint':'Every patient\'s device data at a glance for nurse navigators — no EHR logins, no clipboard.',
   'vitals.alertLbl':'vitals',
-  'vitals.darleneFlag':'🚨 fever 2:14 am · auto-escalated ✓',
-  'home.greet':'Good morning, Darlene 🌞','home.chip':'Day 4 of 6 · Cycle 1',
+  'vitals.replayFlag':'🚨 fever 2:14 am · auto-escalated ✓',
+  'home.greet':'Good morning, {name} 🌞','home.chip':'{chip}',
   'home.sub':'You\'re doing great. Here\'s what matters today — you only need to focus on one thing at a time.',
   'home.nextup':'Next up','home.checkinBtn':'Log today\'s check-in',
   'home.chip1':'🔬 Thursday 9am — Blood draw (Rapides Regional)','home.chip2':'🚗 Ride arranged — Cora\'s Wheels',
@@ -2019,11 +2019,11 @@ en: {
   'mood.toastMod':'💜 Keisha (social worker) will reach out — and NAMI Louisiana has free support groups.',
   'mood.toastHigh':'🧡 Someone from your care team will call today — 988 is free, 24/7, and confidential.',
   'trial.head':'🔬 TrialMatch — trials, eligibility pre-checked',
-  'trial.sub':'Every trial near Louisiana, checked against Darlene\'s profile — subtype, stage, treatment timing — with a reason for each criterion. No more guessing which trials might apply.',
-  'trial.profile':'🧩 Matching against: <b>Darlene, 58 · Stage II IDC · ER+/PR+, HER2− · 1 prior line (neoadjuvant AC) · Alexandria, LA</b>',
+  'trial.sub':'Every trial near Louisiana, checked against {name}\'s profile — subtype, stage, treatment timing — with a reason for each criterion. No more guessing which trials might apply.',
+  'trial.profile':'🧩 Matching against: <b>{profile}</b>',
   'trial.foot':'Criteria auto-summarized from ClinicalTrials.gov — confirm full eligibility text with your oncology team before anything else.',
   'trial.live':'● live · ClinicalTrials.gov','trial.snapshot':'offline snapshot · same trials',
-  'trial.elig':'Eligibility pre-check vs. Darlene\'s profile: {p}% ({a}/{b} criteria pass — reasons above)',
+  'trial.elig':'Eligibility pre-check vs. {name}\'s profile: {p}% ({a}/{b} criteria pass — reasons above)',
   'trial.ask':'Ask my care team','trial.save':'Save for later',
   'trial.empty':'No breast-cancer trials in Louisiana match the current search — try again later or widen to neighboring states.',
 
@@ -2051,7 +2051,7 @@ es: {
   'hero.s2':'mortalidad por cáncer por cada 100 mil — más alta que el promedio nacional',
   'hero.s3':'son rurales — donde es más difícil llegar a especialistas, transporte y apoyo',
   'hero.s4':'esto es para los pacientes de Luisiana en tratamiento y los cuidadores a su lado',
-  'side.whoMeta':'Alexandria, LA · Cáncer de seno etapa II','side.home':'Inicio','side.calendar':'Citas','cal.head':'🗓️ Mis citas','cal.sub':'Cada visita, infusión y estudio en un solo lugar. Elige un día para ver qué hay — y si ya tienes transporte arreglado.','cal.chip':'Recordatorios activos','side.prevent':'Detección y prevención','side.journey':'Mi camino','side.understand':'Entiende','side.checkins':'Controles diarios','side.vitals':'Signos vitales','side.access':'Acceso y ayuda',
+  'side.whoMeta':'{short}','side.home':'Inicio','side.calendar':'Citas','cal.head':'🗓️ Mis citas','cal.sub':'Cada visita, infusión y estudio en un solo lugar. Elige un día para ver qué hay — y si ya tienes transporte arreglado.','cal.chip':'Recordatorios activos','side.prevent':'Detección y prevención','side.journey':'Mi camino','side.understand':'Entiende','side.checkins':'Controles diarios','side.vitals':'Signos vitales','side.access':'Acceso y ayuda',
   'side.remi':'Pregunta a Remi',
   'remi.launcher':'Pregunta a Remi','remi.head':'🌿 Remi — tu asistente de cuidado',
   'remi.sub':'Pregunta por tu propio expediente — tu diagnóstico, tu plan, lo que sigue, transporte y costos. Remi lee tu expediente y nunca adivina consejos médicos.',
@@ -2065,7 +2065,7 @@ es: {
   'remi.connectHead':'⚙️ Conectar un modelo (opcional)','remi.connectChip':'Apagado por defecto',
   'remi.connectSub':'Remi responde desde tu expediente en el dispositivo — sin necesidad de wifi. Pega una clave de API de Anthropic o DeepSeek para que un modelo redacte las respuestas. La clave se guarda solo en este navegador y nunca se escribe en la aplicación.',
   'remi.connectSave':'Guardar','remi.connectClear':'Borrar',
-  'remi.greet':'Hola Darlene 🌿 Soy Remi. Puedo leer tu propio expediente — pregunta por tu diagnóstico, tu plan, lo que sigue en tu calendario, cómo te has sentido, transporte o costos.<br><br>No doy consejos médicos. Todo lo clínico va a la Dra. Peters y a Marie, RN — te lo diré en vez de adivinar.',
+  'remi.greet':'Hola {name} 🌿 Soy Remi. Puedo leer tu propio expediente — pregunta por tu diagnóstico, tu plan, lo que sigue en tu calendario, cómo te has sentido, transporte o costos.<br><br>No doy consejos médicos. Todo lo clínico va a la Dra. Peters y a Marie, RN — te lo diré en vez de adivinar.',
   'side.cgLabel':'Modo cuidador','side.cgOff':'Apagado — viendo como paciente','side.cgOn':'Encendido — viendo como Renee (hija)',
   'vitals.head':'📡 Signos vitales — dispositivos que te cuidan entre citas','vitals.chip':'Parche de temperatura + báscula inteligente · BLE',
   'vitals.sub':'No todos pueden escribir durante la quimio. Dispositivos de venta libre envían signos vitales objetivos directamente al mismo motor de alertas que tus controles — una fiebre a las 2 am no espera hasta la mañana.',
@@ -2078,14 +2078,14 @@ es: {
   'vitals.replayBtn':'▶ Simular el pico de fiebre de las 2 am',
   'vitals.replayIdle':'▶ Dale simular — mira cómo se detecta una fiebre neutropénica a las 2 am.',
   'vitals.smsHead':'Teléfono de Renee — SMS de cuidador · 2:14 am',
-  'vitals.smsBody':'[BayouCare] ⚠️ El parche de Darlene: 38.6°C (101.5°F) a las 2:14 am. Enfermera de guardia avisada. Por favor llama a mamá por la mañana si no contesta.',
+  'vitals.smsBody':'[BayouCare] ⚠️ El parche de {name}: 38.6°C (101.5°F) a las 2:14 am. Enfermera de guardia avisada. Por favor llama a mamá por la mañana si no contesta.',
   'vitals.alertMsg':'Umbral de fiebre superado (≥100.4°F) en el parche de temperatura — marcado antes de que se reportara cualquier síntoma.',
   'vitals.alertFollow':'Extracción de ANC programada a las 9 am · vigilar escalofríos durante la noche',
   'vitals.sweepHead':'📡 Barrido matutino — signos vitales objetivos, una vista','vitals.sweepChip':'parche · báscula · flujo 24h',
   'vitals.sweepHint':'Los datos de dispositivos de cada paciente de un vistazo para las enfermeras navegadoras — sin claves de EHR, sin papeles.',
   'vitals.alertLbl':'signos vitales',
-  'vitals.darleneFlag':'🚨 fiebre 2:14 am · escalado automáticamente ✓',
-  'home.greet':'Buenos días, Darlene 🌞','home.chip':'Día 4 de 6 · Ciclo 1',
+  'vitals.replayFlag':'🚨 fiebre 2:14 am · escalado automáticamente ✓',
+  'home.greet':'Buenos días, {name} 🌞','home.chip':'{chip}',
   'home.sub':'Lo estás haciendo muy bien. Esto es lo que importa hoy — solo necesitas enfocarte en una cosa a la vez.',
   'home.nextup':'Próximo paso','home.checkinBtn':'Registrar el control de hoy',
   'home.chip1':'🔬 Jueves 9 am — Extracción de sangre (Rapides Regional)','home.chip2':'🚗 Viaje confirmado — Cora\'s Wheels',
@@ -2128,11 +2128,11 @@ es: {
   'mood.toastMod':'💜 Keisha (trabajadora social) te contactará — y NAMI Louisiana tiene grupos de apoyo gratuitos.',
   'mood.toastHigh':'🧡 Alguien de tu equipo te llamará hoy — 988 es gratis, 24/7 y confidencial.',
   'trial.head':'🔬 TrialMatch — ensayos, elegibilidad preverificada',
-  'trial.sub':'Cada ensayo cerca de Luisiana, revisado contra el perfil de Darlene — subtipo, etapa, momento del tratamiento — con una razón para cada criterio. Nada de adivinar qué ensayos podrían aplicar.',
-  'trial.profile':'🧩 Comparando con: <b>Darlene, 58 · Cáncer de seno etapa II · ER+/PR+, HER2− · 1 línea previa (AC neoadyuvante) · Alexandria, LA</b>',
+  'trial.sub':'Cada ensayo cerca de Luisiana, revisado contra el perfil de {name} — subtipo, etapa, momento del tratamiento — con una razón para cada criterio. Nada de adivinar qué ensayos podrían aplicar.',
+  'trial.profile':'🧩 Comparando con: <b>{profile}</b>',
   'trial.foot':'Criterios resumidos automáticamente de ClinicalTrials.gov — confirma el texto completo de elegibilidad con tu equipo de oncología antes de cualquier paso.',
   'trial.live':'● en vivo · ClinicalTrials.gov','trial.snapshot':'instantánea sin conexión · mismos ensayos',
-  'trial.elig':'Verificación de elegibilidad vs. perfil de Darlene: {p}% ({a}/{b} criterios pasan — razones arriba)',
+  'trial.elig':'Verificación de elegibilidad vs. perfil de {name}: {p}% ({a}/{b} criterios pasan — razones arriba)',
   'trial.ask':'Preguntar a mi equipo','trial.save':'Guardar para después',
   'trial.empty':'No hay ensayos de cáncer de seno en Luisiana que coincidan con la búsqueda actual — intenta de nuevo más tarde o amplía a estados vecinos.'
 },
@@ -2154,7 +2154,7 @@ ht: {
   'hero.s2':'to mòtalite kansè pou chak 100 mil — pi wo pase mwayèn Etazini',
   'hero.s3':'se zòn riral — kote espesyalis, transpò ak sipò pi difisil pou jwenn',
   'hero.s4':'sa a fèt pou pasyan Lwiziana ki nan tretman ak moun k ap pran swen yo',
-  'side.whoMeta':'Alexandria, LA · Kansè tete Etap II',
+  'side.whoMeta':'{short}',
   'side.home':'Akèy','side.calendar':'Randevou','cal.head':'🗓️ Randevou mwen','cal.sub':'Chak vizit, enfizyon ak egzamen nan yon sèl kote. Chwazi yon jou pou wè sa ki genyen — ak si yon woutòt deja aranje.','cal.chip':'Rapèl aktive',
   'side.prevent':'Depistaj ak Prevansyon',
   'side.journey':'Chemen mwen',
@@ -2193,16 +2193,16 @@ ht: {
   'vitals.replayBtn':'▶ Similye ogmantasyon lafyèv 2è nan maten',
   'vitals.replayIdle':'▶ Peze similye — gade kijan yon lafyèv netropenik a 2è nan maten kenbe nan sèy la.',
   'vitals.smsHead':'Telefòn Renee — SMS pou moun k ap pran swen · 2:14 nan maten',
-  'vitals.smsBody':'[BayouCare] ⚠️ Patch tanperati Darlene: 38.6°C (101.5°F) a 2:14 nan maten. Yo avize enfimyè ki sou apèl la. Tanpri rele manman w nan maten si li pa reponn.',
+  'vitals.smsBody':'[BayouCare] ⚠️ Patch tanperati {name}: 38.6°C (101.5°F) a 2:14 nan maten. Yo avize enfimyè ki sou apèl la. Tanpri rele manman w nan maten si li pa reponn.',
   'vitals.alertMsg':'Sèy lafyèv la depase (≥100.4°F) sou patch tanperati a — siyale anvan okenn sentòm te rapòte.',
   'vitals.alertFollow':'Pran san ANC pwograme 9è nan maten · veye fredi nan kò pandan lannwit',
   'vitals.sweepHead':'📡 Revizyon maten — siy vital objektif, yon sèl vi',
   'vitals.sweepChip':'patch tanperati · balans · fli 24è',
   'vitals.sweepHint':'Done aparèy chak pasyan yon sèl kout je pou enfimyè navigatè yo — san koneksyon EHR, san klipbòd.',
   'vitals.alertLbl':'siy vital',
-  'vitals.darleneFlag':'🚨 lafyèv 2:14 nan maten · eskalad otomatik ✓',
-  'home.greet':'Bonjou, Darlene 🌞',
-  'home.chip':'Jou 4 sou 6 · Sik 1',
+  'vitals.replayFlag':'🚨 lafyèv 2:14 nan maten · eskalad otomatik ✓',
+  'home.greet':'Bonjou, {name} 🌞',
+  'home.chip':'{chip}',
   'home.sub':'W ap fè sa byen. Men sa ki enpòtan jodi a — ou jis bezwen konsantre sou yon sèl bagay alafwa.',
   'home.nextup':'Sa k vin apre',
   'home.checkinBtn':'Anrejistre rapò jodi a',
@@ -2287,12 +2287,12 @@ ht: {
   'mood.toastMod':'💜 Keisha (travayè sosyal) ap kontakte w — epi NAMI Louisiana gen gwoup sipò gratis.',
   'mood.toastHigh':'🧡 Yon moun nan ekip swen ou ap rele w jodi a — 988 gratis, 24/7, epi konfidansyèl.',
   'trial.head':'🔬 TrialMatch — esè yo, elijibilite verifye davans',
-  'trial.sub':'Tout esè klinik toupre Lwiziana, verifye ak pwofil Darlene — soutip, etap, moman tretman an — ak yon rezon pou chak kritè. Pa gen bezwen devine ki esè ki ka aplikab.',
-  'trial.profile':'🧩 Ap matche ak: <b>Darlene, 58 an · IDC Etap II · ER+/PR+, HER2− · 1 liy tretman anvan (AC neoadjuvant) · Alexandria, LA</b>',
+  'trial.sub':'Tout esè klinik toupre Lwiziana, verifye ak pwofil {name} — soutip, etap, moman tretman an — ak yon rezon pou chak kritè. Pa gen bezwen devine ki esè ki ka aplikab.',
+  'trial.profile':'🧩 Ap matche ak: <b>{profile}</b>',
   'trial.foot':'Kritè yo rezime otomatikman soti nan ClinicalTrials.gov — konfime tèks konplè elijibilite a ak ekip onkoloji w anvan tout lòt bagay.',
   'trial.live':'● an dirèk · ClinicalTrials.gov',
   'trial.snapshot':'kopy san entènèt · menm esè yo',
-  'trial.elig':'Pre-verifikasyon elijibilite ak pwofil Darlene: {p}% ({a}/{b} kritè pase — rezon yo anwo)',
+  'trial.elig':'Pre-verifikasyon elijibilite ak pwofil {name}: {p}% ({a}/{b} kritè pase — rezon yo anwo)',
   'trial.ask':'Mande ekip swen mwen',
   'trial.save':'Sove pou pita',
   'trial.empty':'Pa gen esè kansè tete nan Lwiziana ki matche ak rechèch aktyèl la — eseye ankò pita oswa elaji nan eta vwazen yo.'
@@ -2307,7 +2307,7 @@ vi: {
   'hero.s2':'tỷ lệ tử vong do ung thư trên 100.000 dân — cao hơn mức trung bình của Hoa Kỳ',
   'hero.s3':'sống ở vùng nông thôn — nơi bác sĩ chuyên khoa, phương tiện đi lại và hỗ trợ khó tiếp cận nhất',
   'hero.s4':'dành cho bệnh nhân Louisiana đang điều trị và người thân bên cạnh họ',
-  'side.whoMeta':'Alexandria, LA · Ung thư vú giai đoạn II','side.home':'Trang chủ','side.calendar':'Cuộc hẹn','cal.head':'🗓️ Cuộc hẹn của tôi','cal.sub':'Mọi lần khám, truyền thuốc và chụp chiếu ở một nơi. Chọn một ngày để xem có gì — và đã có xe chưa.','cal.chip':'Đã bật nhắc nhở','side.prevent':'Tầm soát & Phòng ngừa','side.journey':'Hành trình của tôi','side.understand':'Hiểu rõ bệnh','side.checkins':'Khai báo sức khỏe','side.vitals':'Sinh hiệu','side.access':'Tiếp cận & Hỗ trợ',
+  'side.whoMeta':'{short}','side.home':'Trang chủ','side.calendar':'Cuộc hẹn','cal.head':'🗓️ Cuộc hẹn của tôi','cal.sub':'Mọi lần khám, truyền thuốc và chụp chiếu ở một nơi. Chọn một ngày để xem có gì — và đã có xe chưa.','cal.chip':'Đã bật nhắc nhở','side.prevent':'Tầm soát & Phòng ngừa','side.journey':'Hành trình của tôi','side.understand':'Hiểu rõ bệnh','side.checkins':'Khai báo sức khỏe','side.vitals':'Sinh hiệu','side.access':'Tiếp cận & Hỗ trợ',
   'side.remi':'Hỏi Remi',
   'remi.launcher':'Hỏi Remi','remi.head':'🌿 Remi — trợ lý chăm sóc của bạn',
   'remi.sub':'Hỏi về hồ sơ của chính bạn — chẩn đoán, kế hoạch, việc sắp tới, đi lại và chi phí. Remi đọc hồ sơ của bạn và không bao giờ đoán lời khuyên y tế.',
@@ -2330,14 +2330,14 @@ vi: {
   'vitals.replayBtn':'▶ Mô phỏng cơn sốt lúc 2 giờ sáng',
   'vitals.replayIdle':'▶ Nhấn mô phỏng — xem cơn sốt do giảm bạch cầu trung tính lúc 2 giờ sáng được phát hiện ngay tại ngưỡng.',
   'vitals.smsHead':'Điện thoại của Renee — SMS cho người chăm sóc · 2:14 sáng',
-  'vitals.smsBody':'[BayouCare] ⚠️ Miếng dán nhiệt độ của Darlene: 38.6°C (101.5°F) lúc 2:14 sáng. Y tá trực đã được thông báo. Vui lòng gọi cho mẹ vào buổi sáng nếu mẹ không nghe máy.',
+  'vitals.smsBody':'[BayouCare] ⚠️ Miếng dán nhiệt độ của {name}: 38.6°C (101.5°F) lúc 2:14 sáng. Y tá trực đã được thông báo. Vui lòng gọi cho mẹ vào buổi sáng nếu mẹ không nghe máy.',
   'vitals.alertMsg':'Miếng dán nhiệt độ đã vượt ngưỡng sốt (≥100.4°F) — được đánh dấu trước khi có bất kỳ triệu chứng nào được báo.',
   'vitals.alertFollow':'Lịch lấy máu xét nghiệm ANC lúc 9 giờ sáng · chú ý ớn lạnh ban đêm',
   'vitals.sweepHead':'📡 Điểm tin buổi sáng — sinh hiệu khách quan, một màn hình','vitals.sweepChip':'miếng dán nhiệt độ · cân · dữ liệu 24 giờ',
   'vitals.sweepHint':'Toàn bộ dữ liệu thiết bị của bệnh nhân trong một màn hình cho điều dưỡng điều phối — không cần đăng nhập hồ sơ bệnh án điện tử, không cần bảng kẹp hồ sơ.',
   'vitals.alertLbl':'sinh hiệu',
-  'vitals.darleneFlag':'🚨 sốt 2:14 sáng · tự động báo động ✓',
-  'home.greet':'Chào buổi sáng, Darlene 🌞','home.chip':'Ngày 4 / 6 · Chu kỳ 1',
+  'vitals.replayFlag':'🚨 sốt 2:14 sáng · tự động báo động ✓',
+  'home.greet':'Chào buổi sáng, {name} 🌞','home.chip':'{chip}',
   'home.sub':'Bạn đang làm rất tốt. Đây là những điều quan trọng hôm nay — bạn chỉ cần tập trung vào một việc mỗi lần.',
   'home.nextup':'Sắp tới','home.checkinBtn':'Khai báo hôm nay',
   'home.chip1':'🔬 Thứ Năm 9 giờ — Lấy máu xét nghiệm (Rapides Regional)','home.chip2':'🚗 Đã thu xếp xe — Cora\'s Wheels',
@@ -2380,11 +2380,11 @@ vi: {
   'mood.toastMod':'💜 Keisha (nhân viên công tác xã hội) sẽ liên hệ — và NAMI Louisiana có các nhóm hỗ trợ miễn phí.',
   'mood.toastHigh':'🧡 Một người trong nhóm chăm sóc sẽ gọi cho bạn hôm nay — 988 miễn phí, 24/7 và bảo mật.',
   'trial.head':'🔬 TrialMatch — thử nghiệm lâm sàng, đã kiểm tra sơ bộ điều kiện tham gia',
-  'trial.sub':'Mọi thử nghiệm gần Louisiana, được đối chiếu với hồ sơ của Darlene — phân nhóm, giai đoạn, thời điểm điều trị — kèm lý do cho từng tiêu chí. Không còn phải đoán xem thử nghiệm nào có thể phù hợp.',
-  'trial.profile':'🧩 Đối chiếu với: <b>Darlene, 58 · IDC giai đoạn II · ER+/PR+, HER2− · 1 phác đồ trước đó (AC tân bổ trợ) · Alexandria, LA</b>',
+  'trial.sub':'Mọi thử nghiệm gần Louisiana, được đối chiếu với hồ sơ của {name} — phân nhóm, giai đoạn, thời điểm điều trị — kèm lý do cho từng tiêu chí. Không còn phải đoán xem thử nghiệm nào có thể phù hợp.',
+  'trial.profile':'🧩 Đối chiếu với: <b>{profile}</b>',
   'trial.foot':'Các tiêu chí được tóm tắt tự động từ ClinicalTrials.gov — hãy xác nhận toàn bộ nội dung điều kiện tham gia với nhóm ung thư của bạn trước khi làm bất cứ điều gì.',
   'trial.live':'● trực tiếp · ClinicalTrials.gov','trial.snapshot':'bản lưu ngoại tuyến · cùng các thử nghiệm',
-  'trial.elig':'Kiểm tra sơ bộ điều kiện tham gia so với hồ sơ của Darlene: {p}% ({a}/{b} tiêu chí đạt — lý do ở trên)',
+  'trial.elig':'Kiểm tra sơ bộ điều kiện tham gia so với hồ sơ của {name}: {p}% ({a}/{b} tiêu chí đạt — lý do ở trên)',
   'trial.ask':'Hỏi nhóm chăm sóc của tôi','trial.save':'Lưu lại sau',
   'trial.empty':'Không có thử nghiệm ung thư vú nào ở Louisiana khớp với tìm kiếm hiện tại — hãy thử lại sau hoặc mở rộng sang các tiểu bang lân cận.'
 },
@@ -2399,10 +2399,28 @@ function syncCG(){ cgNote.textContent = cg.checked ? T('side.cgOn') : T('side.cg
    its render fn here (see the RERENDER.push calls at the end of those modules) so a language
    switch refreshes them too. Empty during init, so the applyLang() call at the bottom is safe. */
 const RERENDER = [];
+/* Fills {tokens} in a translated string from the CURRENT patient's record.
+   This is the load-bearing half of per-patient identity: home.greet and side.whoMeta
+   are driven by the [data-i18n] sweep below, so without interpolation a language
+   switch would write one patient's name over every other patient's view — the binding
+   would hold until someone touched the language selector, then silently break.
+   Patient-neutral strings pass through untouched. */
+function interp(s){
+  let p;
+  try { p = PATIENTS[PID]; } catch(e){ return String(s); }   /* before the registry exists */
+  if (!p) return String(s);
+  return String(s)
+    .split('{name}').join(p.name.split(' ')[0])
+    .split('{full}').join(p.name)
+    .split('{age}').join(String(p.age))
+    .split('{chip}').join(p.chip)
+    .split('{short}').join(p.short)
+    .split('{profile}').join(p.profile);
+}
 function applyLang(l){
   lang = l;
-  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = T(el.dataset.i18n); });
-  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = T(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = interp(T(el.dataset.i18n)); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = interp(T(el.dataset.i18nHtml)); });
   syncCG();
   RERENDER.forEach(f => { try{ f(); }catch(e){} });
   try{ localStorage.setItem('bc-lang', l); }catch(e){}
@@ -2422,7 +2440,9 @@ langSel.addEventListener('change', () => {
 const SAVED_LANGS = ['en','es','ht','vi'];
 let savedLang = 'en';
 try{ const s = localStorage.getItem('bc-lang'); if (SAVED_LANGS.includes(s)) savedLang = s; }catch(e){}
-applyLang(savedLang);
+/* The initial applyLang(savedLang) call now happens further down, just after the patient
+   registry — the sweep interpolates patient tokens, so it must not run before PATIENTS
+   exists. (RERENDER is still empty at this point either way, so nothing is missed.) */
 
 /* ================= caregiver toggle ================= */
 cg.addEventListener('change', () => {
@@ -2431,6 +2451,181 @@ cg.addEventListener('change', () => {
     ? '👨‍👩‍👧 Caregiver mode: you now see shared tasks, visit details, and can message the care team.'
     : 'Back to patient view.');
 });
+
+/* ================= patient registry =================
+   Every patient-shaped datum for "who am I" lives here, keyed by the id the session
+   resolves to (see applyPatient/loadPatient further down). Before this, the name, MRN,
+   diagnosis, cycle, appointments, vitals and check-in trend were separate module-scope
+   literals all describing one person, so the app had no way to render anyone else.
+
+   Deliberately NOT in here: TEAM, SURVIVORS, CDS_PANEL, TB_CASES, AUTH_CASES, REFERRALS
+   and WAITLIST. Those are the synthetic POPULATION — the admin view is supposed to show
+   many patients at once, and none of them is "the logged-in patient". The one exception
+   is SWEEP[0], which is the current patient's own device row, and IS rebound (below).
+
+   `surv` links to a SURVIVORS entry, or is null while the patient is in active
+   treatment. A survivorship care plan is written when treatment ENDS, so an active
+   patient has none — and must never be shown someone else's (see renderMyPlan).
+
+   Two demo-login patients are survivors and two are mid-treatment on purpose: that is
+   what makes both states of the My Plan tab reachable by logging in, not by clicking. */
+const PATIENTS = {
+  darlene: {
+    name:'Darlene Fontenot', age:58, mrn:'44012', city:'Alexandria',
+    short:'Alexandria, LA · Stage II breast', chip:'Day 4 of 6 · Cycle 1',
+    profile:'Darlene Fontenot, 58 · Stage II IDC · ER+/PR+, HER2− · 1 prior line (neoadjuvant AC) · Alexandria, LA',
+    dx:'Invasive ductal carcinoma, left breast', grade:'Grade 2',
+    subtype:'ER+/PR+, HER2−', stage:'Stage IIA',
+    dxDate:'March 2026', cycle:'Cycle 1 of 6', cycleTotal:6, cycleDay:4,
+    careTeam:[
+      {name:'Dr. Simone Peters',    role:'Medical Oncologist', org:'Ochsner Baton Rouge'},
+      {name:'Marie Thibodeaux, RN', role:'Patient Navigator'},
+      {name:'Keisha Brown',         role:'Social Worker',      note:'Financial & transport help'}
+    ],
+    surv:null,                      /* active treatment — no survivorship plan yet */
+    vitals:{temp:'36.9°C', tr:'↘', w:'164.2 lb', wd:'+0.4', flag:'—', flagCls:'ok'},
+    trend:[
+      {v:3.2,label:'Sun',cls:'lo'},{v:3.6,label:'Mon',cls:'lo'},{v:3.0,label:'Tue',cls:'lo'},
+      {v:2.8,label:'Wed',cls:'lo'},{v:3.4,label:'Thu',cls:'lo'}
+    ],
+    calTypes:{
+      labs:    {ico:'🔬', label:'Blood draw',         dur:30,  where:'Rapides Regional · lab'},
+      infusion:{ico:'💧', label:'Infusion',           dur:120, where:'Rapides Regional · infusion suite'},
+      imaging: {ico:'🩻', label:'CT / imaging',       dur:60,  where:'Rapides Regional · imaging'},
+      followup:{ico:'🩺', label:'Oncology follow-up', dur:30,  where:'Dr. Peters · exam room'},
+      consult: {ico:'💬', label:'Care consult',       dur:45,  where:'Social work · financial aid'}
+    },
+    calPlan:[
+      {off: 2, type:'labs',     time:'08:40', ride:true},
+      {off: 4, type:'infusion', time:'10:40', ride:true},
+      {off: 7, type:'consult',  time:'14:20', ride:false},
+      {off: 9, type:'labs',     time:'08:40', ride:true},
+      {off:11, type:'imaging',  time:'13:00', ride:true},
+      {off:16, type:'labs',     time:'08:40', ride:false},
+      {off:18, type:'followup', time:'09:20', ride:true},
+      {off:23, type:'labs',     time:'08:40', ride:true},
+      {off:25, type:'infusion', time:'10:40', ride:true},
+      {off:30, type:'labs',     time:'08:40', ride:false},
+      {off:32, type:'imaging',  time:'13:00', ride:true},
+      {off:37, type:'labs',     time:'08:40', ride:true},
+      {off:39, type:'followup', time:'09:20', ride:true}
+    ]
+  },
+
+  priscilla: {
+    name:'Priscilla Comeaux', age:64, mrn:'44038', city:'Breaux Bridge',
+    short:'Breaux Bridge, LA · Stage III lung', chip:'Day 6 of 21 · Cycle 2',
+    profile:'Priscilla Comeaux, 64 · Stage IIIA NSCLC · PD-L1 45% · 1 prior line (carboplatin + pemetrexed) · Breaux Bridge, LA',
+    dx:'Non-small-cell lung cancer, right upper lobe', grade:'Adenocarcinoma',
+    subtype:'PD-L1 45%, no driver mutation', stage:'Stage IIIA',
+    dxDate:'July 2026', cycle:'Cycle 2 of 4', cycleTotal:4, cycleDay:6,
+    careTeam:[
+      {name:'Dr. Anand Iyer',       role:'Medical Oncologist', org:'St. Martin Regional'},
+      {name:'Marie Thibodeaux, RN', role:'Patient Navigator'},
+      {name:'Keisha Brown',         role:'Social Worker',      note:'Financial & transport help'}
+    ],
+    surv:null,                      /* mid-treatment */
+    vitals:{temp:'37.3°C', tr:'↗', w:'141.0 lb', wd:'−2.8', flag:'—', flagCls:'ok'},
+    trend:[
+      {v:3.8,label:'Sun',cls:'lo'},{v:3.0,label:'Mon',cls:'lo'},{v:2.6,label:'Tue',cls:'lo'},
+      {v:2.4,label:'Wed',cls:'lo'},{v:2.8,label:'Thu',cls:'lo'}
+    ],
+    calTypes:{
+      labs:    {ico:'🔬', label:'Blood draw',         dur:30,  where:'St. Martin Regional · lab'},
+      infusion:{ico:'💧', label:'Infusion',           dur:150, where:'St. Martin Regional · infusion suite'},
+      imaging: {ico:'🩻', label:'CT / imaging',       dur:60,  where:'St. Martin Regional · imaging'},
+      followup:{ico:'🩺', label:'Oncology follow-up', dur:30,  where:'Dr. Iyer · exam room'},
+      consult: {ico:'💬', label:'Care consult',       dur:45,  where:'Social work · financial aid'}
+    },
+    calPlan:[
+      {off: 1, type:'labs',     time:'07:50', ride:true},
+      {off: 2, type:'infusion', time:'09:30', ride:true},
+      {off: 8, type:'labs',     time:'07:50', ride:false},
+      {off:14, type:'imaging',  time:'11:20', ride:true},
+      {off:21, type:'labs',     time:'07:50', ride:true},
+      {off:22, type:'infusion', time:'09:30', ride:true},
+      {off:26, type:'consult',  time:'15:10', ride:false},
+      {off:35, type:'followup', time:'10:00', ride:true},
+      {off:42, type:'imaging',  time:'11:20', ride:true}
+    ]
+  },
+
+  yolanda: {
+    name:'Yolanda Price', age:61, mrn:'44019', city:'Alexandria',
+    short:'Alexandria, LA · Survivorship, year 6', chip:'Survivorship · year 6',
+    profile:'Yolanda Price, 61 · Stage III IDC · ER+/HER2+ · treatment completed 2020 · Alexandria, LA',
+    dx:'Stage III IDC, left breast · ER+/HER2+', grade:'Grade 2',
+    subtype:'ER+/PR+, HER2+', stage:'Stage IIIA',
+    dxDate:'March 2019', cycle:'Survivorship', cycleTotal:0, cycleDay:0,
+    careTeam:[
+      {name:'Dr. Simone Peters',    role:'Medical Oncologist', org:'Ochsner Baton Rouge'},
+      {name:'Marie Thibodeaux, RN', role:'Patient Navigator'},
+      {name:'Dr. Arceneaux',        role:'Primary Care'}
+    ],
+    surv:'yolanda',                 /* has a survivorship care plan */
+    vitals:{temp:'36.7°C', tr:'→', w:'138.6 lb', wd:'+0.2', flag:'—', flagCls:'ok'},
+    trend:[
+      {v:4.2,label:'Sun',cls:'hi'},{v:4.4,label:'Mon',cls:'hi'},{v:4.0,label:'Tue',cls:'hi'},
+      {v:4.6,label:'Wed',cls:'hi'},{v:4.4,label:'Thu',cls:'hi'}
+    ],
+    calTypes:{
+      labs:    {ico:'🔬', label:'Blood draw',         dur:30,  where:'Rapides Regional · lab'},
+      infusion:{ico:'💧', label:'Infusion',           dur:120, where:'Rapides Regional · infusion suite'},
+      imaging: {ico:'🩻', label:'Imaging',            dur:60,  where:'Rapides Regional · imaging'},
+      followup:{ico:'🩺', label:'Survivorship visit', dur:40,  where:'Dr. Peters · exam room'},
+      consult: {ico:'💬', label:'Care consult',       dur:45,  where:'Social work · financial aid'}
+    },
+    calPlan:[
+      {off: 5, type:'labs',     time:'08:20', ride:false},
+      {off:12, type:'imaging',  time:'10:00', ride:true},
+      {off:19, type:'followup', time:'09:00', ride:false},
+      {off:33, type:'imaging',  time:'14:00', ride:true},
+      {off:47, type:'labs',     time:'08:20', ride:false},
+      {off:61, type:'followup', time:'09:00', ride:true}
+    ]
+  },
+
+  marcus: {
+    name:'Marcus Thibodeaux', age:47, mrn:'44021', city:'Monroe',
+    short:'Monroe, LA · Survivorship, year 4', chip:'Survivorship · year 4',
+    profile:'Marcus Thibodeaux, 47 · Stage II DLBCL · CD20+ · treatment completed 2022 · Monroe, LA',
+    dx:'Stage II diffuse large B-cell lymphoma', grade:'Germinal centre',
+    subtype:'CD20+, MYC-negative', stage:'Stage II',
+    dxDate:'August 2021', cycle:'Survivorship', cycleTotal:0, cycleDay:0,
+    careTeam:[
+      {name:'Dr. Ada Okonkwo',      role:'Medical Oncologist', org:'Ouachita Regional'},
+      {name:'Marie Thibodeaux, RN', role:'Patient Navigator'},
+      {name:'Keisha Brown',         role:'Social Worker',      note:'Financial & transport help'}
+    ],
+    surv:'marcus',                  /* has a survivorship care plan */
+    vitals:{temp:'36.8°C', tr:'→', w:'186.4 lb', wd:'+0.6', flag:'—', flagCls:'ok'},
+    trend:[
+      {v:4.0,label:'Sun',cls:'hi'},{v:4.2,label:'Mon',cls:'hi'},{v:4.4,label:'Tue',cls:'hi'},
+      {v:4.0,label:'Wed',cls:'hi'},{v:4.2,label:'Thu',cls:'hi'}
+    ],
+    calTypes:{
+      labs:    {ico:'🔬', label:'Blood draw',         dur:30,  where:'Ouachita Regional · lab'},
+      infusion:{ico:'💧', label:'Infusion',           dur:120, where:'Ouachita Regional · infusion suite'},
+      imaging: {ico:'🩻', label:'Imaging',            dur:60,  where:'Ouachita Regional · imaging'},
+      followup:{ico:'🩺', label:'Survivorship visit', dur:40,  where:'Dr. Okonkwo · exam room'},
+      consult: {ico:'💬', label:'Care consult',       dur:45,  where:'Social work · financial aid'}
+    },
+    calPlan:[
+      {off: 4, type:'labs',     time:'08:00', ride:false},
+      {off:15, type:'imaging',  time:'13:30', ride:true},
+      {off:22, type:'followup', time:'10:30', ride:false},
+      {off:40, type:'labs',     time:'08:00', ride:false},
+      {off:64, type:'followup', time:'10:30', ride:true}
+    ]
+  }
+};
+
+/* Whose record the app is currently rendering. Rebound by applyPatient() only — never
+   by a picker inside an admin tab. */
+let PID = 'darlene';
+let PATIENT = PATIENTS[PID];
+
+applyLang(savedLang);   /* see the note above — must follow the registry */
 
 /* ================= check-in ================= */
 const answers = {};
@@ -2445,10 +2640,10 @@ document.querySelectorAll('.scale').forEach(scale => {
 });
 
 let checkinCount = 0;
-const trendBars = [
-  {v:3.2,label:'Sun',cls:'lo'},{v:3.6,label:'Mon',cls:'lo'},{v:3.0,label:'Tue',cls:'lo'},
-  {v:2.8,label:'Wed',cls:'lo'},{v:3.4,label:'Thu',cls:'lo'}
-];
+/* A copy, not the registry's array by reference: submitting a check-in mutates this
+   (see the push/shift below), and the registry entry has to survive a patient switch
+   unmutated. */
+let trendBars = PATIENTS[PID].trend.map(d => ({...d}));
 
 function renderTrend(){
   const grid = document.getElementById('trendGrid');
@@ -2515,8 +2710,11 @@ document.getElementById('helpSubmit').addEventListener('click', () => {
 
 /* ================= vitals bridge · Rank 6 · objective devices into the escalation engine ================= */
 const vitalsAlerts = [];
-const SWEEP = [
-  {name:'Darlene Fontenot',  temp:'36.9°C', tr:'↘', w:'164.2 lb', wd:'+0.4', flag:'—', flagCls:'ok'},
+/* Rows below are the synthetic population — the admin sweep is meant to show a panel,
+   so they are not rebound per patient. Row 0 IS part of the logged-in patient's record:
+   remiSystemPrompt() reads SWEEP[0].temp/.w as "latest device vitals" and the vitals
+   intent reads SWEEP[0], so it is rebuilt by applyPatient() from the registry. */
+const SWEEP_POP = [
   {name:'James Boudreaux',   temp:'37.1°C', tr:'→', w:'198.6 lb', wd:'−1.2', flag:'⚠ post-op pain', flagCls:'flag'},
   {name:'Maria Guzman',      temp:'37.3°C', tr:'↗', w:'—',        wd:'—',    flag:'⚠ 2 missed check-ins', flagCls:'flag'},
   {name:'Priscilla Comeaux', temp:'36.8°C', tr:'→', w:'141.0 lb', wd:'−2.8', flag:'⚠ platelets', flagCls:'flag'},
@@ -2525,6 +2723,11 @@ const SWEEP = [
   {name:'Robert Cheval',     temp:'37.0°C', tr:'→', w:'—',        wd:'—',    flag:'⚠ 4 days silent', flagCls:'flag'},
   {name:'Celeste Lanoux',    temp:'36.6°C', tr:'↘', w:'128.9 lb', wd:'−1.1', flag:'—', flagCls:'ok'}
 ];
+function sweepRow(){
+  const p = PATIENTS[PID];
+  return {name:p.name, ...p.vitals};
+}
+const SWEEP = [ sweepRow(), ...SWEEP_POP ];
 function renderSweep(){
   const b = document.getElementById('sweepBody');
   if (!b) return;
@@ -2548,8 +2751,9 @@ const REPLAY = [
   ['2:31 am','RN call-back','"Come in this morning for labs — watch for chills."','ok'],
   ['8:00 am','Follow-up logged','ANC draw scheduled 9 am · synced to care team','ok']
 ];
-/* baseline captured at load — a second replay must not stack a duplicate escalation */
-const SWEEP0_BASE = {...SWEEP[0]};
+/* baseline captured at load — a second replay must not stack a duplicate escalation.
+   `let` because applyPatient() re-captures it when the logged-in patient changes. */
+let SWEEP0_BASE = {...SWEEP[0]};
 let alertBase = null;
 function startReplay(){
   if (replayTimer) return;
@@ -2572,7 +2776,7 @@ function startReplay(){
     log.scrollTop = log.scrollHeight;
     if (replayStep === 2){
       vitalsAlerts.push({
-        name:'Darlene Fontenot', when:'2:14 am', reading:'38.6°C (101.5°F)',
+        name:PATIENTS[PID].name, when:'2:14 am', reading:'38.6°C (101.5°F)',
         msg:T('vitals.alertMsg'), followup:T('vitals.alertFollow')
       });
       const d = SWEEP[0];
@@ -4317,51 +4521,106 @@ function toast(msg){
    and a real treatment cadence (weekly labs, three-weekly infusions) reads far
    better on stage than noise from a seeded RNG. */
 const CAL_ANCHOR = TODAY_S;
-const CAL_TYPES = {
-  labs:    {ico:'🔬', label:'Blood draw',         dur:30,  where:'Rapides Regional · lab'},
-  infusion:{ico:'💧', label:'Infusion',           dur:120, where:'Rapides Regional · infusion suite'},
-  imaging: {ico:'🩻', label:'CT / imaging',       dur:60,  where:'Rapides Regional · imaging'},
-  followup:{ico:'🩺', label:'Oncology follow-up', dur:30,  where:'Dr. Peters · exam room'},
-  consult: {ico:'💬', label:'Care consult',       dur:45,  where:'Social work · financial aid'}
-};
-const CAL_PLAN = [
-  {off: 2, type:'labs',     time:'08:40', ride:true},
-  {off: 4, type:'infusion', time:'10:40', ride:true},
-  {off: 7, type:'consult',  time:'14:20', ride:false},
-  {off: 9, type:'labs',     time:'08:40', ride:true},
-  {off:11, type:'imaging',  time:'13:00', ride:true},
-  {off:16, type:'labs',     time:'08:40', ride:false},
-  {off:18, type:'followup', time:'09:20', ride:true},
-  {off:23, type:'labs',     time:'08:40', ride:true},
-  {off:25, type:'infusion', time:'10:40', ride:true},
-  {off:30, type:'labs',     time:'08:40', ride:false},
-  {off:32, type:'imaging',  time:'13:00', ride:true},
-  {off:37, type:'labs',     time:'08:40', ride:true},
-  {off:39, type:'followup', time:'09:20', ride:true}
-].map((a, i) => ({...a, id:'cal' + i,
-  date:new Date(CAL_ANCHOR.getFullYear(), CAL_ANCHOR.getMonth(), CAL_ANCHOR.getDate() + a.off)}));
+/* Both are per-patient and rebuilt by applyPatient(): the `where` strings name the
+   patient's own facility and oncologist, and the schedule is theirs. CAL_ANCHOR itself
+   stays fixed — the whole plan is anchored to TODAY_S deliberately, so the calendar is
+   byte-identical on every reload and every live demo. Preserve that. */
+let CAL_TYPES = PATIENTS[PID].calTypes;
+let CAL_PLAN = buildPlan(PID);
+function buildPlan(pid){
+  return PATIENTS[pid].calPlan.map((a, i) => ({...a, id:'cal' + i,
+    date:new Date(CAL_ANCHOR.getFullYear(), CAL_ANCHOR.getMonth(), CAL_ANCHOR.getDate() + a.off)}));
+}
 
 const calDayKey = d => d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
 const CAL_BY_DAY = {};
-CAL_PLAN.forEach(a => { const k = calDayKey(a.date); (CAL_BY_DAY[k] = CAL_BY_DAY[k] || []).push(a); });
+/* Rebuilt in place rather than reassigned, so CAL_BY_DAY can stay const. */
+function indexPlan(){
+  Object.keys(CAL_BY_DAY).forEach(k => delete CAL_BY_DAY[k]);
+  CAL_PLAN.forEach(a => { const k = calDayKey(a.date); (CAL_BY_DAY[k] = CAL_BY_DAY[k] || []).push(a); });
+}
+indexPlan();
 
-/* The patient record, in one place. Before this, Darlene's MRN, subtype, grade, stage and
-   cycle day existed only as prose scattered across six hardcoded strings, so nothing could
-   ground an answer in them. Remi reads from here. The display strings above are untouched —
-   this is additive, and wiring them to it is optional follow-up.
-   Appointments are deliberately NOT duplicated here: CAL_PLAN is the one live source for
-   those, so the assistant and the calendar can never disagree. */
-const PATIENT = {
-  name:'Darlene Fontenot', age:58, mrn:'44012', city:'Alexandria',
-  dx:'Invasive ductal carcinoma, left breast', grade:'Grade 2',
-  subtype:'ER+/PR+, HER2−', stage:'Stage IIA',
-  dxDate:'March 2026', cycle:'Cycle 1 of 6', cycleDay:4,
-  careTeam:[
-    {name:'Dr. Simone Peters',    role:'Medical Oncologist', org:'Ochsner Baton Rouge'},
-    {name:'Marie Thibodeaux, RN', role:'Patient Navigator'},
-    {name:'Keisha Brown',         role:'Social Worker',      note:'Financial & transport help'}
-  ]
-};
+/* PATIENT is the logged-in patient's record — declared in the registry at the top of the
+   file and rebound by applyPatient(). Remi reads from it (remiSystemPrompt, REMI_INTENTS),
+   and every display surface that names the patient re-reads it through renderIdentity().
+   Appointments are deliberately NOT duplicated into it: CAL_PLAN is the one live source
+   for those, so the assistant and the calendar can never disagree. */
+
+/* ---- identity binding ------------------------------------------------------------
+   renderIdentity() re-paints the surfaces that NAME the patient but do not read PATIENT.
+   It is registered with RERENDER, and that is required rather than a nicety: the
+   [data-i18n] sweep rewrites these elements straight from L10N on every language
+   switch, and interp() is what puts the current patient's name back. Without the
+   registration the binding would hold until someone touched the language selector and
+   then silently revert to English's baked-in name.
+
+   Deliberately NOT rebound here: TEAM, SURVIVORS, CDS_PANEL, TB_CASES, AUTH_CASES,
+   REFERRALS, and the Clinic Ops summary at the top of #view-clinicops. Those are the
+   synthetic POPULATION — the admin view is meant to show many patients at once, and
+   making them follow the logged-in patient would be wrong, not thorough.
+   The one non-obvious member: SWEEP[0], which is this patient's own device row, not
+   population data (Remi reads SWEEP[0].temp/.w as "latest device vitals").
+
+   Calls renderMyPlan() so the survivorship tab re-binds with the identity, and NOT
+   renderCalendar() — the calendar is already rendered by the time this first runs, and
+   applyPatient() drives it explicitly on a patient change. */
+function renderIdentity(){
+  const p = PATIENTS[PID];
+  const setT = (key, txt) => document.querySelectorAll('[data-i18n="' + key + '"]')
+    .forEach(el => { el.textContent = txt; });
+  const av   = document.querySelector('#view-app .who .avatar');
+  const who  = document.querySelector('#view-app .who b');
+  const chat = document.getElementById('understandWho');
+  if (av)   av.textContent = p.name.charAt(0);
+  if (who)  who.textContent = p.name.split(' ')[0] + ', ' + p.age;
+  if (chat) chat.textContent = p.name.split(' ')[0];
+  setT('side.whoMeta', p.short);
+  setT('home.greet', interp(T('home.greet')));
+  setT('home.chip', p.chip);
+  renderSweep();
+  renderMyPlan();
+}
+
+/* Rebinds every per-patient datum, then re-renders. Only loadPatient() calls this, so
+   PID can never be set from a picker inside an admin tab — that decoupling is the whole
+   point of the change (see the renderMyPlan note above). */
+function applyPatient(id){
+  if (!PATIENTS[id]) return false;
+  PID = id;
+  PATIENT = PATIENTS[PID];
+  MY_SURV = PATIENT.surv;
+  trendBars = PATIENTS[PID].trend.map(d => ({...d}));
+  CAL_TYPES = PATIENTS[PID].calTypes;
+  CAL_PLAN = buildPlan(PID);
+  indexPlan();
+  SWEEP[0] = sweepRow();
+  SWEEP0_BASE = {...SWEEP[0]};   /* the replay's idempotence baseline follows the patient */
+  renderIdentity();
+  renderCalendar();
+  renderRemi();
+  return true;
+}
+
+/* Asks the server which patient this session resolves to. Reachable ONLY from
+   enterApp(), which is only reached on an explicit 200 from /api/session or /api/login —
+   so on a file:// origin this never runs and the bundled record stands. That is what
+   keeps Remi's on-device path working with the wifi off, and it is why the offline
+   harnesses need no changes. */
+async function loadPatient(){
+  try{
+    const r = await fetch('/api/patient', { headers:{ 'Accept':'application/json' } });
+    if (r.status !== 200) return;
+    const d = await r.json();
+    if (d && d.id) applyPatient(d.id);
+  }catch(e){
+    /* Keep the bundled record and carry on. Deliberate, not an oversight: the app is
+       pitched as offline-first, and a record fetch that fails must not blank the demo. */
+  }
+}
+
+renderIdentity();
+RERENDER.push(renderIdentity);
 
 let calMonth = new Date(CAL_ANCHOR.getFullYear(), CAL_ANCHOR.getMonth(), 1);
 let calSel = CAL_ANCHOR.getDate();
