@@ -4609,7 +4609,15 @@ function applyPatient(id){
    harnesses need no changes. */
 async function loadPatient(){
   try{
-    const r = await fetch('/api/patient', { headers:{ 'Accept':'application/json' } });
+    /* Bounded on purpose. enterApp() awaits this before revealing the app, so a slow or
+       hanging database would otherwise hold the gate blank — the one failure that looks
+       like a dead app on stage. On timeout the bundled record stands and the demo runs. */
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 2500);
+    let r;
+    try {
+      r = await fetch('/api/patient', { headers:{ 'Accept':'application/json' }, signal: ctl.signal });
+    } finally { clearTimeout(timer); }
     if (r.status !== 200) return;
     const d = await r.json();
     if (d && d.id) applyPatient(d.id);
@@ -5260,7 +5268,7 @@ const signOutBtn  = document.getElementById('signOutBtn');
 function setAuth(state){ document.documentElement.dataset.auth = state; }
 function loginError(msg){ if (loginErr) loginErr.textContent = msg || ''; }
 
-function enterApp(user){
+async function enterApp(user){
   /* Role drives both the landing mode and whether the switch is offered at all —
      :root[data-role="patient"] .mode-switch hides it. */
   document.documentElement.dataset.role = user.role;
@@ -5268,6 +5276,11 @@ function enterApp(user){
   if (whoAmI) whoAmI.hidden = false;
   if (loginPass) loginPass.value = '';
   setMode(user.role === 'clinician' ? 'admin' : 'patient');
+  /* Awaited BEFORE the app is revealed. data-auth stays "pending" until this returns, and
+     pending paints nothing — so the record can never visibly flip from the bundled patient
+     to the real one. loadPatient() is bounded and swallows every failure, so this cannot
+     hang and cannot throw. */
+  await loadPatient();
   setAuth('in');
 }
 

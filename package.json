@@ -5,6 +5,7 @@
   "description": "BayouCare — cancer care navigation for Louisiana (DevDays 2026)",
   "comment": "No build script on purpose: index.html is served as-is and api/*.js are Vercel Functions. Adding a build script would put Vercel into a build pipeline this project does not need.",
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
     "bcryptjs": "^3.0.2"
   }
 }
