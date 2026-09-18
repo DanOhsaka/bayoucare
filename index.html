@@ -1487,10 +1487,13 @@ try{
 <section id="view-myplan" class="view" data-mode="patient">
   <div class="card">
     <div class="card-head">
-      <h3>💚 My survivorship plan</h3>
+      <h3 id="myPlanTitle">💚 My survivorship plan</h3>
       <span class="chip green">ASCO-format · yours to keep</span>
     </div>
-    <p style="font-size:13.5px;color:var(--ink-soft)">This is your own care plan — what you were treated with, what to watch for, and when your next check-up is due. Print it or share it with your family and your primary-care doctor.</p>
+    <!-- Title and intro are owned by renderMyPlan(), which swaps them for an
+         active-treatment patient who has no survivorship plan yet. The text here is
+         only the pre-render/no-JS default, so it cannot drift out of sync visibly. -->
+    <p id="myPlanIntro" style="font-size:13.5px;color:var(--ink-soft)">This is your own care plan — what you were treated with, what to watch for, and when your next check-up is due. Print it or share it with your family and your primary-care doctor.</p>
     <div id="myPlanBody"></div>
   </div>
 </section>
@@ -2963,6 +2966,11 @@ const LATE_RULES = [
 const TODAY_S = new Date(2026, 7, 17);
 const monthOf = ym => { const [y,m] = ym.split('-'); return new Date(+y, +m-1, 1); };
 let survSel = 'yolanda', radarSel = null;
+/* The logged-in patient's OWN survivorship plan — a SURVIVORS key, or null while they
+   are still in active treatment. Set by applyPatient() from the patient record.
+   Deliberately not survSel: that is the admin generator's picker, and reading it here
+   is what let a patient's "My Plan" tab render a stranger's chart, MRN and all. */
+let MY_SURV = null;
 function ruleFind(e){ return LATE_RULES.map(r => ({cat:r.cat, short:r.short, color:r.color, hit:r.matches(e)})).filter(x => x.hit); }
 function buildRows(s, hits){
   const endY = +s.endDate.slice(-4);
@@ -3043,11 +3051,18 @@ BayouCare AI draft — reviewed by Marie Thibodeaux, RN, survivorship navigator.
    surfaces can never drift apart. */
 function scpModel(id){
   const s = SURVIVORS[id];
+  /* Guard, not a nicety. Every caller reaches ruleFind(s.e) below, and `s` is
+     undefined for any id with no SURVIVORS entry — which is *every* patient who is
+     still in active treatment. renderMyPlan() is a bare top-level call, so an
+     unguarded throw here aborts the whole script rather than degrading. */
+  if (!s) return null;
   const hits = ruleFind(s.e);
   return {s, hits, rows: buildRows(s, hits)};
 }
 function renderSurvivor(){
-  const {s, hits, rows} = scpModel(survSel);
+  const m = scpModel(survSel);
+  if (!m) return;
+  const {s, hits, rows} = m;
   document.getElementById('scpSummary').innerHTML = `
     <div class="card-head"><h3 style="font-size:15px">${s.name} · ${s.age}</h3><span class="chip green">MRN ${s.mrn} · ${s.parish} Parish</span></div>
     <p style="font-size:13px;color:var(--ink-soft)"><b>${s.dx}</b><br>Diagnosed ${s.dxDate} · treatment completed ${s.endDate} · survivorship since ${s.survivorSince}</p>
@@ -3069,17 +3084,47 @@ document.querySelectorAll('#survChips .sel-chip').forEach(b => b.addEventListene
   survSel = b.dataset.s; radarSel = null;
   document.querySelectorAll('#survChips .sel-chip').forEach(x => x.classList.toggle('active', x === b));
   renderSurvivor();
-  renderMyPlan();
+  /* renderMyPlan() is deliberately NOT called here. This handler is the ADMIN generator's
+     picker; re-rendering the patient's tab from it is what made the patient view follow
+     the clinician's selection. The patient's plan is bound to MY_SURV and only changes
+     when the logged-in patient does. */
 }));
 
-/* Patient-side read-only rendering of the same plan. Bound to survSel so the plan a
-   patient sees stays in step with whatever the generator last selected. Deliberately
-   excludes the late-effects radar SVG: risk tiers are a clinician triage instrument,
-   so the patient gets the same information as plain-language lines instead. */
+/* Patient-side read-only rendering of the plan. Reads MY_SURV — the LOGGED-IN patient's
+   own survivorship entry — never survSel, which belongs to the admin generator and
+   defaults to Yolanda. A patient still in active treatment has no survivorship plan yet
+   and is told where they actually are, rather than shown a stranger's chart.
+   Deliberately excludes the late-effects radar SVG: risk tiers are a clinician triage
+   instrument, so the patient gets the same information as plain-language lines instead. */
 function renderMyPlan(){
   const el = document.getElementById('myPlanBody');
   if (!el) return;   /* RERENDER entries are swept inside a swallowing try/catch */
-  const {s, hits, rows} = scpModel(survSel);
+  const title = document.getElementById('myPlanTitle');
+  const intro = document.getElementById('myPlanIntro');
+  const m = MY_SURV ? scpModel(MY_SURV) : null;
+
+  if (!m){
+    /* Active treatment: nothing to summarise, and the plan is written at the survivorship
+       clinic visit. No clinical intervals are invented here — the two follow-up rows
+       mirror buildRows()'s own defaults so the two surfaces cannot disagree.
+       No patient identity is used, because this runs before the record is bound. */
+    if (title) title.textContent = '💚 Your care plan';
+    if (intro) intro.textContent = 'A survivorship care plan is written when treatment finishes — it summarises what you were treated with and what to watch for afterwards, in ASCO format. You are still in active treatment, so there is nothing to summarise yet. Your care team writes it with you at your survivorship clinic visit.';
+    el.innerHTML = `
+    <table class="scp-table" style="margin-top:6px">
+      <tr><th style="width:62%">Step</th><th>When</th></tr>
+      <tr><td>Last treatment cycle</td><td>end of your planned course</td></tr>
+      <tr><td>Survivorship clinic visit — your plan is written here</td><td>after treatment ends</td></tr>
+      <tr><td>Oncology follow-up visit</td><td>every 6 months ×2, then annual</td></tr>
+      <tr><td>PCP handoff — annual wellness visit</td><td>annual</td></tr>
+    </table>
+    <p style="font-size:11.5px;color:var(--ink-soft);margin-top:8px">Your appointments are on the Calendar tab, and your care team is listed under My Care.</p>`;
+    return;
+  }
+
+  if (title) title.textContent = '💚 My survivorship plan';
+  if (intro) intro.textContent = 'This is your own care plan — what you were treated with, what to watch for, and when your next check-up is due. Print it or share it with your family and your primary-care doctor.';
+  const {s, hits, rows} = m;
   el.innerHTML = `
     <div class="card-head" style="margin-top:14px"><h3 style="font-size:15px">${s.name} · ${s.age}</h3><span class="chip green">MRN ${s.mrn} · ${s.parish} Parish</span></div>
     <p style="font-size:13px;color:var(--ink-soft)"><b>${s.dx}</b><br>Diagnosed ${s.dxDate} · treatment completed ${s.endDate}</p>
