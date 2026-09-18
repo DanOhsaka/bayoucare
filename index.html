@@ -109,6 +109,12 @@ try{
   .login-demo b{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft)}
   .login-demo .btn{justify-content:flex-start;font-size:11.5px;
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  /* Two lines per account: who you land as, then the credentials. The credentials stay
+     printed rather than implied — they are published on purpose, and a judge should be
+     able to read them without tapping. */
+  .login-demo .acct{flex-direction:column;align-items:flex-start;gap:1px;padding:5px 10px;line-height:1.3}
+  .login-demo .acct b{font-family:inherit;font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink)}
+  .login-demo .acct span{font-size:10.5px;opacity:.7}
 
   /* Role gates the mode switch. Without this a patient account clicks "Admin" and
      reads the god-view, which makes the sign-in decoration rather than a gate. */
@@ -887,8 +893,24 @@ try{
 
     <div class="login-demo">
       <b data-i18n="login.demoHead">Demo accounts — tap to fill</b>
-      <button class="btn btn-outline btn-sm" data-fill="patient">patient@bayoucare.demo · patient2026</button>
-      <button class="btn btn-outline btn-sm" data-fill="clinician">clinician@bayoucare.demo · clinician2026</button>
+      <!-- Four patients and one clinician, matching the seeded roster. data-fill stays as
+           the button's identity (login.js keys off it); the credentials themselves live in
+           data-email/data-pass so adding a patient is one line, not a new branch. -->
+      <button class="btn btn-outline btn-sm acct" data-fill="patient"
+              data-email="patient@bayoucare.demo" data-pass="patient2026">
+        <b>Darlene · in treatment</b><span>patient@bayoucare.demo · patient2026</span></button>
+      <button class="btn btn-outline btn-sm acct" data-fill="yolanda"
+              data-email="yolanda@bayoucare.demo" data-pass="yolanda2026">
+        <b>Yolanda · survivorship</b><span>yolanda@bayoucare.demo · yolanda2026</span></button>
+      <button class="btn btn-outline btn-sm acct" data-fill="priscilla"
+              data-email="priscilla@bayoucare.demo" data-pass="priscilla2026">
+        <b>Priscilla · in treatment</b><span>priscilla@bayoucare.demo · priscilla2026</span></button>
+      <button class="btn btn-outline btn-sm acct" data-fill="marcus"
+              data-email="marcus@bayoucare.demo" data-pass="marcus2026">
+        <b>Marcus · survivorship</b><span>marcus@bayoucare.demo · marcus2026</span></button>
+      <button class="btn btn-outline btn-sm acct" data-fill="clinician"
+              data-email="clinician@bayoucare.demo" data-pass="clinician2026">
+        <b>Clinician · admin, all patients</b><span>clinician@bayoucare.demo · clinician2026</span></button>
     </div>
   </div>
 </div>
@@ -5449,9 +5471,10 @@ if (signOutBtn)  signOutBtn.addEventListener('click', signOut);
    stage. The values are already printed next to them — this just saves the typing. */
 document.querySelectorAll('.login-demo [data-fill]').forEach(b => {
   b.addEventListener('click', () => {
-    const isPatient = b.dataset.fill === 'patient';
-    if (loginEmail) loginEmail.value = isPatient ? 'patient@bayoucare.demo' : 'clinician@bayoucare.demo';
-    if (loginPass)  loginPass.value  = isPatient ? 'patient2026' : 'clinician2026';
+    /* Read from the button, not from a hardcoded pair. The old two-way ternary meant a
+       new account needed a new branch here as well as a new button. */
+    if (loginEmail) loginEmail.value = b.dataset.email || '';
+    if (loginPass)  loginPass.value  = b.dataset.pass  || '';
     loginError('');
     if (loginSubmit) loginSubmit.focus();
   });
