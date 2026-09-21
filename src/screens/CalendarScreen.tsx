@@ -1,9 +1,22 @@
 import { createContext, useContext, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
+import { BookingDialog } from '@/components/patient/BookingDialog'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar'
 import { CAL_ANCHOR, dayKey } from '@/lib/demoClock'
-import { buildPlan, describeAppointment, fmtDay, indexByDay } from '@/lib/calendar'
-import { PATIENTS, type PlannedAppointment } from '@/data'
+import { describeAppointment, fmtDay } from '@/lib/calendar'
+import {
+  dayState,
+  indexApptsByDay,
+  isActive,
+  type Appointment,
+  type ApptStatus,
+} from '@/lib/appointments'
+import { PATIENTS } from '@/data'
+import { useAppointments, usePlan } from '@/store/appointments'
 import { usePatient } from '@/store/patient'
 import { useT } from '@/hooks/useT'
 import { useUi } from '@/store/ui'
@@ -18,6 +31,18 @@ const TYPE_DOT: Record<string, string> = {
   consult: 'bg-cat-5',
 }
 
+const STATUS_VARIANT: Record<ApptStatus, 'success' | 'warning' | 'neutral'> = {
+  confirmed: 'success',
+  requested: 'warning',
+  cancelled: 'neutral',
+}
+
+const STATUS_KEY: Record<ApptStatus, string> = {
+  confirmed: 'cal.statusConfirmed',
+  requested: 'cal.statusRequested',
+  cancelled: 'cal.statusCancelled',
+}
+
 /**
  * The day's appointments, handed to the calendar's day cells through context.
  *
@@ -25,7 +50,7 @@ const TYPE_DOT: Record<string, string> = {
  * react-day-picker, not by us — and defining the day button inline would create
  * a new component identity on every render and remount all 42 cells.
  */
-const DayDataContext = createContext<Record<string, PlannedAppointment[]>>({})
+const DayDataContext = createContext<Record<string, Appointment[]>>({})
 
 function DayWithDots({
   className,
@@ -35,7 +60,9 @@ function DayWithDots({
   ...props
 }: React.ComponentProps<typeof CalendarDayButton>) {
   const byDay = useContext(DayDataContext)
-  const appts = byDay[dayKey(day.date)] ?? []
+  // Cancelled appointments keep their place in the agenda but do not put a dot
+  // on the calendar — the day is not busy any more.
+  const appts = (byDay[dayKey(day.date)] ?? []).filter(isActive)
 
   return (
     <CalendarDayButton className={className} day={day} modifiers={modifiers} {...props}>
@@ -76,28 +103,37 @@ export function CalendarScreen() {
   const lang = useUi((s) => s.lang)
   const pid = usePatient((s) => s.pid)
   const patient = PATIENTS[pid]
+  const plan = usePlan(pid)
+  const cancel = useAppointments((s) => s.cancel)
+  const restore = useAppointments((s) => s.restore)
 
-  const plan = useMemo(() => buildPlan(patient), [patient])
-  const byDay = useMemo(() => indexByDay(plan), [plan])
+  const byDay = useMemo(() => indexApptsByDay(plan), [plan])
   const types = patient.calTypes
 
   const [month, setMonth] = useState<Date>(CAL_ANCHOR)
   const [selected, setSelected] = useState<Date | undefined>()
+  const [bookingOpen, setBookingOpen] = useState(false)
+  const [editing, setEditing] = useState<Appointment | null>(null)
+  const [cancelling, setCancelling] = useState<Appointment | null>(null)
 
   const dayList = selected ? (byDay[dayKey(selected)] ?? []) : null
+  const activeCount = (dayList ?? []).filter(isActive).length
 
   // Every type the patient's record defines, so the legend always matches the
   // dots that can actually appear.
   const legend = Object.keys(types)
+
+  function openBooking(appt: Appointment | null) {
+    setEditing(appt)
+    setBookingOpen(true)
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,400px)_1fr] lg:items-start">
       <section className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow)]">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-lg font-semibold text-card-foreground">{t('cal.head')}</h3>
-          <span className="inline-flex items-center rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
-            {t('cal.chip')}
-          </span>
+          <Badge variant="success">{t('cal.chip')}</Badge>
         </div>
 
         <p className="mt-2 text-sm text-muted-foreground">{t('cal.sub')}</p>
@@ -121,17 +157,23 @@ export function CalendarScreen() {
             onSelect={setSelected}
             modifiers={{
               // Days that have something on them, so they can be styled as a set.
-              booked: plan.map((a) => a.date),
+              booked: plan.filter(isActive).map((a) => a.date),
               past: (d: Date) => d < CAL_ANCHOR,
+              // The two states the port's audit found missing. Both are derived
+              // from the same slot grid the Clinic Ops no-show board scores.
+              full: (d: Date) => dayState(d, byDay[dayKey(d)] ?? []) === 'full',
+              closed: (d: Date) => dayState(d, byDay[dayKey(d)] ?? []) === 'unavailable',
             }}
             modifiersClassNames={{
               booked: 'font-bold',
               past: 'opacity-55',
+              full: 'text-warning-fg',
+              closed: 'text-muted-foreground',
             }}
             components={{ DayButton: DayWithDots }}
             // Constrained to the column: the Shadcn calendar stretches to its
             // container, and a full-width card made every day cell enormous.
-            className="mt-2 w-full [--cell-size:--spacing(10)]"
+            className="mt-2 w-full [--cell-size:--spacing(8)] sm:[--cell-size:--spacing(10)]"
           />
         </DayDataContext.Provider>
 
@@ -145,38 +187,48 @@ export function CalendarScreen() {
               {types[key].label}
             </span>
           ))}
+          <span className="text-xs text-warning-fg">{t('cal.legendFull')}</span>
+          <span className="text-xs text-muted-foreground">{t('cal.legendClosed')}</span>
         </div>
       </section>
 
       {/* ------------------------------------------------------------ agenda */}
       <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+        {/*
+          Selecting a day rewrites the agenda below with no announcement, so a
+          screen-reader user heard nothing at all after activating a day cell.
+          The visible content is unchanged; this is the announcement.
+        */}
+        <p className="sr-only" aria-live="polite">
+          {selected ? `${fmtDay(selected, lang)} — ${activeCount}` : ''}
+        </p>
+
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h3
             data-testid="cal-agenda-head"
             className="text-base font-semibold text-card-foreground"
           >
-            {selected ? fmtDay(selected, lang) : 'Pick a day'}
+            {selected ? fmtDay(selected, lang) : t('cal.book')}
           </h3>
-          {selected && (
-            <button
-              type="button"
-              onClick={() => {
-                setSelected(undefined)
-                setMonth(CAL_ANCHOR)
-              }}
-              className="rounded px-2 py-1 text-xs font-bold text-link transition-colors hover:bg-accent"
-            >
-              Clear
-            </button>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            {selected && (
+              <Button
+                size="xs"
+                variant="outline"
+                onClick={() => {
+                  setSelected(undefined)
+                  setMonth(CAL_ANCHOR)
+                }}
+              >
+                {t('cal.close')}
+              </Button>
+            )}
+            <Button size="sm" onClick={() => openBooking(null)}>
+              {t('cal.book')}
+            </Button>
+          </div>
         </div>
 
-        {/*
-          These three strings are hardcoded English in the legacy app rather than
-          i18n keys, so they stay hardcoded here — that is parity, not an
-          oversight. Worth adding to the dictionary in a later pass, since every
-          other patient-facing string is translated.
-        */}
         {!selected && (
           <p className="text-sm text-muted-foreground">
             Choose any day on the calendar to see what is scheduled.
@@ -191,10 +243,14 @@ export function CalendarScreen() {
           <ul className="flex flex-col gap-2">
             {dayList.map((a) => {
               const d = describeAppointment(a, types)
+              const cancelled = a.status === 'cancelled'
               return (
                 <li
                   key={a.id}
-                  className="flex items-center gap-3 rounded-md border border-border p-3"
+                  className={cn(
+                    'flex flex-wrap items-center gap-3 rounded-md border border-border p-3',
+                    cancelled && 'opacity-60',
+                  )}
                 >
                   <span
                     className="flex size-9 flex-none items-center justify-center rounded-md bg-accent text-base"
@@ -209,17 +265,70 @@ export function CalendarScreen() {
                     </span>
                   </div>
                   <span className="flex-none text-sm font-bold text-card-foreground">{a.time}</span>
+                  <Badge variant={STATUS_VARIANT[a.status]}>{t(STATUS_KEY[a.status])}</Badge>
                   {a.ride && (
-                    <span className="flex-none rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
-                      🚗 Ride
-                    </span>
+                    <Badge variant="success">
+                      <span aria-hidden="true">🚗</span> Ride
+                    </Badge>
                   )}
+
+                  <div className="flex flex-none gap-1">
+                    {cancelled ? (
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() => {
+                          restore(pid, a.id)
+                          toast(t('cal.toastRestored'))
+                        }}
+                      >
+                        {t('cal.undo')}
+                      </Button>
+                    ) : (
+                      <>
+                        <Button size="xs" variant="outline" onClick={() => openBooking(a)}>
+                          {t('cal.resched')}
+                        </Button>
+                        <Button size="xs" variant="ghost" onClick={() => setCancelling(a)}>
+                          {t('cal.cancelAppt')}
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </li>
               )
             })}
           </ul>
         )}
       </section>
+
+      {/*
+        Keyed so the form re-seeds from `editing` on mount — one instance reused
+        across appointments would show the previous one's values.
+      */}
+      <BookingDialog
+        key={editing?.id ?? 'new'}
+        open={bookingOpen}
+        onOpenChange={setBookingOpen}
+        editing={editing}
+      />
+
+      <ConfirmDialog
+        open={cancelling !== null}
+        onOpenChange={(o) => {
+          if (!o) setCancelling(null)
+        }}
+        title={t('cal.cancelHead')}
+        description={t('cal.cancelBody')}
+        confirmLabel={t('cal.cancelConfirm')}
+        cancelLabel={t('cal.keep')}
+        tone="danger"
+        onConfirm={() => {
+          if (!cancelling) return
+          cancel(pid, cancelling.id)
+          toast(t('cal.toastCancelled'))
+        }}
+      />
     </div>
   )
 }

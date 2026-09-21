@@ -15,12 +15,19 @@ export function buildPlan(patient: Patient): PlannedAppointment[] {
   return patient.calPlan.map((a, i) => ({
     ...a,
     id: `cal${i}`,
-    date: new Date(
-      CAL_ANCHOR.getFullYear(),
-      CAL_ANCHOR.getMonth(),
-      CAL_ANCHOR.getDate() + a.off,
-    ),
+    date: dateAtOffset(a.off),
   }))
+}
+
+/**
+ * A day offset from the frozen demo clock, resolved to a real date.
+ *
+ * Shared with the booking store, which creates appointments the bundled data
+ * has never seen: both sides must resolve an offset identically or a booked
+ * appointment would land on a different day than the one that was picked.
+ */
+export function dateAtOffset(off: number): Date {
+  return new Date(CAL_ANCHOR.getFullYear(), CAL_ANCHOR.getMonth(), CAL_ANCHOR.getDate() + off)
 }
 
 /** Group a plan by ISO day key, for calendar lookups. */
