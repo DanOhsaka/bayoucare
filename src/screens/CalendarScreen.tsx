@@ -221,7 +221,10 @@ export function CalendarScreen() {
 
         <CardHeader>
           <CardTitle data-testid="cal-agenda-head">
-            {selected ? fmtDay(selected, lang) : t('cal.book')}
+            {/* "Pick a day" — it read `cal.book` for a while, which put the same
+                words on the heading as on the button beside it and stopped
+                telling the reader what to do. Caught in the visual pass. */}
+            {selected ? fmtDay(selected, lang) : t('cal.pickDay')}
           </CardTitle>
           <CardAction>
             {selected && (
