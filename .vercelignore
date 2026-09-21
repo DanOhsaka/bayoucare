@@ -1,0 +1,17 @@
+# These have never been inputs to the app — it is fully self-contained — but with
+# no ignore file the whole folder deploys, so the challenge brief, the competitor
+# analysis and the demo scripts have all been publicly readable at the production
+# URL. They are already public in the GitHub repo, so this is not closing a leak,
+# but it does take them off the URL handed to judges.
+CHALLENGE-BRIEF.md
+COMPETITOR-IDEAS.md
+PROJECT-DESCRIPTION.md
+demo-cheatsheet.html
+demo-script.html
+genmap.py
+scripts/
+
+# Tooling and agent scaffolding.
+.claude/
+.agents/
+skills-lock.json

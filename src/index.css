@@ -1,0 +1,319 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* BayouCare drives dark mode with [data-theme="dark"] on <html>, matching the
+   legacy app. The inline boot script in index.html reads that attribute before
+   first paint to avoid a theme flash, so the name is load-bearing — do not
+   rename it to Shadcn's default `.dark` class. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ==========================================================================
+   BayouCare design tokens
+
+   Carried over verbatim from the legacy single-file app so the port is a
+   visual match, not a redesign. The legacy file had these 21 tokens *plus* 74
+   raw hex values used alongside them — everything below is the consolidated,
+   enforced set.
+
+   The governing rule: components reference semantic tokens, never raw values.
+   ========================================================================== */
+:root {
+  color-scheme: light;
+
+  /* --- Brand ramp ------------------------------------------------------- */
+  --green-900: #0b3523;
+  --green-800: #0f4430;
+  --green-700: #145c40;
+  --green-600: #1b6e4d;
+  --green-500: #2a8a62;
+  --green-100: #dcefe4;
+  --green-50: #eff7f1;
+  --amber-500: #e8960c;
+  --amber-100: #fdf0d7;
+  --coral-500: #e05a3c;
+  --coral-100: #fbe5dd;
+
+  /* --- Surfaces and text ------------------------------------------------ */
+  --cream: #faf7f1;
+  --card: #ffffff;
+  --soft: #f4f7f4;
+  --line: #e4e0d6;
+  --ink: #1d2a24;
+  --ink-soft: #51635a;
+  --chip-gray: #eeece4;
+
+  /* Text on the dark green chrome. The legacy file hand-typed nine
+     near-identical cream/mint hexes about 28 times because this pair did not
+     exist as a token. */
+  --on-dark: #eaf5ee;
+  --on-dark-muted: #9fceb8;
+
+  /* --- Status pairs -----------------------------------------------------
+     Foreground and background are declared TOGETHER, deliberately. The legacy
+     file picked them independently, which is exactly how `--green-700` ended up
+     sitting on `--green-50` in dark mode at a 1.71:1 contrast ratio — near
+     invisible. Declaring them as pairs makes that class of bug unrepresentable. */
+  --success: #2a8a62;
+  --success-bg: #dcefe4;
+  --success-fg: #145c40;
+
+  --warning: #e8960c;
+  --warning-bg: #fdf0d7;
+  --warning-fg: #7a4a00;
+
+  --danger: #e05a3c;
+  --danger-bg: #fbe5dd;
+  --danger-fg: #a03a22;
+
+  --info: #0d9488;
+  --info-bg: #d9f2ef;
+  --info-fg: #0b5f57;
+
+  --neutral-bg: #eeece4;
+  --neutral-fg: #51635a;
+
+  /* --- Appointment categories ------------------------------------------
+     The legacy calendar used 2 raw hexes plus 3 tokens for these five, so
+     half the categorical palette sat outside the token layer entirely. */
+  --cat-1: #6c5ce7; /* infusion */
+  --cat-2: #0d9488; /* labs */
+  --cat-3: #e8960c; /* imaging */
+  --cat-4: #2a8a62; /* follow-up */
+  --cat-5: #e05a3c; /* consult */
+
+  /* --- Elevation and shape ---------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgba(13, 42, 28, 0.06);
+  --shadow: 0 1px 2px rgba(13, 42, 28, 0.06), 0 8px 24px -12px rgba(13, 42, 28, 0.18);
+  --shadow-lg: 0 4px 12px rgba(13, 42, 28, 0.08), 0 24px 48px -16px rgba(13, 42, 28, 0.28);
+  --radius: 14px;
+
+  /* --- Shadcn contract --------------------------------------------------
+     Shadcn primitives style themselves entirely from these variables, so
+     mapping the brand onto them is what makes the components arrive wearing
+     BayouCare rather than a default grey. */
+  --background: var(--cream);
+  --foreground: var(--ink);
+  --card-foreground: var(--ink);
+  --popover: var(--card);
+  --popover-foreground: var(--ink);
+  --primary: var(--green-700);
+  --primary-foreground: var(--on-dark);
+  --secondary: var(--soft);
+  --secondary-foreground: var(--ink);
+  --muted: var(--chip-gray);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--green-50);
+  --accent-foreground: var(--green-800);
+  --destructive: var(--coral-500);
+  --destructive-foreground: #ffffff;
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--green-500);
+}
+
+/* ==========================================================================
+   Dark mode
+
+   Only the primitives are re-declared. Every semantic token above is defined
+   in terms of them, so the whole system inverts from this one block — which
+   is the payoff for consolidating: the legacy file needed ~12 hand-written
+   `html[data-theme="dark"] .chip.amber { color: … }` rules to do the same job.
+   ========================================================================== */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --cream: #101713;
+  --card: #18221d;
+  --soft: #18231d;
+  --line: #2c3a32;
+  --ink: #e6efe9;
+  --ink-soft: #96a99d;
+  --chip-gray: #26332b;
+
+  --green-900: #0a2c1f;
+  --green-800: #0e3a2a;
+  --green-700: #13513a;
+  --green-600: #3fa075;
+  --green-500: #3d9a6f;
+  --green-100: #22372c;
+  --green-50: #18251f;
+
+  --amber-100: #3a2c12;
+  --coral-100: #3a2117;
+
+  /* Status pairs, re-declared together. These foregrounds are the mint, amber
+     and coral the legacy file already hand-mixed for this purpose — now paired
+     with their own backgrounds instead of inheriting light-mode ones.
+     `--success-fg` on `--success-bg` measures 9.2:1, against 1.71:1 before. */
+  --success: #3d9a6f;
+  --success-bg: #18251f;
+  --success-fg: #7fd4ae;
+
+  --warning: #e8960c;
+  --warning-bg: #3a2c12;
+  --warning-fg: #f0b85a;
+
+  --danger: #e05a3c;
+  --danger-bg: #3a2117;
+  --danger-fg: #f09a82;
+
+  --info: #2dd4bf;
+  --info-bg: #12312e;
+  --info-fg: #5eead4;
+
+  --neutral-bg: #26332b;
+  --neutral-fg: #96a99d;
+
+  /* Infusion violet is lifted in dark mode: #6c5ce7 on --card is only 3.35:1,
+     which has no headroom above the 3:1 non-text floor. */
+  --cat-1: #8b7cf0;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4), 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+
+  --destructive-foreground: #2a120c;
+}
+
+/* ==========================================================================
+   Expose tokens to Tailwind utilities
+   ========================================================================== */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* BayouCare semantics */
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-success-fg: var(--success-fg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-fg: var(--warning-fg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-fg: var(--danger-fg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-info-fg: var(--info-fg);
+  --color-neutral-bg: var(--neutral-bg);
+  --color-neutral-fg: var(--neutral-fg);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-muted: var(--on-dark-muted);
+
+  --color-cat-1: var(--cat-1);
+  --color-cat-2: var(--cat-2);
+  --color-cat-3: var(--cat-3);
+  --color-cat-4: var(--cat-4);
+  --color-cat-5: var(--cat-5);
+
+  /* Brand ramp, for the places that genuinely need a specific step rather than
+     a semantic role — the chrome, the login gradient, the parish tiles. */
+  --color-brand-50: var(--green-50);
+  --color-brand-100: var(--green-100);
+  --color-brand-500: var(--green-500);
+  --color-brand-600: var(--green-600);
+  --color-brand-700: var(--green-700);
+  --color-brand-800: var(--green-800);
+  --color-brand-900: var(--green-900);
+
+  /* Three radii, replacing the legacy file's thirteen literals. `999px` and
+     `99px` were doing the same job in different places. */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Six type steps, replacing twenty-one. Nine of the old values sat within
+     1.5px of a neighbour, and two (8px, 8.5px parish tiles) were below any
+     legible minimum. */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.84375rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.55;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.35;
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: 1.25;
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 1.2;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 1.15;
+
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.55;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+
+  /* One focus ring for the whole app. The legacy file had exactly one
+     `:focus-visible` rule across 5,606 lines; nineteen interactive classes
+     had none at all, so keyboard users got the browser default or nothing.
+     `:focus-visible` (not `:focus`) keeps the ring off mouse clicks. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Smooth scrolling is disorienting for motion-sensitive users. The legacy
+     file handled prefers-reduced-motion twice for animation, but missed this
+     one, so nav jumps still animated. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
