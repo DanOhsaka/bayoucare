@@ -103,7 +103,7 @@ export function RemiScreen() {
               setDraftKey('')
             }}
             disabled={!draftKey.trim()}
-            className="h-10 rounded-md border border-brand-600 px-3.5 text-sm font-bold text-brand-700 transition-colors hover:bg-accent disabled:opacity-50"
+            className="h-10 rounded-md border border-brand-600 px-3.5 text-sm font-bold text-link transition-colors hover:bg-accent disabled:opacity-50"
           >
             {t('remi.connectSave')}
           </button>

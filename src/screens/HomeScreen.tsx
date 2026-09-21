@@ -57,7 +57,7 @@ export function HomeScreen() {
             */}
             <Link
               to="/my-care/calendar"
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-brand-600 px-3.5 text-sm font-bold text-brand-700 transition-colors hover:bg-accent"
+              className="inline-flex h-9 items-center gap-2 rounded-md border border-brand-600 px-3.5 text-sm font-bold text-link transition-colors hover:bg-accent"
             >
               <CalendarDays className="size-4" aria-hidden="true" />
               {t('side.calendar')}
@@ -129,7 +129,7 @@ export function HomeScreen() {
                   */}
                   <button
                     type="button"
-                    className="flex-none rounded px-2 py-1 text-xs font-bold text-brand-700 transition-colors hover:bg-accent"
+                    className="flex-none rounded px-2 py-1 text-xs font-bold text-link transition-colors hover:bg-accent"
                     onClick={() => {
                       /* wired to the real messaging flow in a later checkpoint */
                     }}

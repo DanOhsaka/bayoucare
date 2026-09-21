@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'
  */
 function MessageAuthor() {
   return (
-    <span className="mb-1 block text-[11px] font-bold uppercase tracking-[0.05em] text-brand-700">
+    <span className="mb-1 block text-[11px] font-bold uppercase tracking-[0.05em] text-link">
       Remi
     </span>
   )
@@ -52,7 +52,7 @@ function Bubble({ msg }: { msg: RemiMessage }) {
     <div className={cn('flex items-start gap-2.5', isUser && 'flex-row-reverse')}>
       {!isUser && (
         <div
-          className="mt-0.5 flex size-7 flex-none items-center justify-center rounded-full bg-brand-100 text-brand-700"
+          className="mt-0.5 flex size-7 flex-none items-center justify-center rounded-full bg-brand-100 text-link"
           aria-hidden="true"
         >
           <Leaf className="size-3.5" />

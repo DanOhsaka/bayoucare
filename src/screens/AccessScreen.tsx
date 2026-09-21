@@ -202,7 +202,7 @@ export function AccessScreen() {
                   <button
                     type="button"
                     onClick={() => toast(`"${action}" — coming up next in the demo.`)}
-                    className="flex-none rounded px-2 py-1 text-xs font-bold text-brand-700 transition-colors hover:bg-accent"
+                    className="flex-none rounded px-2 py-1 text-xs font-bold text-link transition-colors hover:bg-accent"
                   >
                     {action}
                   </button>

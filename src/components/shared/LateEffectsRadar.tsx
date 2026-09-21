@@ -81,9 +81,9 @@ export function LateEffectsRadar({
           <g key={h.cat}>
             <path
               d={`M ${p1[0]} ${p1[1]} L ${p2[0]} ${p2[1]} A ${rDot} ${rDot} 0 0 1 ${p3[0]} ${p3[1]} L ${p4[0]} ${p4[1]} A 18 18 0 0 0 ${p1[0]} ${p1[1]}`}
-              fill={h.color}
+              fill={`var(--${h.color})`}
               opacity={isSel ? 0.5 : 0.28}
-              stroke={h.color}
+              stroke={`var(--${h.color})`}
               strokeWidth={1.2}
               className="cursor-pointer"
               role="button"
@@ -102,8 +102,8 @@ export function LateEffectsRadar({
               cx={dot[0]}
               cy={dot[1]}
               r={5}
-              fill={h.color}
-              stroke="#fff"
+              fill={`var(--${h.color})`}
+              stroke="var(--card)"
               strokeWidth={1.5}
               className="cursor-pointer"
               aria-hidden="true"
@@ -114,7 +114,7 @@ export function LateEffectsRadar({
               y1={dot[1]}
               x2={tip[0]}
               y2={tip[1]}
-              stroke={h.color}
+              stroke={`var(--${h.color})`}
               strokeWidth={1.2}
               opacity={0.35}
             />

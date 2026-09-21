@@ -21,11 +21,11 @@ import { cn } from '@/lib/utils'
  *  fabricated colour for a parish whose late-stage data the LTR rules withheld. */
 const SCALE = [
   'bg-muted text-muted-foreground',
-  'bg-brand-50 text-brand-900',
-  'bg-brand-100 text-brand-900',
+  'bg-brand-50 text-on-brand-tint',
+  'bg-brand-100 text-on-brand-tint',
   'bg-warning-bg text-warning-fg',
-  'bg-warning text-[#3a2400]',
-  'bg-danger text-white',
+  'bg-warning text-on-warning',
+  'bg-danger text-on-danger',
 ]
 
 const TONE: Record<string, string> = {
@@ -150,8 +150,18 @@ export function PopulationScreen() {
             </div>
 
             {mode === 'tiles' ? (
+              /*
+                * `grid-cols-12` compiles to `repeat(12, minmax(0, 1fr))`, so the
+                * columns always shrink and never overflow — which made the
+                * `overflow-x-auto` wrapper decorative, with nothing to scroll.
+                * At 320px that crushed twelve columns into ~18px tiles against
+                * `h-8` boxes. The floor gives the wrapper something to scroll;
+                * the tile x/y positions are inline (below) and would create
+                * implicit columns at any other `grid-cols-N`, so re-authoring
+                * the positions per breakpoint is the alternative this avoids.
+                */
               <div className="max-w-[760px] overflow-x-auto">
-                <div className="grid grid-cols-12 gap-0.5">
+                <div className="grid min-w-[560px] grid-cols-12 gap-0.5">
                   {PARISH_DATA.map((p) => {
                     const b = bucketOf(p, metric)
                     const v = m.f(p)
@@ -162,22 +172,34 @@ export function PopulationScreen() {
                         key={p.n}
                         type="button"
                         aria-pressed={parish === p.n}
+                        /*
+                         * The visible label is the 3-letter abbreviation, and
+                         * `title` is only a last-resort source for the
+                         * accessible name once an element has content — so
+                         * without this a screen reader tabs through 64
+                         * anonymous codes ("CAD", "BOS") carrying no parish and
+                         * no value. The name carries what the tooltip shows.
+                         */
+                        aria-label={`${p.n} — ${valTxt}${rankTxt}`}
                         title={`${p.n} — ${valTxt}${rankTxt}`}
                         onClick={() => setParish(p.n)}
                         style={{ gridColumn: p.x, gridRow: p.y }}
                         className={cn(
-                          'relative flex h-8 items-center justify-center rounded-sm text-[10px] font-bold transition-transform hover:scale-110',
+                          'relative flex h-8 items-center justify-center rounded-sm text-xs font-bold transition-transform hover:scale-110',
                           SCALE[b],
                           parish === p.n && 'ring-2 ring-brand-700',
                           vanHere === p.n && 'ring-2 ring-warning',
                         )}
                       >
                         {p.rank != null && p.rank <= 10 && (
-                          <span className="absolute -right-1 -top-1 flex size-3.5 items-center justify-center rounded-full bg-brand-700 text-[8px] text-on-dark">
+                          <span
+                            aria-hidden="true"
+                            className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-brand-700 text-xs text-on-dark"
+                          >
                             {p.rank}
                           </span>
                         )}
-                        {p.ab}
+                        <span aria-hidden="true">{p.ab}</span>
                       </button>
                     )
                   })}
@@ -185,8 +207,20 @@ export function PopulationScreen() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <svg viewBox={`0 0 ${MAP.w} ${MAP.h}`} className="h-auto w-full max-w-[560px]" role="img" aria-label="Louisiana parishes by screening need">
-                  <title>Louisiana parishes, coloured by {m.label}</title>
+                {/*
+                  * `role="img"` makes this a LEAF in the accessibility tree, and
+                  * screen readers prune a leaf's descendants — which silently
+                  * removed all 64 focusable parish buttons below from AT, even
+                  * though each one is a correctly-built `role="button"` with a
+                  * label and Enter/Space handling. `group` keeps the graphic's
+                  * name while leaving its children exposed. The radar uses the
+                  * same role for the same reason.
+                  */}
+                <svg viewBox={`0 0 ${MAP.w} ${MAP.h}`} className="h-auto w-full max-w-[560px]" role="group" aria-label="Louisiana parishes by screening need">
+                  {/*
+                    * `aria-label` above is the accessible name; a <title> here
+                    * would be a second, conflicting one.
+                    */}
                   {Object.entries(MAP.d).map(([name, d]) => {
                     const p = PARISH_DATA.find((x) => x.n === name)
                     const b = p ? bucketOf(p, metric) : 0
@@ -241,7 +275,7 @@ export function PopulationScreen() {
                       cy={CENTROIDS[vanHere][1]}
                       r={6}
                       fill="var(--green-500)"
-                      stroke="#fff"
+                      stroke="var(--card)"
                       strokeWidth={2}
                     />
                   )}

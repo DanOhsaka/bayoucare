@@ -6,12 +6,21 @@ import { useInterval } from '@/hooks/useInterval'
 import { useInterp } from '@/hooks/useInterp'
 import { useT } from '@/hooks/useT'
 
-/** The style token each replay line uses, from the legacy `cls` column. */
+/**
+ * The style token each replay line uses, from the legacy `cls` column.
+ *
+ * These are the `--on-dark-*` pair, not the themed `--*-fg` pair, because the
+ * replay panel is `bg-brand-900` — dark green in BOTH themes. The themed
+ * foregrounds invert with the theme, so in light mode the clinically meaningful
+ * crit/act/ok lines rendered at 1.70–2.12:1 against that dark panel: present,
+ * and unreadable. The `--on-dark-*` values are fixed for a dark surface and
+ * measure 7:1 or better on it either way.
+ */
 const LINE_STYLE: Record<string, string> = {
-  t: 'text-muted-foreground',
-  crit: 'text-danger-fg font-bold',
-  act: 'text-warning-fg font-bold',
-  ok: 'text-success-fg',
+  t: 'text-on-dark-muted',
+  crit: 'text-on-dark-danger font-bold',
+  act: 'text-on-dark-warning font-bold',
+  ok: 'text-on-dark-success',
 }
 
 export function VitalsScreen() {

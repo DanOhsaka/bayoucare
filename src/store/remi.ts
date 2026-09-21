@@ -134,11 +134,10 @@ export const useRemi = create<RemiState>((set, get) => ({
     const userMsg: RemiMessage = { id: uid(), role: 'user', html: remiSafeHtml(q), chips: [] }
     set((s) => ({ messages: [...s.messages, userMsg], busy: true }))
 
-    // Computed synchronously and BEFORE any await — the local engine is what
-    // decides the tier, and therefore whether this is routed at all.
-    const local = remiAnswer(q) ?? { text: REMI_FALLBACK, tier: 'unknown' as const, engine: 'local' as const }
-    const routed = local.tier === 'crisis' || local.tier === 'urgent' || local.tier === 'clinical'
-
+    // The pending bubble is placed BEFORE the engine runs. The engine is the one
+    // thing here that can throw synchronously, and if it did so first the
+    // patient's question would sit in the log with no reply bubble to settle
+    // into — an answer that never arrives, with nothing said about why.
     const pendingId = uid()
     set((s) => ({
       messages: [...s.messages, { id: pendingId, role: 'remi', html: '', chips: [], pending: true }],
@@ -149,58 +148,78 @@ export const useRemi = create<RemiState>((set, get) => ({
         messages: s.messages.map((m) => (m.id === pendingId ? { ...m, html, chips, pending: false } : m)),
       }))
 
-    const { key, history } = get()
-    let text = local.text
-    let degraded = false
+    try {
+      // Computed synchronously and BEFORE any await — the local engine is what
+      // decides the tier, and therefore whether this is routed at all.
+      const local = remiAnswer(q) ?? { text: REMI_FALLBACK, tier: 'unknown' as const, engine: 'local' as const }
+      const routed = local.tier === 'crisis' || local.tier === 'urgent' || local.tier === 'clinical'
 
-    if (routed) {
-      /*
-       * A crisis, an emergency, or a clinical question is decided ON-DEVICE and
-       * answered on-device — it never reaches the model, connected or not.
-       *
-       * Those tiers also SKIP the thinking beat below. The pause is theatre, and
-       * making someone wait a beat and a half for a 988 number is not acceptable.
-       * Routed answers land the instant they are computed.
-       */
-      settle(local.text, [{ label: T('remi.chipLocal'), kind: 'neutral' }])
-    } else {
-      if (key) {
-        // The real round trip drives the indicator, with the thinking beat as a
-        // floor so a fast connection still feels like an answer being composed.
-        const [cloud] = await Promise.all([
-          askCloud(q, key, history).catch(() => {
-            degraded = true
-            return null
-          }),
-          delay(thinkMs()),
-        ])
-        if (cloud) text = cloud.text
+      const { key, history } = get()
+      let text = local.text
+      let degraded = false
+
+      if (routed) {
+        /*
+         * A crisis, an emergency, or a clinical question is decided ON-DEVICE and
+         * answered on-device — it never reaches the model, connected or not.
+         *
+         * Those tiers also SKIP the thinking beat below. The pause is theatre, and
+         * making someone wait a beat and a half for a 988 number is not acceptable.
+         * Routed answers land the instant they are computed.
+         */
+        settle(local.text, [{ label: T('remi.chipLocal'), kind: 'neutral' }])
       } else {
-        await delay(thinkMs())
-      }
+        if (key) {
+          // The real round trip drives the indicator, with the thinking beat as a
+          // floor so a fast connection still feels like an answer being composed.
+          const [cloud] = await Promise.all([
+            askCloud(q, key, history).catch(() => {
+              degraded = true
+              return null
+            }),
+            delay(thinkMs()),
+          ])
+          if (cloud) text = cloud.text
+        } else {
+          await delay(thinkMs())
+        }
 
-      const chips: RemiChip[] = [
-        {
-          label: key ? `${REMI_PROVIDERS[remiProviderOf(key)].label} ${T('remi.chipConnected')}` : T('remi.chipLocal'),
-          kind: 'success',
-        },
-      ]
-      if (degraded) chips.push({ label: T('remi.degraded'), kind: 'warning' })
-      settle(text, chips)
+        const chips: RemiChip[] = [
+          {
+            label: key ? `${REMI_PROVIDERS[remiProviderOf(key)].label} ${T('remi.chipConnected')}` : T('remi.chipLocal'),
+            kind: 'success',
+          },
+        ]
+        if (degraded) chips.push({ label: T('remi.degraded'), kind: 'warning' })
+        settle(text, chips)
 
-      if (key && !degraded) {
-        set((s) => ({
-          history: s.history
-            .concat([
-              { role: 'user', content: q },
-              { role: 'assistant', content: text },
-            ])
-            .slice(-8),
-        }))
+        if (key && !degraded) {
+          set((s) => ({
+            history: s.history
+              .concat([
+                { role: 'user', content: q },
+                { role: 'assistant', content: text },
+              ])
+              .slice(-8),
+          }))
+        }
       }
+    } catch {
+      /*
+       * The engine threw. Answer from the on-device fallback rather than leaving
+       * a typing bubble spinning forever.
+       *
+       * `busy` is cleared in the `finally` rather than here, and that is the
+       * point of this block: it used to be a bare `set({ busy: false })` at the
+       * end of the happy path, so ANY throw skipped it — leaving the composer
+       * and the send button disabled permanently, with no error shown and no
+       * way back. That is the single dead-end state this app is not allowed to
+       * have, and it sat directly on the demo's critical path.
+       */
+      settle(REMI_FALLBACK, [{ label: T('remi.chipLocal'), kind: 'neutral' }])
+    } finally {
+      set({ busy: false })
     }
-
-    set({ busy: false })
   },
 
   saveKey(k) {

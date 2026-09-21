@@ -48,7 +48,7 @@ export function JourneyScreen() {
                       done
                         ? 'bg-brand-500 text-on-dark'
                         : now
-                          ? 'border-2 border-brand-600 bg-accent text-brand-700'
+                          ? 'border-2 border-brand-600 bg-accent text-link'
                           : 'border border-border bg-background text-muted-foreground',
                     )}
                     aria-hidden="true"
@@ -67,7 +67,7 @@ export function JourneyScreen() {
                   <div
                     className={cn(
                       'text-sm font-semibold',
-                      now ? 'text-brand-700' : 'text-card-foreground',
+                      now ? 'text-link' : 'text-card-foreground',
                     )}
                   >
                     {t(s.tw)}

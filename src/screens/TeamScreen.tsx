@@ -67,7 +67,7 @@ function CounterfactualLine({
     >
       <span aria-hidden="true">💡</span>
       <b className="text-accent-foreground">{cf.label}</b>
-      <span className="text-brand-700">
+      <span className="text-link">
         {current}% → {cf.to}%
       </span>
       <span className="font-bold text-success-fg">−{cf.drop} pts</span>
@@ -145,7 +145,7 @@ export function TeamScreen() {
           [avoided, 'unplanned-care events projected avoidable / 30 days if top actions are applied (demo model)'],
         ].map(([n, d], i) => (
           <div key={i} className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow)]">
-            <div className="text-2xl font-bold text-brand-700">{n}</div>
+            <div className="text-2xl font-bold text-link">{n}</div>
             <div className="mt-1 text-xs text-muted-foreground">{d}</div>
           </div>
         ))}
@@ -467,7 +467,7 @@ export function TeamScreen() {
               ['9', 'calls avoided with triage flags'],
             ].map(([n, d]) => (
               <div key={d} className="rounded-lg border border-border bg-accent p-4">
-                <div className="text-2xl font-bold text-brand-700">{n}</div>
+                <div className="text-2xl font-bold text-link">{n}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{d}</div>
               </div>
             ))}

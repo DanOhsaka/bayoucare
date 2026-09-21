@@ -72,6 +72,38 @@
   --neutral-bg: #eeece4;
   --neutral-fg: #51635a;
 
+  /* Text on SOLID amber, i.e. `bg-warning`. Deliberately NOT `--warning-fg`:
+     that is a TINT foreground, valid only on `--warning-bg`, and measures
+     3.13:1 on the solid — swapping it in would ship a contrast regression.
+     `#3a2400` on `#e8960c` is 6.14:1, which is why the literal survived. */
+  --on-warning: #3a2400;
+
+  /* Emphasis and link text. `--green-700` is a SURFACE value; in dark mode it
+     is darker than the card behind it (1.76:1), which is how the legacy app's
+     1.71:1 collapse came back in through the brand ramp. This is the
+     text-safe counterpart, re-pointed in the dark block below. */
+  --link: #145c40;
+
+  /* Status text on the dark green chrome. That chrome is dark in BOTH themes,
+     so these are mode-independent on purpose: `--success-fg` and friends invert
+     with the theme and would go near-black on dark green in light mode. */
+  --on-dark-success: #7fd4ae;
+  --on-dark-warning: #f0b85a;
+  --on-dark-danger: #f09a82;
+
+  /* Text on SOLID coral, i.e. `bg-danger`. Same reasoning as `--on-warning`.
+     `--destructive-foreground` cannot serve here: it is Shadcn's contract for
+     text on a destructive CONTROL and is white in light mode, which measures
+     3.69:1 on this coral. `#2a120c` is 4.79:1 in both themes, so one value
+     covers both — which is why it needs no dark override below. */
+  --on-danger: #2a120c;
+
+  /* Text on the pale brand tints (`--brand-50`, `--brand-100`). Those tints are
+     pale in light mode and dark in dark mode, so the text has to invert with
+     them. `--brand-900` is dark in BOTH, which is how the two lowest quintiles
+     of the parish ramp came to sit at 1.05:1 in dark mode. */
+  --on-brand-tint: #0b3523;
+
   /* --- Appointment categories ------------------------------------------
      The legacy calendar used 2 raw hexes plus 3 tokens for these five, so
      half the categorical palette sat outside the token layer entirely. */
@@ -164,6 +196,14 @@
   --neutral-bg: #26332b;
   --neutral-fg: #96a99d;
 
+  /* Shadcn contract, re-pointed for dark. `--accent-foreground` defaults to
+     `--green-800`, which in dark mode is DARKER than `--accent` (`--green-50`)
+     — the pair collapsed to 1.25:1, worse than the 1.71:1 the legacy file was
+     pulled up on. Mint on the dark accent surface measures 9.2:1. */
+  --accent-foreground: #7fd4ae;
+  --link: #7fd4ae;
+  --on-brand-tint: #eaf5ee;
+
   /* Infusion violet is lifted in dark mode: #6c5ce7 on --card is only 3.35:1,
      which has no headroom above the 3:1 non-text floor. */
   --cat-1: #8b7cf0;
@@ -216,6 +256,13 @@
   --color-neutral-fg: var(--neutral-fg);
   --color-on-dark: var(--on-dark);
   --color-on-dark-muted: var(--on-dark-muted);
+  --color-on-warning: var(--on-warning);
+  --color-on-danger: var(--on-danger);
+  --color-on-brand-tint: var(--on-brand-tint);
+  --color-on-dark-success: var(--on-dark-success);
+  --color-on-dark-warning: var(--on-dark-warning);
+  --color-on-dark-danger: var(--on-dark-danger);
+  --color-link: var(--link);
 
   --color-cat-1: var(--cat-1);
   --color-cat-2: var(--cat-2);

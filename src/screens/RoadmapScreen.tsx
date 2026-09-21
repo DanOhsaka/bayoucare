@@ -56,8 +56,8 @@ const PHASES = [
 
 const BADGE: Record<string, string> = {
   green: 'bg-brand-700 text-on-dark',
-  amber: 'bg-warning text-[#3a2400]',
-  coral: 'bg-danger text-white',
+  amber: 'bg-warning text-on-warning',
+  coral: 'bg-danger text-on-danger',
 }
 
 const CARDS = [

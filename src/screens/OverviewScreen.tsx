@@ -161,7 +161,7 @@ export function OverviewScreen() {
         */}
         <RichText
           html={t('hero.h1')}
-          className="mt-3 block text-3xl font-bold leading-tight [&_.hi]:text-[#f2c14e] sm:text-4xl"
+          className="mt-3 block text-3xl font-bold leading-tight [&_.hi]:text-warning sm:text-4xl"
         />
         <p className="mt-4 max-w-2xl text-base text-on-dark-muted">{t('hero.lead')}</p>
 
@@ -169,7 +169,7 @@ export function OverviewScreen() {
           <button
             type="button"
             onClick={() => go('app')}
-            className="inline-flex h-11 items-center rounded-md bg-[#e8960c] px-5 text-sm font-bold text-[#3a2400] transition-opacity hover:opacity-90"
+            className="inline-flex h-11 items-center rounded-md bg-warning px-5 text-sm font-bold text-on-warning transition-opacity hover:opacity-90"
           >
             ▶ {t('hero.cta1')}
           </button>
@@ -211,7 +211,7 @@ export function OverviewScreen() {
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {JOURNEY.map(([n, l]) => (
           <div key={n} className="rounded-lg border border-brand-600/30 bg-accent p-3.5">
-            <div className="text-xs font-bold text-brand-700">{n}</div>
+            <div className="text-xs font-bold text-link">{n}</div>
             <div className="mt-0.5 text-sm font-semibold text-accent-foreground">{l}</div>
           </div>
         ))}
@@ -331,7 +331,7 @@ export function OverviewScreen() {
               ['2 hrs', 'admin time saved per patient per week'],
             ].map(([n, d]) => (
               <div key={n} className="rounded-lg border border-border bg-accent p-4">
-                <div className="text-2xl font-bold text-brand-700">{n}</div>
+                <div className="text-2xl font-bold text-link">{n}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{d}</div>
               </div>
             ))}
@@ -345,7 +345,7 @@ export function OverviewScreen() {
             <button
               type="button"
               onClick={() => go('app')}
-              className="inline-flex h-10 items-center rounded-md bg-[#e8960c] px-4 text-sm font-bold text-[#3a2400] transition-opacity hover:opacity-90"
+              className="inline-flex h-10 items-center rounded-md bg-warning px-4 text-sm font-bold text-on-warning transition-opacity hover:opacity-90"
             >
               ▶ Try the patient demo
             </button>

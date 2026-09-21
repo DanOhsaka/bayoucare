@@ -93,7 +93,7 @@ export function UnderstandScreen() {
 
           <div className="flex justify-start">
             <div className="max-w-[85%] rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-card-foreground">
-              <b className="mb-1 block text-[11px] font-bold uppercase tracking-[0.05em] text-brand-700">
+              <b className="mb-1 block text-[11px] font-bold uppercase tracking-[0.05em] text-link">
                 BayouCare
               </b>
               That's completely understandable — let's take it one line at a time. ER+/PR+ means your

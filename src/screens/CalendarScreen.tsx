@@ -55,7 +55,7 @@ function DayWithDots({
             />
           ))}
           {appts.length > 3 && (
-            <span className="text-[9px] font-bold leading-none text-muted-foreground">
+            <span className="text-xs font-bold leading-none text-muted-foreground">
               +{appts.length - 3}
             </span>
           )}
@@ -164,7 +164,7 @@ export function CalendarScreen() {
                 setSelected(undefined)
                 setMonth(CAL_ANCHOR)
               }}
-              className="rounded px-2 py-1 text-xs font-bold text-brand-700 transition-colors hover:bg-accent"
+              className="rounded px-2 py-1 text-xs font-bold text-link transition-colors hover:bg-accent"
             >
               Clear
             </button>
