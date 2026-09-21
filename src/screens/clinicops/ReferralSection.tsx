@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
 
+import { ProgressTrack } from '@/components/shared/ProgressTrack'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -137,16 +138,11 @@ export function ReferralSection() {
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {r.fromCity} → {refDestCity(r)} · {p.done}/{p.total} steps · {r.coverage}
                     </p>
-                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-                      <i
-                        aria-hidden="true"
-                        className={cn(
-                          'block h-full rounded-full',
-                          p.pct === 100 ? 'bg-brand-500' : 'bg-warning',
-                        )}
-                        style={{ width: `${p.pct}%` }}
-                      />
-                    </div>
+                    <ProgressTrack
+                      className="mt-2"
+                      pct={p.pct}
+                      tone={p.pct === 100 ? 'brand' : 'warning'}
+                    />
                   </div>
                 </Button>
               )

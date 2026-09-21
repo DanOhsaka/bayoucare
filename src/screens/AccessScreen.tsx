@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Field, SELECT_CLASS } from '@/components/shared/Field'
+import { ProgressTrack } from '@/components/shared/ProgressTrack'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,7 +10,6 @@ import { loadTrials, type TrialMatch, type TrialSource } from '@/engine/trials'
 import { PATIENTS, PHASE_FMT } from '@/data'
 import { usePatient } from '@/store/patient'
 import { useT } from '@/hooks/useT'
-import { cn } from '@/lib/utils'
 
 const HELP_TYPES = [
   'Transportation to a future appointment',
@@ -67,7 +67,6 @@ function TrialCard({ t }: { t: TrialMatch }) {
   const n = t.crits.length
   const pass = t.crits.filter((c) => c.ok === true).length
   const pct = Math.round((pass / n) * 100)
-  const barClass = pct >= 70 ? 'bg-brand-500' : pct >= 40 ? 'bg-warning' : 'bg-danger'
 
   return (
     /* Nested inside the trials card, so it keeps the inner `p-4` density. */
@@ -98,13 +97,12 @@ function TrialCard({ t }: { t: TrialMatch }) {
         </div>
 
         <div className="mt-3">
-          <div className="h-2 overflow-hidden rounded-full bg-muted">
-            <i
-              className={cn('block h-full rounded-full', barClass)}
-              style={{ width: `${pct}%` }}
-              aria-hidden="true"
-            />
-          </div>
+          {/* Inverted bands on purpose: this measures eligibility criteria PASSED,
+              so high is good — the opposite of the risk bands in `riskTone`. */}
+          <ProgressTrack
+            pct={pct}
+            tone={pct >= 70 ? 'brand' : pct >= 40 ? 'warning' : 'danger'}
+          />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
             <span className="text-xs text-muted-foreground">
               <b className="text-card-foreground">

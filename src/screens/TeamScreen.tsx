@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
 
+import { ProgressTrack, riskTone } from '@/components/shared/ProgressTrack'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,26 +30,15 @@ const RISK_VARIANT: Record<RiskLevel, 'danger' | 'warning' | 'neutral'> = {
   none: 'neutral',
 }
 
-/** Risk colour thresholds, shared by every bar. */
-const riskBarClass = (v: number) => (v >= 50 ? 'bg-danger' : v >= 25 ? 'bg-warning' : 'bg-brand-500')
+/* The risk bands now live in `ProgressTrack` as `riskTone`, so the roster and
+   the counterfactual board cannot drift apart. */
 
 function RiskPill({ level }: { level: RiskLevel }) {
   return <Badge variant={RISK_VARIANT[level]}>{RISK_LABEL[level]}</Badge>
 }
 
 function RiskBar({ value }: { value: number }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="h-2 min-w-[80px] flex-1 overflow-hidden rounded-full bg-muted">
-        <i
-          className={cn('block h-full rounded-full', riskBarClass(value))}
-          style={{ width: `${Math.min(100, value)}%` }}
-          aria-hidden="true"
-        />
-      </div>
-      <span className="w-9 flex-none text-right text-xs font-bold text-card-foreground">{value}%</span>
-    </div>
-  )
+  return <ProgressTrack pct={value} tone={riskTone(value)} valueText={`${value}%`} />
 }
 
 function CounterfactualLine({
@@ -143,16 +133,45 @@ export function TeamScreen() {
       </Card>
 
       {/* ------------------------------------------------------- impact row
-          `gap-0 p-5` is the app's impact-tile idiom — see SlotBoardSection. */}
+          `gap-0 p-5` is the app's impact-tile idiom — see SlotBoardSection.
+
+          Each tile reads number → label → explanation, in that order. It used
+          to be number → one 60-to-95-character sentence, which meant all three
+          tiles carried equal visual weight and the sentence competed with the
+          figure it was describing. Scanning a dashboard should not require
+          reading three paragraphs.
+
+          Only the CRITICAL figure is coloured. That is the point of the row:
+          one of these numbers needs action now and two are context. Colouring
+          all three would colour none of them. `--danger` is 3.69:1 on the card,
+          which clears the 3:1 large-text floor at this size; the amber would
+          not (2.39:1), so the watch figure stays in the foreground colour
+          rather than borrowing a contrast failure for decoration. */}
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         {[
-          [critCount, 'critical forecast today — 7-day unplanned-care risk ≥ 50%'],
-          [watchCount, 'watch forecasts — risk 25–50%, a counterfactual action attached to each'],
-          [avoided, 'unplanned-care events projected avoidable / 30 days if top actions are applied (demo model)'],
-        ].map(([n, d], i) => (
+          {
+            n: critCount,
+            label: 'Critical today',
+            why: '7-day unplanned-care risk ≥ 50%',
+            tone: 'text-danger',
+          },
+          {
+            n: watchCount,
+            label: 'On watch',
+            why: 'Risk 25–50% — each has a counterfactual attached',
+            tone: 'text-card-foreground',
+          },
+          {
+            n: avoided,
+            label: 'Avoidable / 30 days',
+            why: 'Unplanned-care events, if the top actions are applied (demo model)',
+            tone: 'text-card-foreground',
+          },
+        ].map((s, i) => (
           <Card key={i} className="gap-0 p-5">
-            <div className="text-2xl font-bold text-link">{n}</div>
-            <div className="mt-1 text-xs text-muted-foreground">{d}</div>
+            <div className={cn('text-2xl font-bold', s.tone)}>{s.n}</div>
+            <div className="mt-1 text-xs font-semibold text-card-foreground">{s.label}</div>
+            <div className="mt-0.5 text-xs text-muted-foreground">{s.why}</div>
           </Card>
         ))}
       </div>
@@ -516,19 +535,16 @@ function PatientDetail({ patient }: { patient: TeamPatient }) {
           <p className="mt-1 text-xs text-muted-foreground">{patient.driver}</p>
           <div className="mt-2 flex flex-col gap-2">
             {contribs.map((c) => (
-              <div key={c.k} className="flex items-center gap-2">
-                <span className="w-32 flex-none text-xs text-muted-foreground">{c.label}</span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className={cn('h-full rounded-full', c.v >= 0 ? 'bg-danger' : 'bg-brand-500')}
-                    style={{ width: `${Math.min(100, (Math.abs(c.v) / max) * 100)}%` }}
-                  />
-                </div>
-                <span className="w-12 flex-none text-right text-xs font-bold text-card-foreground">
-                  {c.v >= 0 ? '+' : ''}
-                  {c.v.toFixed(2)}
-                </span>
-              </div>
+              <ProgressTrack
+                key={c.k}
+                label={c.label}
+                pct={(Math.abs(c.v) / max) * 100}
+                // Red pushes risk UP and blue-ish pulls it down — the direction
+                // is the meaning here, not a severity band.
+                tone={c.v >= 0 ? 'danger' : 'brand'}
+                width="w-12"
+                valueText={`${c.v >= 0 ? '+' : ''}${c.v.toFixed(2)}`}
+              />
             ))}
           </div>
           <p className="mt-2 text-xs text-muted-foreground">

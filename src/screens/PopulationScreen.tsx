@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
+import { ProgressTrack } from '@/components/shared/ProgressTrack'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -576,19 +577,12 @@ function FitTracking({ selected }: { selected: ParishRow | null }) {
             return (
               <div key={p.n} className="flex items-center gap-3">
                 <span className="w-28 flex-none truncate text-sm text-card-foreground">{p.n}</span>
-                <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className={cn(
-                      'h-full rounded-full',
-                      pct < 40 ? 'bg-danger' : pct < 55 ? 'bg-warning' : 'bg-brand-500',
-                    )}
-                    style={{ width: `${pct}%` }}
-                    aria-hidden="true"
-                  />
-                </div>
-                <span className="w-24 flex-none text-right text-xs text-muted-foreground">
-                  {f.fitBack.toLocaleString()}/{f.fitSent.toLocaleString()} · {pct}%
-                </span>
+                <ProgressTrack
+                  pct={pct}
+                  tone={pct < 40 ? 'danger' : pct < 55 ? 'warning' : 'brand'}
+                  width="w-24"
+                  valueText={`${f.fitBack.toLocaleString()}/${f.fitSent.toLocaleString()} · ${pct}%`}
+                />
               </div>
             )
           })}
