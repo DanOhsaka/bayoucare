@@ -11,14 +11,12 @@ import { TeamScreen } from '@/screens/TeamScreen'
 import { RoadmapScreen } from '@/screens/RoadmapScreen'
 import { SurvivorshipScreen } from '@/screens/SurvivorshipScreen'
 import { PopulationScreen } from '@/screens/PopulationScreen'
-import { Placeholder } from '@/routes/Placeholder'
+import { ClinicOpsScreen } from '@/screens/ClinicOpsScreen'
 import { useSession } from '@/store/session'
-import { useT } from '@/hooks/useT'
 
 export default function App() {
   const auth = useSession((s) => s.auth)
   const check = useSession((s) => s.check)
-  const t = useT()
 
   useEffect(() => {
     void check()
@@ -46,7 +44,7 @@ export default function App() {
             <Route path="/my-plan" element={<MyPlanScreen />} />
 
             <Route path="/care-team" element={<TeamScreen />} />
-            <Route path="/clinic-ops" element={<Placeholder title={t('nav.clinicops')} view="clinicops" />} />
+            <Route path="/clinic-ops" element={<ClinicOpsScreen />} />
             <Route path="/survivorship" element={<SurvivorshipScreen />} />
             <Route path="/population" element={<PopulationScreen />} />
             <Route path="/roadmap" element={<RoadmapScreen />} />

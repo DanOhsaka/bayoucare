@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -10,10 +10,14 @@ import {
   riskBreast,
   riskColo,
   riskLung,
+  type BreastInput,
+  type ColoInput,
+  type LungInput,
   type Tier,
 } from '@/engine/screening'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
+import { useClinic } from '@/store/clinic'
 
 const TIER_CHIP: Record<Tier, string> = {
   high: 'bg-danger-bg text-danger-fg',
@@ -58,8 +62,25 @@ function CardHead({ title, chip, chipClass }: { title: string; chip?: string; ch
 /* --------------------------------------------------------------- lung */
 
 function LungCalculator() {
-  const [v, setV] = useState({ age: 62, packs: 40, status: 'current', quit: 0 })
+  /*
+   * The inputs live in the shared `clinic` slice rather than local state so
+   * that Clinic Ops' "Probe in patient app" can seed them from the CDS alert —
+   * the patient must land on the SAME numbers the PCP's card showed. `setV`
+   * keeps its single-argument shape, so every call site below is unchanged.
+   */
+  const v = useClinic((s) => s.calc.ldct)
+  const setV = (next: LungInput) => useClinic.getState().setCalc('ldct', next)
   const [result, setResult] = useState<ReturnType<typeof riskLung> | null>(null)
+
+  // A probe expects the answer on arrival, not a filled-in form — the legacy
+  // called `calcLung()` itself before switching tabs. Clearing the flag makes
+  // this fire once, not on every later visit.
+  const autoCalc = useClinic((s) => s.autoCalc)
+  useEffect(() => {
+    if (autoCalc !== 'ldct') return
+    setResult(riskLung(useClinic.getState().calc.ldct))
+    useClinic.getState().clearAutoCalc()
+  }, [autoCalc])
   const num = (s: string) => (s === '' ? 0 : Number(s))
 
   return (
@@ -163,8 +184,16 @@ function LungCalculator() {
 /* -------------------------------------------------------------- breast */
 
 function BreastCalculator() {
-  const [v, setV] = useState({ age: 42, fdr: 1, sig: 'none' })
+  const v = useClinic((s) => s.calc.breast)
+  const setV = (next: BreastInput) => useClinic.getState().setCalc('breast', next)
   const [result, setResult] = useState<ReturnType<typeof riskBreast> | null>(null)
+
+  const autoCalc = useClinic((s) => s.autoCalc)
+  useEffect(() => {
+    if (autoCalc !== 'breast') return
+    setResult(riskBreast(useClinic.getState().calc.breast))
+    useClinic.getState().clearAutoCalc()
+  }, [autoCalc])
   const num = (s: string) => (s === '' ? 0 : Number(s))
 
   return (
@@ -236,8 +265,16 @@ function BreastCalculator() {
 /* ---------------------------------------------------------- colorectal */
 
 function ColoCalculator() {
-  const [v, setV] = useState({ age: 64, f: 'oneyoung' })
+  const v = useClinic((s) => s.calc.colo)
+  const setV = (next: ColoInput) => useClinic.getState().setCalc('colo', next)
   const [result, setResult] = useState<ReturnType<typeof riskColo> | null>(null)
+
+  const autoCalc = useClinic((s) => s.autoCalc)
+  useEffect(() => {
+    if (autoCalc !== 'colo') return
+    setResult(riskColo(useClinic.getState().calc.colo))
+    useClinic.getState().clearAutoCalc()
+  }, [autoCalc])
   const num = (s: string) => (s === '' ? 0 : Number(s))
 
   return (
@@ -359,7 +396,7 @@ export function PreventScreen() {
               <li key={h as string} className="flex items-start gap-2.5 rounded-md border border-border p-2.5">
                 <span
                   className={cn(
-                    'mt-0.5 flex size-4 flex-none items-center justify-center rounded-full text-[10px] font-bold',
+                    'mt-0.5 flex size-4 flex-none items-center justify-center rounded-full text-xs font-bold',
                     done ? 'bg-brand-500 text-on-dark' : 'border border-border',
                   )}
                   aria-hidden="true"
@@ -400,7 +437,7 @@ export function PreventScreen() {
                 <button
                   type="button"
                   onClick={() => toast('✅ Saved to your calendar.')}
-                  className="flex-none rounded px-2 py-1 text-xs font-bold text-brand-700 transition-colors hover:bg-accent"
+                  className="flex-none rounded px-2 py-1 text-xs font-bold text-link transition-colors hover:bg-accent"
                 >
                   Save
                 </button>
