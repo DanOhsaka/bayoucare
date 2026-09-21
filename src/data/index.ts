@@ -126,6 +126,8 @@ export interface Survivor {
   survivorSince: string
   treatments: Array<[string, string]>
   e: Record<string, number | boolean>
+  /** Recorded "done" dates, keyed by rule category — these beat the projection. */
+  od?: Record<string, string>
 }
 
 export const SURVIVORS = survivorsJson as unknown as Record<string, Survivor>

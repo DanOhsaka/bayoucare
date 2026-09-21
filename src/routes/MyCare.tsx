@@ -5,6 +5,11 @@ import { HomeScreen } from '@/screens/HomeScreen'
 import { CalendarScreen } from '@/screens/CalendarScreen'
 import { RemiScreen } from '@/screens/RemiScreen'
 import { PreventScreen } from '@/screens/PreventScreen'
+import { JourneyScreen } from '@/screens/JourneyScreen'
+import { UnderstandScreen } from '@/screens/UnderstandScreen'
+import { CheckinsScreen } from '@/screens/CheckinsScreen'
+import { VitalsScreen } from '@/screens/VitalsScreen'
+import { AccessScreen } from '@/screens/AccessScreen'
 import { isScreen } from '@/components/layout/navItems'
 import { Placeholder } from '@/routes/Placeholder'
 import { useT } from '@/hooks/useT'
@@ -40,6 +45,16 @@ export function MyCare() {
         return <RemiScreen />
       case 'prevent':
         return <PreventScreen />
+      case 'journey':
+        return <JourneyScreen />
+      case 'understand':
+        return <UnderstandScreen />
+      case 'checkins':
+        return <CheckinsScreen />
+      case 'vitals':
+        return <VitalsScreen />
+      case 'access':
+        return <AccessScreen />
       default: {
         const meta = PATIENT_SCREENS.find((s) => s.key === active)
         return (

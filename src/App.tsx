@@ -6,6 +6,7 @@ import { LoginGate } from '@/components/auth/LoginGate'
 import { AppShell } from '@/components/layout/AppShell'
 import { MyCare } from '@/routes/MyCare'
 import { OverviewScreen } from '@/screens/OverviewScreen'
+import { MyPlanScreen } from '@/screens/MyPlanScreen'
 import { Placeholder } from '@/routes/Placeholder'
 import { useSession } from '@/store/session'
 import { useT } from '@/hooks/useT'
@@ -38,7 +39,7 @@ export default function App() {
             <Route path="/overview" element={<OverviewScreen />} />
             <Route path="/my-care" element={<Navigate to="/my-care/home" replace />} />
             <Route path="/my-care/:screen" element={<MyCare />} />
-            <Route path="/my-plan" element={<Placeholder title={t('nav.myplan')} view="myplan" />} />
+            <Route path="/my-plan" element={<MyPlanScreen />} />
 
             <Route path="/care-team" element={<Placeholder title={t('nav.team')} view="team" />} />
             <Route path="/clinic-ops" element={<Placeholder title={t('nav.clinicops')} view="clinicops" />} />

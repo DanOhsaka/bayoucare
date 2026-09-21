@@ -1,10 +1,14 @@
 import { remiAnswer } from '@/engine/remi/answer'
 import { remiSafeHtml } from '@/engine/remi/safeHtml'
 import { plco2012, riskBreast, riskColo, riskLung } from '@/engine/screening'
-import { PATIENTS } from '@/data'
+import { ruleFind } from '@/engine/survivorship/lateRules'
+import { scpModel } from '@/engine/survivorship/planRows'
+import { PATIENTS, SURVIVORS } from '@/data'
+import { useCheckins } from '@/store/checkins'
 import { usePatient } from '@/store/patient'
 import { useSession } from '@/store/session'
 import { useUi } from '@/store/ui'
+import { useVitals } from '@/store/vitals'
 
 /**
  * A handle on the app's internals, for the verification harnesses.
@@ -32,6 +36,15 @@ export function installTestSurface() {
     riskBreast,
     riskColo,
     plco2012,
+
+    // The late-effects engine and its consumer, likewise.
+    SURVIVORS,
+    ruleFind,
+    scpModel,
+
+    // Stores the harnesses drive directly.
+    vitals: useVitals,
+    checkins: useCheckins,
 
     /** Skip the sign-in gate, as the legacy harnesses do. */
     setAuth: (auth: 'pending' | 'out' | 'in') => useSession.setState({ auth }),
