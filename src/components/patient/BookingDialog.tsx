@@ -113,13 +113,14 @@ export function BookingDialog({ open, onOpenChange, editing }: Props) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{editing ? t('cal.reschedHead') : t('cal.bookHead')}</DialogTitle>
-          <DialogDescription>
-            {t('cal.sub')}
-          </DialogDescription>
+          <DialogDescription>{t('cal.bookSub')}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-3">
-          <Field label={t('cal.head')} id="booking-day">
+          {/* `cal.head` is the calendar card's heading ("My appointments") —
+              reusing it here labelled the day picker "My appointments", which
+              is what a screenshot caught. This is its own key. */}
+          <Field label={t('cal.day')} id="booking-day">
             <select
               id="booking-day"
               className={SELECT_CLASS}
