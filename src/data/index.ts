@@ -40,6 +40,20 @@ export interface CalendarType {
   where: string
 }
 
+/** A family-circle task. `st` keys into FAM_STATE. */
+export interface FamilyTask {
+  t: string
+  s: string
+  st: string
+}
+
+/** done / in / open / auto — `c` is the extra class, `k` the check glyph. */
+export interface FamilyState {
+  c: string
+  k: string
+  d: string
+}
+
 export interface PlannedAppointment {
   off: number
   type: string
@@ -72,7 +86,7 @@ export interface Patient {
   cycleTotal: number
   cycleDay: number
   careTeam: CareTeamMember[]
-  family: { sub: string; tasks: string[] }
+  family: { sub: string; tasks: FamilyTask[] }
   surv: string | null
   trialSet: string[]
   vitals: Record<string, string | number>
@@ -163,5 +177,5 @@ export const SLOT_TYPES = slotTypesJson as unknown as Record<
 
 export const SWEEP_POP = sweepPopJson as unknown as Array<Record<string, unknown>>
 export const REPLAY = replayJson as unknown as Array<[string, number, string, string]>
-export const FAM_STATE = famStateJson as unknown as Array<{ c: string; k: string; d: string }>
+export const FAM_STATE = famStateJson as unknown as Record<string, FamilyState>
 export const LANG_TOAST = langToastJson as unknown as Record<string, string>

@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { Toaster } from '@/components/ui/sonner'
 
 import { LoginGate } from '@/components/auth/LoginGate'
 import { AppShell } from '@/components/layout/AppShell'
+import { MyCare } from '@/routes/MyCare'
 import { Placeholder } from '@/routes/Placeholder'
-import { isScreen } from '@/components/layout/navItems'
 import { useSession } from '@/store/session'
 import { useT } from '@/hooks/useT'
 
@@ -15,9 +16,9 @@ const ADMIN_PATHS = ['/care-team', '/clinic-ops', '/survivorship', '/population'
  * Keeps a patient account out of the admin views.
  *
  * Deep linking is new in this port, and it would otherwise be a way around the
- * role gate: the mode switch is hidden from patients in CSS, but a patient who
- * typed `#/clinic-ops` would land straight in the god-view. That gate has to be
- * enforced on the route, not just hidden in the chrome.
+ * role gate: the mode switch is hidden from patients in the chrome, but a
+ * patient who typed `#/clinic-ops` would land straight in the god-view. That
+ * gate has to be enforced on the route, not just hidden in the chrome.
  */
 function RoleGuard() {
   const role = useSession((s) => s.role)
@@ -27,12 +28,6 @@ function RoleGuard() {
     return <Navigate to="/overview" replace />
   }
   return <Outlet />
-}
-
-function MyCare() {
-  const { pathname } = useLocation()
-  const screen = pathname.split('/')[2]
-  return <Placeholder title={`My Care · ${isScreen(screen) ? screen : 'home'}`} view={`app/${screen}`} />
 }
 
 export default function App() {
@@ -54,30 +49,33 @@ export default function App() {
   if (auth === 'out') return <LoginGate />
 
   return (
-    <HashRouter>
-      <Routes>
-        <Route element={<AppShell />}>
-          <Route path="/" element={<Navigate to="/overview" replace />} />
+    <>
+      <HashRouter>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route path="/" element={<Navigate to="/overview" replace />} />
 
-          <Route path="/overview" element={<Placeholder title={t('nav.overview')} view="overview" />} />
-          <Route path="/my-care" element={<Navigate to="/my-care/home" replace />} />
-          <Route path="/my-care/:screen" element={<MyCare />} />
-          <Route path="/my-plan" element={<Placeholder title={t('nav.myplan')} view="myplan" />} />
+            <Route path="/overview" element={<Placeholder title={t('nav.overview')} view="overview" />} />
+            <Route path="/my-care" element={<Navigate to="/my-care/home" replace />} />
+            <Route path="/my-care/:screen" element={<MyCare />} />
+            <Route path="/my-plan" element={<Placeholder title={t('nav.myplan')} view="myplan" />} />
 
-          <Route element={<RoleGuard />}>
-            <Route path="/care-team" element={<Placeholder title={t('nav.team')} view="team" />} />
-            <Route path="/clinic-ops" element={<Placeholder title={t('nav.clinicops')} view="clinicops" />} />
-            <Route
-              path="/survivorship"
-              element={<Placeholder title={t('nav.surv')} view="survivorship" />}
-            />
-            <Route path="/population" element={<Placeholder title={t('nav.pop')} view="population" />} />
-            <Route path="/roadmap" element={<Placeholder title={t('nav.roadmap')} view="roadmap" />} />
+            <Route element={<RoleGuard />}>
+              <Route path="/care-team" element={<Placeholder title={t('nav.team')} view="team" />} />
+              <Route path="/clinic-ops" element={<Placeholder title={t('nav.clinicops')} view="clinicops" />} />
+              <Route
+                path="/survivorship"
+                element={<Placeholder title={t('nav.surv')} view="survivorship" />}
+              />
+              <Route path="/population" element={<Placeholder title={t('nav.pop')} view="population" />} />
+              <Route path="/roadmap" element={<Placeholder title={t('nav.roadmap')} view="roadmap" />} />
+            </Route>
+
+            <Route path="*" element={<Navigate to="/overview" replace />} />
           </Route>
-
-          <Route path="*" element={<Navigate to="/overview" replace />} />
-        </Route>
-      </Routes>
-    </HashRouter>
+        </Routes>
+      </HashRouter>
+      <Toaster />
+    </>
   )
 }
