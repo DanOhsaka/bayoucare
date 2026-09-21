@@ -1,0 +1,65 @@
+[
+  {
+    "name": "James Boudreaux",
+    "temp": "37.1°C",
+    "tr": "→",
+    "w": "198.6 lb",
+    "wd": "−1.2",
+    "flag": "⚠ post-op pain",
+    "flagCls": "flag"
+  },
+  {
+    "name": "Maria Guzman",
+    "temp": "37.3°C",
+    "tr": "↗",
+    "w": "—",
+    "wd": "—",
+    "flag": "⚠ 2 missed check-ins",
+    "flagCls": "flag"
+  },
+  {
+    "name": "Priscilla Comeaux",
+    "temp": "36.8°C",
+    "tr": "→",
+    "w": "141.0 lb",
+    "wd": "−2.8",
+    "flag": "⚠ platelets",
+    "flagCls": "flag"
+  },
+  {
+    "name": "Earl Washington",
+    "temp": "36.7°C",
+    "tr": "→",
+    "w": "—",
+    "wd": "—",
+    "flag": "—",
+    "flagCls": "ok"
+  },
+  {
+    "name": "Shirley Broussard",
+    "temp": "36.9°C",
+    "tr": "→",
+    "w": "152.4 lb",
+    "wd": "+0.6",
+    "flag": "—",
+    "flagCls": "ok"
+  },
+  {
+    "name": "Robert Cheval",
+    "temp": "37.0°C",
+    "tr": "→",
+    "w": "—",
+    "wd": "—",
+    "flag": "⚠ 4 days silent",
+    "flagCls": "flag"
+  },
+  {
+    "name": "Celeste Lanoux",
+    "temp": "36.6°C",
+    "tr": "↘",
+    "w": "128.9 lb",
+    "wd": "−1.1",
+    "flag": "—",
+    "flagCls": "ok"
+  }
+]

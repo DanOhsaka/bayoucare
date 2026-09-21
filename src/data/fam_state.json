@@ -1,0 +1,22 @@
+{
+  "done": {
+    "c": "done",
+    "k": "✓",
+    "d": "home.done"
+  },
+  "in": {
+    "c": "done",
+    "k": "✓",
+    "d": "home.in"
+  },
+  "open": {
+    "c": "",
+    "k": "",
+    "d": "home.open"
+  },
+  "auto": {
+    "c": "",
+    "k": "",
+    "d": "home.auto"
+  }
+}

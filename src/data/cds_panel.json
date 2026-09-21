@@ -1,0 +1,76 @@
+[
+  {
+    "id": "tom",
+    "name": "Tom Nguyen",
+    "age": 62,
+    "mrn": "44031",
+    "parish": "Avoyelles",
+    "pcp": "Dr. Arceneaux",
+    "team": "tom",
+    "smoke": {
+      "packs": 40,
+      "status": "current",
+      "quit": 0
+    }
+  },
+  {
+    "id": "rita",
+    "name": "Rita Fontenot",
+    "age": 70,
+    "mrn": "44044",
+    "parish": "Evangeline",
+    "pcp": "Dr. Thibodeaux",
+    "smoke": {
+      "packs": 35,
+      "status": "former",
+      "quit": 3
+    }
+  },
+  {
+    "id": "hollis",
+    "name": "Hollis Thibodeaux",
+    "age": 47,
+    "mrn": "44083",
+    "parish": "Allen",
+    "pcp": "Dr. Arceneaux",
+    "colo": {
+      "f": "multiple"
+    }
+  },
+  {
+    "id": "audrey",
+    "name": "Audrey Landry",
+    "age": 42,
+    "mrn": "44061",
+    "parish": "St. Landry",
+    "pcp": "Dr. Moreau",
+    "breast": {
+      "fdr": 1,
+      "sig": "none"
+    }
+  },
+  {
+    "id": "marie",
+    "name": "Marie Doucet",
+    "age": 38,
+    "mrn": "44072",
+    "parish": "Lafayette",
+    "pcp": "Dr. Moreau",
+    "breast": {
+      "fdr": 1,
+      "sig": "yes"
+    }
+  },
+  {
+    "id": "wade",
+    "name": "Wade Guillory",
+    "age": 59,
+    "mrn": "44052",
+    "parish": "Evangeline",
+    "pcp": "Dr. Arceneaux",
+    "team": "wade",
+    "colo": {
+      "f": "oneyoung"
+    }
+  }
+]

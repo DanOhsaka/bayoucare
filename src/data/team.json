@@ -1,0 +1,194 @@
+[
+  {
+    "id": "darlene",
+    "name": "Darlene Fontenot",
+    "meta": "Stage II breast · Cycle 1 · Alexandria",
+    "checkin": "5/7 this wk",
+    "days": "Today",
+    "f": {
+      "anc": 0.9,
+      "days": 0,
+      "adm": 1,
+      "miles": 42,
+      "sdoh": 1,
+      "cycle": 1
+    },
+    "driver": "ANC trending down on the 5-day CBC window + admission 3 weeks ago"
+  },
+  {
+    "id": "james",
+    "name": "James Boudreaux",
+    "meta": "Colorectal · post-op · Leesville",
+    "checkin": "4/7 this wk",
+    "days": "Today",
+    "f": {
+      "anc": 0.3,
+      "days": 0,
+      "adm": 0,
+      "miles": 96,
+      "sdoh": 1,
+      "cycle": 0
+    },
+    "driver": "Post-op pain rising; no transport lined up for follow-up"
+  },
+  {
+    "id": "maria",
+    "name": "Maria Guzman",
+    "meta": "Lung · surveillance · Monroe",
+    "checkin": "5/7 this wk",
+    "days": "2d ago",
+    "f": {
+      "anc": 0.15,
+      "days": 2,
+      "adm": 0,
+      "miles": 61,
+      "sdoh": 1,
+      "cycle": 0
+    },
+    "driver": "Two missed check-ins after a missed oncology visit"
+  },
+  {
+    "id": "earl",
+    "name": "Earl Washington",
+    "meta": "Prostate · on ADT · Opelousas",
+    "checkin": "6/7 this wk",
+    "days": "1d ago",
+    "f": {
+      "anc": 0.05,
+      "days": 1,
+      "adm": 0,
+      "miles": 28,
+      "sdoh": 0,
+      "cycle": 0
+    },
+    "driver": "—"
+  },
+  {
+    "id": "alicia",
+    "name": "Alicia Charles",
+    "meta": "Hodgkin lymphoma · survivorship · NOLA",
+    "checkin": "5/7 this wk",
+    "days": "2d ago",
+    "f": {
+      "anc": 0.2,
+      "days": 2,
+      "adm": 0,
+      "miles": 84,
+      "sdoh": 0,
+      "cycle": 0
+    },
+    "driver": "—"
+  },
+  {
+    "id": "robert",
+    "name": "Robert Cheval",
+    "meta": "Kidney · follow-up · New Iberia",
+    "checkin": "4/7 this wk",
+    "days": "4d ago",
+    "f": {
+      "anc": 0.1,
+      "days": 4,
+      "adm": 1,
+      "miles": 118,
+      "sdoh": 0,
+      "cycle": 0
+    },
+    "driver": "Four days silent + 118 miles to site + one admission in 12 months"
+  },
+  {
+    "id": "yolanda",
+    "name": "Yolanda Price",
+    "meta": "Breast · survivorship · Alexandria",
+    "checkin": "7/7 this wk",
+    "days": "1d ago",
+    "f": {
+      "anc": 0.05,
+      "days": 1,
+      "adm": 0,
+      "miles": 15,
+      "sdoh": 0,
+      "cycle": 0
+    },
+    "driver": "—"
+  },
+  {
+    "id": "tom",
+    "name": "Tom Nguyen",
+    "meta": "Lung · screening risk · Marksville",
+    "checkin": "5/7 this wk",
+    "days": "3d ago",
+    "f": {
+      "anc": 0.1,
+      "days": 3,
+      "adm": 0,
+      "miles": 9,
+      "sdoh": 0,
+      "cycle": 0
+    },
+    "driver": "—"
+  },
+  {
+    "id": "priscilla",
+    "name": "Priscilla Comeaux",
+    "meta": "Lung · on carboplatin · Breaux Bridge",
+    "checkin": "6/7 this wk",
+    "days": "1d ago",
+    "f": {
+      "anc": 0.5,
+      "days": 1,
+      "adm": 1,
+      "miles": 73,
+      "sdoh": 0,
+      "cycle": 2
+    },
+    "driver": "Platelet trend falling; missed hydration visit last cycle"
+  },
+  {
+    "id": "shirley",
+    "name": "Shirley Broussard",
+    "meta": "Breast · neoadjuvant · Lafayette",
+    "checkin": "5/7 this wk",
+    "days": "Today",
+    "f": {
+      "anc": 0.6,
+      "days": 0,
+      "adm": 0,
+      "miles": 31,
+      "sdoh": 0,
+      "cycle": 2
+    },
+    "driver": "—"
+  },
+  {
+    "id": "wade",
+    "name": "Wade Guillory",
+    "meta": "Colorectal · adjuvant · Ville Platte",
+    "checkin": "4/7 this wk",
+    "days": "2d ago",
+    "f": {
+      "anc": 0.4,
+      "days": 2,
+      "adm": 0,
+      "miles": 147,
+      "sdoh": 0,
+      "cycle": 1
+    },
+    "driver": "147 miles to site — missed a hydration day last cycle"
+  },
+  {
+    "id": "celeste",
+    "name": "Celeste Lanoux",
+    "meta": "Cervical · radiation · Baton Rouge",
+    "checkin": "6/7 this wk",
+    "days": "Today",
+    "f": {
+      "anc": 0.25,
+      "days": 0,
+      "adm": 0,
+      "miles": 22,
+      "sdoh": 1,
+      "cycle": 0
+    },
+    "driver": "—"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "infusion": {
+    "w": 0.3,
+    "dur": 120,
+    "res": "Infusion chair"
+  },
+  "labs": {
+    "w": 0.22,
+    "dur": 30,
+    "res": "Lab draw"
+  },
+  "imaging": {
+    "w": 0.18,
+    "dur": 60,
+    "res": "CT / imaging"
+  },
+  "followup": {
+    "w": 0.2,
+    "dur": 30,
+    "res": "Exam room"
+  },
+  "consult": {
+    "w": 0.1,
+    "dur": 45,
+    "res": "Exam room"
+  }
+}

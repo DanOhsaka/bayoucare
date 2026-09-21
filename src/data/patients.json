@@ -1,0 +1,715 @@
+{
+  "darlene": {
+    "name": "Darlene Fontenot",
+    "age": 58,
+    "mrn": "44012",
+    "city": "Alexandria",
+    "short": "Alexandria, LA · Stage II breast",
+    "chip": "Day 4 of 6 · Cycle 1",
+    "profile": "Darlene Fontenot, 58 · Stage II IDC · ER+/PR+, HER2− · 1 prior line (neoadjuvant AC) · Alexandria, LA",
+    "dx": "Invasive ductal carcinoma, left breast",
+    "grade": "Grade 2",
+    "subtype": "ER+/PR+, HER2−",
+    "stage": "Stage IIA",
+    "dxDate": "March 2026",
+    "cycle": "Cycle 1 of 6",
+    "cycleTotal": 6,
+    "cycleDay": 4,
+    "careTeam": [
+      {
+        "name": "Dr. Simone Peters",
+        "role": "Medical Oncologist",
+        "org": "Ochsner Baton Rouge"
+      },
+      {
+        "name": "Marie Thibodeaux, RN",
+        "role": "Patient Navigator"
+      },
+      {
+        "name": "Keisha Brown",
+        "role": "Social Worker",
+        "note": "Financial & transport help"
+      }
+    ],
+    "family": {
+      "sub": "Your daughter <b>Renee</b> and son <b>Andre</b> can see your journey timeline and volunteer for tasks.",
+      "tasks": [
+        {
+          "t": "Andre picked up prescriptions",
+          "s": "Done yesterday · CVS Alexandria",
+          "st": "done"
+        },
+        {
+          "t": "Renee joined Thursday's telehealth",
+          "s": "Video visit · 3:00 pm",
+          "st": "in"
+        },
+        {
+          "t": "Renee → prep questions for Dr. Peters",
+          "s": "Suggested by BayouCare AI",
+          "st": "open"
+        },
+        {
+          "t": "🛡️ Renee &amp; Andre — screening reminders set",
+          "s": "Mammograms at 40 · BRCA talk flagged for your visit",
+          "st": "auto"
+        }
+      ]
+    },
+    "surv": null,
+    "trialSet": "breast",
+    "vitals": {
+      "temp": "36.9°C",
+      "tr": "↘",
+      "w": "164.2 lb",
+      "wd": "+0.4",
+      "flag": "—",
+      "flagCls": "ok"
+    },
+    "trend": [
+      {
+        "v": 3.2,
+        "label": "Sun",
+        "cls": "lo"
+      },
+      {
+        "v": 3.6,
+        "label": "Mon",
+        "cls": "lo"
+      },
+      {
+        "v": 3,
+        "label": "Tue",
+        "cls": "lo"
+      },
+      {
+        "v": 2.8,
+        "label": "Wed",
+        "cls": "lo"
+      },
+      {
+        "v": 3.4,
+        "label": "Thu",
+        "cls": "lo"
+      }
+    ],
+    "calTypes": {
+      "labs": {
+        "ico": "🔬",
+        "label": "Blood draw",
+        "dur": 30,
+        "where": "Rapides Regional · lab"
+      },
+      "infusion": {
+        "ico": "💧",
+        "label": "Infusion",
+        "dur": 120,
+        "where": "Rapides Regional · infusion suite"
+      },
+      "imaging": {
+        "ico": "🩻",
+        "label": "CT / imaging",
+        "dur": 60,
+        "where": "Rapides Regional · imaging"
+      },
+      "followup": {
+        "ico": "🩺",
+        "label": "Oncology follow-up",
+        "dur": 30,
+        "where": "Dr. Peters · exam room"
+      },
+      "consult": {
+        "ico": "💬",
+        "label": "Care consult",
+        "dur": 45,
+        "where": "Social work · financial aid"
+      }
+    },
+    "calPlan": [
+      {
+        "off": 2,
+        "type": "labs",
+        "time": "08:40",
+        "ride": true
+      },
+      {
+        "off": 4,
+        "type": "infusion",
+        "time": "10:40",
+        "ride": true
+      },
+      {
+        "off": 7,
+        "type": "consult",
+        "time": "14:20",
+        "ride": false
+      },
+      {
+        "off": 9,
+        "type": "labs",
+        "time": "08:40",
+        "ride": true
+      },
+      {
+        "off": 11,
+        "type": "imaging",
+        "time": "13:00",
+        "ride": true
+      },
+      {
+        "off": 16,
+        "type": "labs",
+        "time": "08:40",
+        "ride": false
+      },
+      {
+        "off": 18,
+        "type": "followup",
+        "time": "09:20",
+        "ride": true
+      },
+      {
+        "off": 23,
+        "type": "labs",
+        "time": "08:40",
+        "ride": true
+      },
+      {
+        "off": 25,
+        "type": "infusion",
+        "time": "10:40",
+        "ride": true
+      },
+      {
+        "off": 30,
+        "type": "labs",
+        "time": "08:40",
+        "ride": false
+      },
+      {
+        "off": 32,
+        "type": "imaging",
+        "time": "13:00",
+        "ride": true
+      },
+      {
+        "off": 37,
+        "type": "labs",
+        "time": "08:40",
+        "ride": true
+      },
+      {
+        "off": 39,
+        "type": "followup",
+        "time": "09:20",
+        "ride": true
+      }
+    ]
+  },
+  "priscilla": {
+    "name": "Priscilla Comeaux",
+    "age": 64,
+    "mrn": "44038",
+    "city": "Breaux Bridge",
+    "short": "Breaux Bridge, LA · Stage III lung",
+    "chip": "Day 6 of 21 · Cycle 2",
+    "profile": "Priscilla Comeaux, 64 · Stage IIIA NSCLC · PD-L1 45% · 1 prior line (carboplatin + pemetrexed) · Breaux Bridge, LA",
+    "dx": "Non-small-cell lung cancer, right upper lobe",
+    "grade": "Adenocarcinoma",
+    "subtype": "PD-L1 45%, no driver mutation",
+    "stage": "Stage IIIA",
+    "dxDate": "July 2026",
+    "cycle": "Cycle 2 of 4",
+    "cycleTotal": 4,
+    "cycleDay": 6,
+    "careTeam": [
+      {
+        "name": "Dr. Anand Iyer",
+        "role": "Medical Oncologist",
+        "org": "St. Martin Regional"
+      },
+      {
+        "name": "Marie Thibodeaux, RN",
+        "role": "Patient Navigator"
+      },
+      {
+        "name": "Keisha Brown",
+        "role": "Social Worker",
+        "note": "Financial & transport help"
+      }
+    ],
+    "family": {
+      "sub": "Your husband <b>Al</b> and daughter <b>Nicole</b> can see your journey timeline and volunteer for tasks.",
+      "tasks": [
+        {
+          "t": "Al drove you to the last infusion",
+          "s": "Breaux Bridge → St. Martin Regional",
+          "st": "done"
+        },
+        {
+          "t": "Nicole joined the telehealth check-in",
+          "s": "Video visit · 2:30 pm",
+          "st": "in"
+        },
+        {
+          "t": "Nicole → ask Dr. Iyer about the platelet trend",
+          "s": "Suggested by BayouCare AI",
+          "st": "open"
+        },
+        {
+          "t": "🛡️ Al — annual wellness reminders set",
+          "s": "Flu shot and BP check flagged for your visit",
+          "st": "auto"
+        }
+      ]
+    },
+    "surv": null,
+    "trialSet": null,
+    "vitals": {
+      "temp": "37.3°C",
+      "tr": "↗",
+      "w": "141.0 lb",
+      "wd": "−2.8",
+      "flag": "—",
+      "flagCls": "ok"
+    },
+    "trend": [
+      {
+        "v": 3.8,
+        "label": "Sun",
+        "cls": "lo"
+      },
+      {
+        "v": 3,
+        "label": "Mon",
+        "cls": "lo"
+      },
+      {
+        "v": 2.6,
+        "label": "Tue",
+        "cls": "lo"
+      },
+      {
+        "v": 2.4,
+        "label": "Wed",
+        "cls": "lo"
+      },
+      {
+        "v": 2.8,
+        "label": "Thu",
+        "cls": "lo"
+      }
+    ],
+    "calTypes": {
+      "labs": {
+        "ico": "🔬",
+        "label": "Blood draw",
+        "dur": 30,
+        "where": "St. Martin Regional · lab"
+      },
+      "infusion": {
+        "ico": "💧",
+        "label": "Infusion",
+        "dur": 150,
+        "where": "St. Martin Regional · infusion suite"
+      },
+      "imaging": {
+        "ico": "🩻",
+        "label": "CT / imaging",
+        "dur": 60,
+        "where": "St. Martin Regional · imaging"
+      },
+      "followup": {
+        "ico": "🩺",
+        "label": "Oncology follow-up",
+        "dur": 30,
+        "where": "Dr. Iyer · exam room"
+      },
+      "consult": {
+        "ico": "💬",
+        "label": "Care consult",
+        "dur": 45,
+        "where": "Social work · financial aid"
+      }
+    },
+    "calPlan": [
+      {
+        "off": 1,
+        "type": "labs",
+        "time": "07:50",
+        "ride": true
+      },
+      {
+        "off": 2,
+        "type": "infusion",
+        "time": "09:30",
+        "ride": true
+      },
+      {
+        "off": 8,
+        "type": "labs",
+        "time": "07:50",
+        "ride": false
+      },
+      {
+        "off": 14,
+        "type": "imaging",
+        "time": "11:20",
+        "ride": true
+      },
+      {
+        "off": 21,
+        "type": "labs",
+        "time": "07:50",
+        "ride": true
+      },
+      {
+        "off": 22,
+        "type": "infusion",
+        "time": "09:30",
+        "ride": true
+      },
+      {
+        "off": 26,
+        "type": "consult",
+        "time": "15:10",
+        "ride": false
+      },
+      {
+        "off": 35,
+        "type": "followup",
+        "time": "10:00",
+        "ride": true
+      },
+      {
+        "off": 42,
+        "type": "imaging",
+        "time": "11:20",
+        "ride": true
+      }
+    ]
+  },
+  "yolanda": {
+    "name": "Yolanda Price",
+    "age": 61,
+    "mrn": "44019",
+    "city": "Alexandria",
+    "short": "Alexandria, LA · Survivorship, year 6",
+    "chip": "Survivorship · year 6",
+    "profile": "Yolanda Price, 61 · Stage III IDC · ER+/HER2+ · treatment completed 2020 · Alexandria, LA",
+    "dx": "Stage III IDC, left breast · ER+/HER2+",
+    "grade": "Grade 2",
+    "subtype": "ER+/PR+, HER2+",
+    "stage": "Stage IIIA",
+    "dxDate": "March 2019",
+    "cycle": "Survivorship",
+    "cycleTotal": 0,
+    "cycleDay": 0,
+    "careTeam": [
+      {
+        "name": "Dr. Simone Peters",
+        "role": "Medical Oncologist",
+        "org": "Ochsner Baton Rouge"
+      },
+      {
+        "name": "Marie Thibodeaux, RN",
+        "role": "Patient Navigator"
+      },
+      {
+        "name": "Dr. Arceneaux",
+        "role": "Primary Care"
+      }
+    ],
+    "family": {
+      "sub": "Your sister <b>Diane</b> and daughter <b>Tanya</b> can see your journey timeline and volunteer for tasks.",
+      "tasks": [
+        {
+          "t": "Diane drove you to the survivorship visit",
+          "s": "Done last month · Rapides Regional",
+          "st": "done"
+        },
+        {
+          "t": "Tanya joined the survivorship telehealth",
+          "s": "Video visit · 11:00 am",
+          "st": "in"
+        },
+        {
+          "t": "Tanya → ask about the overdue echo",
+          "s": "Suggested by BayouCare AI",
+          "st": "open"
+        },
+        {
+          "t": "🛡️ Diane &amp; Tanya — family history noted",
+          "s": "First-degree relatives flagged for earlier screening",
+          "st": "auto"
+        }
+      ]
+    },
+    "surv": "yolanda",
+    "trialSet": "breast",
+    "vitals": {
+      "temp": "36.7°C",
+      "tr": "→",
+      "w": "138.6 lb",
+      "wd": "+0.2",
+      "flag": "—",
+      "flagCls": "ok"
+    },
+    "trend": [
+      {
+        "v": 4.2,
+        "label": "Sun",
+        "cls": "hi"
+      },
+      {
+        "v": 4.4,
+        "label": "Mon",
+        "cls": "hi"
+      },
+      {
+        "v": 4,
+        "label": "Tue",
+        "cls": "hi"
+      },
+      {
+        "v": 4.6,
+        "label": "Wed",
+        "cls": "hi"
+      },
+      {
+        "v": 4.4,
+        "label": "Thu",
+        "cls": "hi"
+      }
+    ],
+    "calTypes": {
+      "labs": {
+        "ico": "🔬",
+        "label": "Blood draw",
+        "dur": 30,
+        "where": "Rapides Regional · lab"
+      },
+      "infusion": {
+        "ico": "💧",
+        "label": "Infusion",
+        "dur": 120,
+        "where": "Rapides Regional · infusion suite"
+      },
+      "imaging": {
+        "ico": "🩻",
+        "label": "Imaging",
+        "dur": 60,
+        "where": "Rapides Regional · imaging"
+      },
+      "followup": {
+        "ico": "🩺",
+        "label": "Survivorship visit",
+        "dur": 40,
+        "where": "Dr. Peters · exam room"
+      },
+      "consult": {
+        "ico": "💬",
+        "label": "Care consult",
+        "dur": 45,
+        "where": "Social work · financial aid"
+      }
+    },
+    "calPlan": [
+      {
+        "off": 5,
+        "type": "labs",
+        "time": "08:20",
+        "ride": false
+      },
+      {
+        "off": 12,
+        "type": "imaging",
+        "time": "10:00",
+        "ride": true
+      },
+      {
+        "off": 19,
+        "type": "followup",
+        "time": "09:00",
+        "ride": false
+      },
+      {
+        "off": 33,
+        "type": "imaging",
+        "time": "14:00",
+        "ride": true
+      },
+      {
+        "off": 47,
+        "type": "labs",
+        "time": "08:20",
+        "ride": false
+      },
+      {
+        "off": 61,
+        "type": "followup",
+        "time": "09:00",
+        "ride": true
+      }
+    ]
+  },
+  "marcus": {
+    "name": "Marcus Thibodeaux",
+    "age": 47,
+    "mrn": "44021",
+    "city": "Monroe",
+    "short": "Monroe, LA · Survivorship, year 4",
+    "chip": "Survivorship · year 4",
+    "profile": "Marcus Thibodeaux, 47 · Stage II DLBCL · CD20+ · treatment completed 2022 · Monroe, LA",
+    "dx": "Stage II diffuse large B-cell lymphoma",
+    "grade": "Germinal centre",
+    "subtype": "CD20+, MYC-negative",
+    "stage": "Stage II",
+    "dxDate": "August 2021",
+    "cycle": "Survivorship",
+    "cycleTotal": 0,
+    "cycleDay": 0,
+    "careTeam": [
+      {
+        "name": "Dr. Ada Okonkwo",
+        "role": "Medical Oncologist",
+        "org": "Ouachita Regional"
+      },
+      {
+        "name": "Marie Thibodeaux, RN",
+        "role": "Patient Navigator"
+      },
+      {
+        "name": "Keisha Brown",
+        "role": "Social Worker",
+        "note": "Financial & transport help"
+      }
+    ],
+    "family": {
+      "sub": "Your wife <b>Simone</b> and brother <b>Dwayne</b> can see your journey timeline and volunteer for tasks.",
+      "tasks": [
+        {
+          "t": "Simone picked up prescriptions",
+          "s": "Done yesterday · Ouachita Regional pharmacy",
+          "st": "done"
+        },
+        {
+          "t": "Dwayne joined the survivorship call",
+          "s": "Phone visit · 4:15 pm",
+          "st": "in"
+        },
+        {
+          "t": "Simone → ask about the antibody panel",
+          "s": "Suggested by BayouCare AI",
+          "st": "open"
+        },
+        {
+          "t": "🛡️ Simone &amp; Dwayne — annual wellness reminders set",
+          "s": "Lipids and BP check flagged for your visit",
+          "st": "auto"
+        }
+      ]
+    },
+    "surv": "marcus",
+    "trialSet": null,
+    "vitals": {
+      "temp": "36.8°C",
+      "tr": "→",
+      "w": "186.4 lb",
+      "wd": "+0.6",
+      "flag": "—",
+      "flagCls": "ok"
+    },
+    "trend": [
+      {
+        "v": 4,
+        "label": "Sun",
+        "cls": "hi"
+      },
+      {
+        "v": 4.2,
+        "label": "Mon",
+        "cls": "hi"
+      },
+      {
+        "v": 4.4,
+        "label": "Tue",
+        "cls": "hi"
+      },
+      {
+        "v": 4,
+        "label": "Wed",
+        "cls": "hi"
+      },
+      {
+        "v": 4.2,
+        "label": "Thu",
+        "cls": "hi"
+      }
+    ],
+    "calTypes": {
+      "labs": {
+        "ico": "🔬",
+        "label": "Blood draw",
+        "dur": 30,
+        "where": "Ouachita Regional · lab"
+      },
+      "infusion": {
+        "ico": "💧",
+        "label": "Infusion",
+        "dur": 120,
+        "where": "Ouachita Regional · infusion suite"
+      },
+      "imaging": {
+        "ico": "🩻",
+        "label": "Imaging",
+        "dur": 60,
+        "where": "Ouachita Regional · imaging"
+      },
+      "followup": {
+        "ico": "🩺",
+        "label": "Survivorship visit",
+        "dur": 40,
+        "where": "Dr. Okonkwo · exam room"
+      },
+      "consult": {
+        "ico": "💬",
+        "label": "Care consult",
+        "dur": 45,
+        "where": "Social work · financial aid"
+      }
+    },
+    "calPlan": [
+      {
+        "off": 4,
+        "type": "labs",
+        "time": "08:00",
+        "ride": false
+      },
+      {
+        "off": 15,
+        "type": "imaging",
+        "time": "13:30",
+        "ride": true
+      },
+      {
+        "off": 22,
+        "type": "followup",
+        "time": "10:30",
+        "ride": false
+      },
+      {
+        "off": 40,
+        "type": "labs",
+        "time": "08:00",
+        "ride": false
+      },
+      {
+        "off": 64,
+        "type": "followup",
+        "time": "10:30",
+        "ride": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "darlene": {
+    "payer": "Louisiana Medicaid — Aetna Better Health",
+    "plan": "Medicaid MCO",
+    "mrn": "44012",
+    "dx": "Invasive ductal carcinoma, left breast",
+    "stage": "Stage IIA (cT2 N0 M0)",
+    "histo": "ER+/PR+, HER2−, Ki-67 32%",
+    "regimen": "Dose-dense AC ×4 → paclitaxel ×12",
+    "jcodes": [
+      "J9171 doxorubicin",
+      "J9070 cyclophosphamide",
+      "J9265 paclitaxel"
+    ],
+    "line": "1L neoadjuvant",
+    "priorLines": 0,
+    "status": "new",
+    "guide": {
+      "body": "NCCN",
+      "ver": "Breast Cancer v3.2026",
+      "cite": "NCCN Category 1: dose-dense AC followed by paclitaxel is a preferred neoadjuvant regimen for stage II–III disease."
+    },
+    "docs": [
+      [
+        "Pathology report",
+        "Jun 14"
+      ],
+      [
+        "Staging PET-CT",
+        "Jun 21"
+      ],
+      [
+        "Echo — LVEF 61%",
+        "Jun 25"
+      ],
+      [
+        "CBC / CMP",
+        "Aug 10"
+      ]
+    ]
+  },
+  "priscilla": {
+    "payer": "Louisiana Medicaid — Humana",
+    "plan": "Medicaid MCO",
+    "mrn": "44038",
+    "dx": "Non-small-cell lung cancer, right upper lobe",
+    "stage": "Stage IIIA (cT2 N2 M0)",
+    "histo": "Adenocarcinoma, PD-L1 45%",
+    "regimen": "Carboplatin + pemetrexed ×4 → maintenance",
+    "jcodes": [
+      "J9045 carboplatin",
+      "J9305 pemetrexed"
+    ],
+    "line": "1L concurrent",
+    "priorLines": 0,
+    "status": "new",
+    "guide": {
+      "body": "NCCN",
+      "ver": "NSCLC v5.2026",
+      "cite": "NCCN Category 1: platinum-doublet chemotherapy is standard first-line for stage IIIA without a driver mutation."
+    },
+    "docs": [
+      [
+        "Pathology + molecular panel",
+        "Jul 2"
+      ],
+      [
+        "Staging PET-CT",
+        "Jul 8"
+      ],
+      [
+        "PFTs — FEV1 78%",
+        "Jul 11"
+      ],
+      [
+        "CBC / CMP",
+        "Aug 8"
+      ]
+    ]
+  },
+  "wade": {
+    "payer": "Louisiana Medicaid — Aetna Better Health",
+    "plan": "Medicaid MCO",
+    "mrn": "44052",
+    "dx": "Adenocarcinoma of the colon, sigmoid",
+    "stage": "Stage IIIB (pT3 N1b M0)",
+    "histo": "Moderately differentiated, MMR-proficient",
+    "regimen": "FOLFOX ×6 adjuvant",
+    "jcodes": [
+      "J9190 fluorouracil",
+      "J9263 oxaliplatin",
+      "J9190 leucovorin"
+    ],
+    "line": "Adjuvant",
+    "priorLines": 0,
+    "status": "new",
+    "guide": {
+      "body": "NCCN",
+      "ver": "Colon Cancer v2.2026",
+      "cite": "NCCN Category 1: 6 months of adjuvant FOLFOX is standard for stage III colon cancer."
+    },
+    "docs": [
+      [
+        "Surgical pathology",
+        "Jul 19"
+      ],
+      [
+        "CT chest/abdomen/pelvis",
+        "Jul 22"
+      ],
+      [
+        "CEA baseline",
+        "Jul 25"
+      ],
+      [
+        "CBC / CMP",
+        "Aug 11"
+      ]
+    ]
+  },
+  "celeste": {
+    "payer": "Blue Cross — commercial PPO",
+    "plan": "Commercial",
+    "mrn": "44061",
+    "dx": "Squamous cell carcinoma, cervix",
+    "stage": "Stage IIB (cT2b N1 M0)",
+    "histo": "Squamous, p16-positive",
+    "regimen": "Cisplatin weekly + concurrent pelvic radiation",
+    "jcodes": [
+      "J9060 cisplatin"
+    ],
+    "line": "1L definitive chemoradiation",
+    "priorLines": 0,
+    "status": "new",
+    "guide": {
+      "body": "NCCN",
+      "ver": "Cervical Cancer v1.2026",
+      "cite": "NCCN Category 1: concurrent cisplatin with pelvic radiotherapy is standard for stage IIB disease."
+    },
+    "docs": [
+      [
+        "Biopsy pathology",
+        "Jul 30"
+      ],
+      [
+        "Staging MRI pelvis",
+        "Aug 3"
+      ],
+      [
+        "PET-CT",
+        "Aug 5"
+      ],
+      [
+        "Renal function panel",
+        "Aug 9"
+      ]
+    ]
+  }
+}

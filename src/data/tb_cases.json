@@ -1,0 +1,94 @@
+{
+  "yolanda": {
+    "src": "surv",
+    "id": "yolanda",
+    "when": "Aug 19 · 07:30",
+    "quorum": "6 of 7 — surgery, med onc, rad onc, path, radiology, navigator",
+    "ajcc": {
+      "ed": "AJCC 8th",
+      "t": "pT1c",
+      "n": "pN1mi",
+      "m": "M0",
+      "stage": "IIA"
+    },
+    "mol": {
+      "er": "95%",
+      "pr": "80%",
+      "her2": "1+ (negative)",
+      "ki67": "18%"
+    },
+    "questions": [
+      "Adjuvant endocrine duration — 5 vs 7 vs 10 years given the N1mi node?",
+      "Any role for genomic testing (Oncotype DX) at this nodal stage?",
+      "Bone-health plan on an aromatase inhibitor — baseline DXA timing?"
+    ],
+    "imaging": [
+      "Diagnostic mammogram + ultrasound, both breasts — current",
+      "DEXA at baseline, then every 2 years on AI therapy",
+      "No routine CT/PET in the absence of symptoms (NCCN)"
+    ],
+    "path": [
+      "Confirm receptor status on the surgical specimen — done",
+      "Oncotype DX if the board votes for it"
+    ]
+  },
+  "marcus": {
+    "src": "surv",
+    "id": "marcus",
+    "when": "Aug 19 · 07:45",
+    "quorum": "6 of 7 — heme, path, radiology, transplant, navigator",
+    "ajcc": {
+      "ed": "AJCC 8th",
+      "t": "—",
+      "n": "—",
+      "m": "—",
+      "stage": "Remission · post-DLBCL"
+    },
+    "mol": {
+      "ldh": "Within normal limits",
+      "gcb": "GCB subtype",
+      "myc": "Not rearranged"
+    },
+    "questions": [
+      "Surveillance imaging schedule — is year 5 the right stopping point?",
+      "Any echo follow-up needed after the anthracycline exposure?",
+      "Vaccination catch-up after rituximab — timing?"
+    ],
+    "imaging": [
+      "CT chest/abdomen/pelvis — 12-month interval, then stop at year 5",
+      "Echocardiogram — every 2 years given cumulative doxorubicin"
+    ],
+    "path": [
+      "No further pathology needed in remission"
+    ]
+  },
+  "earl": {
+    "src": "surv",
+    "id": "earl",
+    "when": "Aug 19 · 08:00",
+    "quorum": "6 of 7 — urology, med onc, rad onc, path, navigator",
+    "ajcc": {
+      "ed": "AJCC 8th",
+      "t": "pT2c",
+      "n": "pN0",
+      "m": "M0",
+      "stage": "IIB (post-prostatectomy, salvage RT)"
+    },
+    "mol": {
+      "psa": "0.04 ng/mL — undetectable",
+      "gleason": "4+3 = 7"
+    },
+    "questions": [
+      "PSA doubling time on ADT — when do we stop the leuprolide?",
+      "Bone density and cardiovascular monitoring on long-course ADT?",
+      "Any role for PSMA PET if PSA rises?"
+    ],
+    "imaging": [
+      "PSA every 3 months on ADT, then every 6 months",
+      "DEXA at baseline and every 2 years on ADT"
+    ],
+    "path": [
+      "Salvage RT fields reviewed against the original specimen — done"
+    ]
+  }
+}

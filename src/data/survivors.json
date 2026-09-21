@@ -1,0 +1,151 @@
+{
+  "yolanda": {
+    "name": "Yolanda Price",
+    "age": 61,
+    "mrn": "44019",
+    "parish": "Rapides",
+    "dx": "Stage III IDC, left breast · ER+/HER2+",
+    "dxDate": "March 2019",
+    "endDate": "January 2020",
+    "survivorSince": "2020",
+    "treatments": [
+      [
+        "Left lumpectomy + sentinel lymph node biopsy",
+        "April 2019"
+      ],
+      [
+        "Dose-dense AC — doxorubicin 300 mg/m² cumulative + cyclophosphamide ×4",
+        "May–August 2019"
+      ],
+      [
+        "Paclitaxel + trastuzumab ×12",
+        "September–December 2019"
+      ],
+      [
+        "Left-breast radiation · 50.4 Gy / 28 fractions",
+        "January 2020"
+      ],
+      [
+        "Anastrozole (aromatase inhibitor) — 5-year course",
+        "2020–2025"
+      ]
+    ],
+    "od": {
+      "Cardiac": "2026-02"
+    },
+    "e": {
+      "anthra": 300,
+      "chestRT": false,
+      "breastRT": true,
+      "axsurg": "slnb",
+      "platinum": false,
+      "neckRT": false,
+      "pelvicRT": false,
+      "hormonal": "aromatase",
+      "bleo": false,
+      "adt": false,
+      "ageAtRT": 60
+    }
+  },
+  "marcus": {
+    "name": "Marcus Thibodeaux",
+    "age": 47,
+    "mrn": "44021",
+    "parish": "Ouachita",
+    "dx": "Stage II diffuse large B-cell lymphoma",
+    "dxDate": "August 2021",
+    "endDate": "March 2022",
+    "survivorSince": "2022",
+    "treatments": [
+      [
+        "R-CHOP ×6 — doxorubicin 300 mg/m² cumulative + cyclophosphamide",
+        "September 2021 – February 2022"
+      ],
+      [
+        "CNS prophylaxis — intrathecal methotrexate ×4",
+        "January 2022"
+      ]
+    ],
+    "e": {
+      "anthra": 300,
+      "chestRT": false,
+      "breastRT": false,
+      "axsurg": null,
+      "platinum": false,
+      "neckRT": false,
+      "pelvicRT": false,
+      "hormonal": null,
+      "bleo": false,
+      "adt": false
+    }
+  },
+  "alicia": {
+    "name": "Alicia Charles",
+    "age": 34,
+    "mrn": "44023",
+    "parish": "Orleans",
+    "dx": "Stage II Hodgkin lymphoma, nodular sclerosis",
+    "dxDate": "May 2016",
+    "endDate": "January 2017",
+    "survivorSince": "2017",
+    "treatments": [
+      [
+        "ABVD ×4 — doxorubicin ~200 mg/m² cumulative + bleomycin",
+        "June–September 2016"
+      ],
+      [
+        "Involved-site radiation · neck + mediastinum · 30 Gy / 15 fractions",
+        "October–December 2016"
+      ]
+    ],
+    "e": {
+      "anthra": 200,
+      "chestRT": true,
+      "breastRT": false,
+      "axsurg": null,
+      "platinum": false,
+      "neckRT": true,
+      "pelvicRT": false,
+      "hormonal": null,
+      "bleo": true,
+      "adt": false,
+      "ageAtRT": 24
+    }
+  },
+  "earl": {
+    "name": "Earl Washington",
+    "age": 71,
+    "mrn": "44025",
+    "parish": "St. Landry",
+    "dx": "Localized prostate cancer (Gleason 4+3)",
+    "dxDate": "June 2020",
+    "endDate": "September 2022",
+    "survivorSince": "2022",
+    "treatments": [
+      [
+        "Robotic radical prostatectomy",
+        "August 2020"
+      ],
+      [
+        "Salvage pelvic radiation · 66 Gy / 33 fractions",
+        "July 2021"
+      ],
+      [
+        "ADT (leuprolide) — 18-month course",
+        "2021–2022"
+      ]
+    ],
+    "e": {
+      "anthra": 0,
+      "chestRT": false,
+      "breastRT": false,
+      "axsurg": null,
+      "platinum": false,
+      "neckRT": false,
+      "pelvicRT": true,
+      "hormonal": "adt",
+      "bleo": false,
+      "adt": true
+    }
+  }
+}

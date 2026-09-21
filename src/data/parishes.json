@@ -1,0 +1,386 @@
+[
+  {
+    "n": "Caddo",
+    "ab": "CAD",
+    "x": 1,
+    "y": 1
+  },
+  {
+    "n": "Bossier",
+    "ab": "BOS",
+    "x": 2,
+    "y": 1
+  },
+  {
+    "n": "Webster",
+    "ab": "WEB",
+    "x": 3,
+    "y": 1
+  },
+  {
+    "n": "Claiborne",
+    "ab": "CLA",
+    "x": 4,
+    "y": 1
+  },
+  {
+    "n": "Union",
+    "ab": "UNI",
+    "x": 5,
+    "y": 1
+  },
+  {
+    "n": "Morehouse",
+    "ab": "MOR",
+    "x": 6,
+    "y": 1
+  },
+  {
+    "n": "West Carroll",
+    "ab": "WCR",
+    "x": 7,
+    "y": 1
+  },
+  {
+    "n": "East Carroll",
+    "ab": "ECR",
+    "x": 8,
+    "y": 1
+  },
+  {
+    "n": "De Soto",
+    "ab": "DES",
+    "x": 1,
+    "y": 2
+  },
+  {
+    "n": "Red River",
+    "ab": "RR",
+    "x": 2,
+    "y": 2
+  },
+  {
+    "n": "Bienville",
+    "ab": "BIE",
+    "x": 3,
+    "y": 2
+  },
+  {
+    "n": "Jackson",
+    "ab": "JAC",
+    "x": 4,
+    "y": 2
+  },
+  {
+    "n": "Lincoln",
+    "ab": "LIN",
+    "x": 5,
+    "y": 2
+  },
+  {
+    "n": "Ouachita",
+    "ab": "OUA",
+    "x": 6,
+    "y": 2
+  },
+  {
+    "n": "Richland",
+    "ab": "RIC",
+    "x": 7,
+    "y": 2
+  },
+  {
+    "n": "Madison",
+    "ab": "MAD",
+    "x": 8,
+    "y": 2
+  },
+  {
+    "n": "Sabine",
+    "ab": "SAB",
+    "x": 1,
+    "y": 3
+  },
+  {
+    "n": "Natchitoches",
+    "ab": "NAT",
+    "x": 2,
+    "y": 3
+  },
+  {
+    "n": "Winn",
+    "ab": "WIN",
+    "x": 3,
+    "y": 3
+  },
+  {
+    "n": "Grant",
+    "ab": "GRA",
+    "x": 4,
+    "y": 3
+  },
+  {
+    "n": "Caldwell",
+    "ab": "CALD",
+    "x": 5,
+    "y": 3
+  },
+  {
+    "n": "Franklin",
+    "ab": "FRA",
+    "x": 6,
+    "y": 3
+  },
+  {
+    "n": "Tensas",
+    "ab": "TEN",
+    "x": 7,
+    "y": 3
+  },
+  {
+    "n": "Vernon",
+    "ab": "VER",
+    "x": 1,
+    "y": 4
+  },
+  {
+    "n": "Beauregard",
+    "ab": "BEA",
+    "x": 2,
+    "y": 4
+  },
+  {
+    "n": "Allen",
+    "ab": "ALL",
+    "x": 3,
+    "y": 4
+  },
+  {
+    "n": "Evangeline",
+    "ab": "EVA",
+    "x": 4,
+    "y": 4
+  },
+  {
+    "n": "Rapides",
+    "ab": "RAP",
+    "x": 5,
+    "y": 4
+  },
+  {
+    "n": "La Salle",
+    "ab": "LAS",
+    "x": 6,
+    "y": 4
+  },
+  {
+    "n": "Catahoula",
+    "ab": "CAT",
+    "x": 7,
+    "y": 4
+  },
+  {
+    "n": "Concordia",
+    "ab": "CON",
+    "x": 8,
+    "y": 4
+  },
+  {
+    "n": "Calcasieu",
+    "ab": "CALC",
+    "x": 1,
+    "y": 5
+  },
+  {
+    "n": "Jefferson Davis",
+    "ab": "JD",
+    "x": 2,
+    "y": 5
+  },
+  {
+    "n": "Acadia",
+    "ab": "ACD",
+    "x": 3,
+    "y": 5
+  },
+  {
+    "n": "St. Landry",
+    "ab": "SLP",
+    "x": 4,
+    "y": 5
+  },
+  {
+    "n": "Avoyelles",
+    "ab": "AVO",
+    "x": 5,
+    "y": 5
+  },
+  {
+    "n": "Pointe Coupee",
+    "ab": "PCP",
+    "x": 6,
+    "y": 5
+  },
+  {
+    "n": "West Feliciana",
+    "ab": "WFE",
+    "x": 7,
+    "y": 5
+  },
+  {
+    "n": "East Feliciana",
+    "ab": "EFE",
+    "x": 8,
+    "y": 5
+  },
+  {
+    "n": "St. Helena",
+    "ab": "SHE",
+    "x": 9,
+    "y": 5
+  },
+  {
+    "n": "Tangipahoa",
+    "ab": "TAN",
+    "x": 10,
+    "y": 5
+  },
+  {
+    "n": "Washington",
+    "ab": "WAS",
+    "x": 11,
+    "y": 5
+  },
+  {
+    "n": "St. Tammany",
+    "ab": "STM",
+    "x": 12,
+    "y": 5
+  },
+  {
+    "n": "Cameron",
+    "ab": "CAM",
+    "x": 1,
+    "y": 6
+  },
+  {
+    "n": "Vermilion",
+    "ab": "VML",
+    "x": 2,
+    "y": 6
+  },
+  {
+    "n": "Lafayette",
+    "ab": "LAF",
+    "x": 3,
+    "y": 6
+  },
+  {
+    "n": "St. Martin",
+    "ab": "SMT",
+    "x": 4,
+    "y": 6
+  },
+  {
+    "n": "Iberville",
+    "ab": "IBV",
+    "x": 5,
+    "y": 6
+  },
+  {
+    "n": "West Baton Rouge",
+    "ab": "WBR",
+    "x": 6,
+    "y": 6
+  },
+  {
+    "n": "East Baton Rouge",
+    "ab": "EBR",
+    "x": 7,
+    "y": 6
+  },
+  {
+    "n": "Livingston",
+    "ab": "LIV",
+    "x": 8,
+    "y": 6
+  },
+  {
+    "n": "Ascension",
+    "ab": "ASC",
+    "x": 9,
+    "y": 6
+  },
+  {
+    "n": "St. John the Baptist",
+    "ab": "SJB",
+    "x": 10,
+    "y": 6
+  },
+  {
+    "n": "St. Charles",
+    "ab": "SCH",
+    "x": 11,
+    "y": 6
+  },
+  {
+    "n": "Orleans",
+    "ab": "ORL",
+    "x": 12,
+    "y": 6
+  },
+  {
+    "n": "Iberia",
+    "ab": "IBE",
+    "x": 2,
+    "y": 7
+  },
+  {
+    "n": "St. Mary",
+    "ab": "SMY",
+    "x": 3,
+    "y": 7
+  },
+  {
+    "n": "Assumption",
+    "ab": "ASM",
+    "x": 4,
+    "y": 7
+  },
+  {
+    "n": "St. James",
+    "ab": "SJX",
+    "x": 5,
+    "y": 7
+  },
+  {
+    "n": "Lafourche",
+    "ab": "LFC",
+    "x": 6,
+    "y": 7
+  },
+  {
+    "n": "Plaquemines",
+    "ab": "PLA",
+    "x": 7,
+    "y": 7
+  },
+  {
+    "n": "St. Bernard",
+    "ab": "SBN",
+    "x": 8,
+    "y": 7
+  },
+  {
+    "n": "Jefferson",
+    "ab": "JEF",
+    "x": 9,
+    "y": 7
+  },
+  {
+    "n": "Terrebonne",
+    "ab": "TER",
+    "x": 4,
+    "y": 8
+  }
+]

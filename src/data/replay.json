@@ -1,0 +1,38 @@
+[
+  [
+    "11:00 pm",
+    "36.8°C (98.2°F)",
+    "Baseline — normal",
+    "t"
+  ],
+  [
+    "1:00 am",
+    "37.0°C (98.6°F)",
+    "Normal — asleep",
+    "t"
+  ],
+  [
+    "2:14 am",
+    "38.6°C (101.5°F)",
+    "⚠️ THRESHOLD CROSSED — ≥100.4°F",
+    "crit"
+  ],
+  [
+    "2:14 am",
+    "Auto-escalation fired",
+    "🚨 On-call RN notified · caregiver SMS to Renee sent",
+    "act"
+  ],
+  [
+    "2:31 am",
+    "RN call-back",
+    "\"Come in this morning for labs — watch for chills.\"",
+    "ok"
+  ],
+  [
+    "8:00 am",
+    "Follow-up logged",
+    "ANC draw scheduled 9 am · synced to care team",
+    "ok"
+  ]
+]

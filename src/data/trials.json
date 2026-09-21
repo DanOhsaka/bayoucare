@@ -1,0 +1,129 @@
+[
+  {
+    "nct": "NCT06966700",
+    "title": "Sacituzumab Tirumotecan (Sac-TMT, MK-2870) in People With Breast Cancer — MK-2870-032",
+    "status": "RECRUITING",
+    "phase": "PHASE3",
+    "sites": [
+      "Ochsner Clinic Foundation — New Orleans"
+    ],
+    "crits": [
+      {
+        "txt": "Recruiting in Louisiana — Ochsner, New Orleans",
+        "ok": true
+      },
+      {
+        "txt": "Requires TNBC or HR-low+ (ER 1–10%) — you are ER+ (high)",
+        "ok": false
+      },
+      {
+        "txt": "Requires previously untreated early-stage disease — you are in cycle 1 of neoadjuvant AC",
+        "ok": false
+      },
+      {
+        "txt": "ECOG 0–1 performance status — confirm at screening",
+        "ok": "warn"
+      }
+    ]
+  },
+  {
+    "nct": "NCT06393374",
+    "title": "Sacituzumab Tirumotecan + Pembrolizumab vs TPC in TNBC with non-pCR — MK-2870-012",
+    "status": "RECRUITING",
+    "phase": "PHASE3",
+    "sites": [
+      "CHRISTUS St. Frances Cabrini — Alexandria"
+    ],
+    "crits": [
+      {
+        "txt": "Recruiting 30 minutes from Alexandria",
+        "ok": true
+      },
+      {
+        "txt": "Requires triple-negative subtype — you are ER+/PR+",
+        "ok": false
+      },
+      {
+        "txt": "Enrolls after surgery with residual disease — you haven't reached surgery yet",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "nct": "NCT06312176",
+    "title": "Sacituzumab Tirumotecan (MK-2870) ± Pembrolizumab vs Physician's Choice in HR+/HER2− advanced breast cancer — MK-2870-010",
+    "status": "RECRUITING",
+    "phase": "PHASE3",
+    "sites": [
+      "Mary Bird Perkins Cancer Center — Baton Rouge"
+    ],
+    "crits": [
+      {
+        "txt": "HR+/HER2− subtype — matches your tumor exactly",
+        "ok": true
+      },
+      {
+        "txt": "Enrolls unresectable locally advanced or metastatic disease — you are early stage; revisit if disease ever advances",
+        "ok": "warn"
+      },
+      {
+        "txt": "Prior lines 0–2 — you have 1 (neoadjuvant AC)",
+        "ok": true
+      },
+      {
+        "txt": "Recruiting at Mary Bird Perkins — Baton Rouge (2 hr drive; on the heat-index van route)",
+        "ok": true
+      }
+    ]
+  },
+  {
+    "nct": "NCT04622319",
+    "title": "T-DXd vs T-DM1 in high-risk HER2+ residual disease after neoadjuvant therapy — DESTINY-Breast05",
+    "status": "ACTIVE_NOT_RECRUITING",
+    "phase": "PHASE3",
+    "sites": [
+      "LSU Health Baton Rouge North Clinic"
+    ],
+    "crits": [
+      {
+        "txt": "Requires HER2+ disease — you are HER2−",
+        "ok": false
+      },
+      {
+        "txt": "Requires residual disease after neoadjuvant + surgery",
+        "ok": false
+      },
+      {
+        "txt": "Status: active, not recruiting — enrollment closed",
+        "ok": false
+      }
+    ]
+  },
+  {
+    "nct": "NCT05879926",
+    "title": "Adjuvant chemo + ovarian suppression + endocrine therapy in premenopausal ER+/HER2− breast cancer (Oncotype ≤ 25)",
+    "status": "RECRUITING",
+    "phase": "PHASE3",
+    "sites": [
+      "Abbeville General Hospital — Abbeville"
+    ],
+    "crits": [
+      {
+        "txt": "ER+/HER2− — matches",
+        "ok": true
+      },
+      {
+        "txt": "Requires premenopausal status — you are post-menopausal",
+        "ok": false
+      },
+      {
+        "txt": "Oncotype RS ≤ 25 — tumor not yet scored",
+        "ok": "warn"
+      },
+      {
+        "txt": "Recruiting in Abbeville (Vermilion Parish)",
+        "ok": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,325 @@
+[
+  {
+    "id": "REF-2026-0418",
+    "pid": "wade",
+    "from": "Bunkie Family Medicine (RHC)",
+    "fromCity": "Bunkie",
+    "parish": "Avoyelles",
+    "to": "Ochsner Oncology — Alexandria",
+    "coverage": "Medicaid MCO",
+    "received": "Aug 12 · 09:14",
+    "miles": 147,
+    "transport": "NEMT requested",
+    "broadband": "low — SMS fallback",
+    "steps": [
+      [
+        "Referral created",
+        "09:14",
+        1
+      ],
+      [
+        "FHIR bundle posted",
+        "09:14",
+        1
+      ],
+      [
+        "Consent verified",
+        "09:16",
+        1
+      ],
+      [
+        "Labs attached — CBC, CMP, LDH",
+        "10:02",
+        1
+      ],
+      [
+        "Pathology slides requested",
+        "10:03",
+        0
+      ],
+      [
+        "First consult scheduled",
+        "—",
+        0
+      ],
+      [
+        "Records returned to the PCP",
+        "—",
+        0
+      ]
+    ],
+    "res": [
+      [
+        "Patient",
+        "pat-4471",
+        1
+      ],
+      [
+        "ServiceRequest",
+        "sr-99120",
+        1
+      ],
+      [
+        "Observation",
+        "obs-a91",
+        14
+      ],
+      [
+        "DiagnosticReport",
+        "dr-3312",
+        3
+      ],
+      [
+        "DocumentReference",
+        "doc-7781",
+        2
+      ],
+      [
+        "Coverage",
+        "cov-2210",
+        1
+      ]
+    ]
+  },
+  {
+    "id": "REF-2026-0419",
+    "pid": "robert",
+    "from": "Iberia Family Health",
+    "fromCity": "New Iberia",
+    "parish": "Iberia",
+    "to": "Ochsner Oncology — Lafayette",
+    "coverage": "Medicare",
+    "received": "Aug 12 · 11:40",
+    "miles": 118,
+    "transport": "family drives",
+    "broadband": "ok",
+    "steps": [
+      [
+        "Referral created",
+        "11:40",
+        1
+      ],
+      [
+        "FHIR bundle posted",
+        "11:40",
+        1
+      ],
+      [
+        "Consent verified",
+        "11:44",
+        1
+      ],
+      [
+        "Labs attached — CBC, CMP",
+        "12:15",
+        1
+      ],
+      [
+        "Pathology slides requested",
+        "12:16",
+        1
+      ],
+      [
+        "First consult scheduled",
+        "Aug 19 · 10:20",
+        1
+      ],
+      [
+        "Records returned to the PCP",
+        "—",
+        0
+      ]
+    ],
+    "res": [
+      [
+        "Patient",
+        "pat-4488",
+        1
+      ],
+      [
+        "ServiceRequest",
+        "sr-99131",
+        1
+      ],
+      [
+        "Observation",
+        "obs-b02",
+        11
+      ],
+      [
+        "DiagnosticReport",
+        "dr-3320",
+        2
+      ],
+      [
+        "DocumentReference",
+        "doc-7790",
+        4
+      ],
+      [
+        "Coverage",
+        "cov-2218",
+        1
+      ]
+    ]
+  },
+  {
+    "id": "REF-2026-0420",
+    "pid": "maria",
+    "from": "Ouachita Rural Health",
+    "fromCity": "Monroe",
+    "parish": "Ouachita",
+    "to": "Ochsner Oncology — Monroe",
+    "coverage": "Medicaid MCO",
+    "received": "Aug 13 · 08:05",
+    "miles": 61,
+    "transport": "NEMT requested",
+    "broadband": "low — SMS fallback",
+    "steps": [
+      [
+        "Referral created",
+        "08:05",
+        1
+      ],
+      [
+        "FHIR bundle posted",
+        "08:05",
+        1
+      ],
+      [
+        "Consent verified",
+        "08:09",
+        1
+      ],
+      [
+        "Labs attached — CBC, CMP",
+        "08:40",
+        0
+      ],
+      [
+        "Pathology slides requested",
+        "—",
+        0
+      ],
+      [
+        "First consult scheduled",
+        "—",
+        0
+      ],
+      [
+        "Records returned to the PCP",
+        "—",
+        0
+      ]
+    ],
+    "res": [
+      [
+        "Patient",
+        "pat-4501",
+        1
+      ],
+      [
+        "ServiceRequest",
+        "sr-99144",
+        1
+      ],
+      [
+        "Observation",
+        "obs-c17",
+        6
+      ],
+      [
+        "DocumentReference",
+        "doc-7802",
+        1
+      ],
+      [
+        "Coverage",
+        "cov-2225",
+        1
+      ]
+    ]
+  },
+  {
+    "id": "REF-2026-0421",
+    "pid": "celeste",
+    "from": "Baton Rouge Community Clinic",
+    "fromCity": "Baton Rouge",
+    "parish": "East Baton Rouge",
+    "to": "Ochsner Oncology — Baton Rouge",
+    "coverage": "Commercial",
+    "received": "Aug 13 · 14:22",
+    "miles": 22,
+    "transport": "own car",
+    "broadband": "ok",
+    "steps": [
+      [
+        "Referral created",
+        "14:22",
+        1
+      ],
+      [
+        "FHIR bundle posted",
+        "14:22",
+        1
+      ],
+      [
+        "Consent verified",
+        "14:23",
+        1
+      ],
+      [
+        "Labs attached — CBC, CMP, LDH",
+        "14:55",
+        1
+      ],
+      [
+        "Pathology slides requested",
+        "14:56",
+        1
+      ],
+      [
+        "First consult scheduled",
+        "Aug 18 · 09:00",
+        1
+      ],
+      [
+        "Records returned to the PCP",
+        "Aug 18 · 11:30",
+        1
+      ]
+    ],
+    "res": [
+      [
+        "Patient",
+        "pat-4515",
+        1
+      ],
+      [
+        "ServiceRequest",
+        "sr-99150",
+        1
+      ],
+      [
+        "Observation",
+        "obs-d08",
+        16
+      ],
+      [
+        "DiagnosticReport",
+        "dr-3331",
+        4
+      ],
+      [
+        "DocumentReference",
+        "doc-7814",
+        3
+      ],
+      [
+        "Coverage",
+        "cov-2231",
+        1
+      ]
+    ]
+  }
+]
