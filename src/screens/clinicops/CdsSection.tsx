@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cdsAlerts, type CdsAlert, type CdsStatus } from '@/engine/clinic/cds'
 import { cn } from '@/lib/utils'
@@ -94,20 +95,17 @@ export function CdsSection() {
 
           <div className="mt-3.5 flex flex-wrap gap-2">
             {FILTERS.map((f) => (
-              <button
+              <Button
                 key={f.value}
                 type="button"
+                size="xs"
+                variant={cdsFilter === f.value ? 'default' : 'outline'}
                 aria-pressed={cdsFilter === f.value}
                 onClick={() => setCdsFilter(f.value)}
-                className={cn(
-                  'rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
-                  cdsFilter === f.value
-                    ? 'border-brand-600 bg-brand-700 text-on-dark'
-                    : 'border-border bg-background text-foreground hover:bg-accent',
-                )}
+                className="rounded-full px-2.5 font-bold"
               >
                 {f.label}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -202,45 +200,52 @@ function AlertCard({
       </p>
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        <button
+        <Button
           type="button"
+          size="xs"
+          className="font-bold"
           onClick={() => {
             onAct('accepted')
             toast(`✅ Order placed — ${a.action} · logged to the worklist.`)
           }}
-          className="rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground transition-opacity hover:opacity-90"
         >
           Accept &amp; order
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          size="xs"
+          variant="outline"
+          className="font-bold"
           onClick={onProbe}
-          className="rounded-md border border-border px-3 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-accent"
         >
           🔍 Probe in patient app
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          size="xs"
+          variant="outline"
+          className="font-bold"
           onClick={() => {
             // The legacy accepted the alert as part of sending it, then only
             // toasted — "send" does not follow the patient into their app.
             onAct('accepted')
             toast(`📲 Sent to ${a.pt.name}’s patient app → Screen & Prevent.`)
           }}
-          className="rounded-md border border-border px-3 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-accent"
         >
           Send to patient
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          size="xs"
+          variant="outline"
+          className="font-bold"
           onClick={() => {
             onAct('dismissed')
             toast('🚫 Alert dismissed — reason logged for the quality report.')
           }}
-          className="rounded-md border border-border px-3 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-accent"
         >
           Dismiss
-        </button>
+        </Button>
       </div>
     </div>
   )

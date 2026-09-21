@@ -1,15 +1,17 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { CalendarDays, Check, ClipboardList, Pill, Receipt, Stethoscope } from 'lucide-react'
+import { CalendarDays, ClipboardList, Pill, Receipt, Stethoscope } from 'lucide-react'
 
 import { FAM_STATE, PATIENTS, type CareTeamMember } from '@/data'
 import { buildPlan, describeAppointment, fmtDay, nextAppointment } from '@/lib/calendar'
 import { decodeEntities } from '@/lib/html'
 import { useInterp } from '@/hooks/useInterp'
+import { isDone, useFamily } from '@/store/family'
 import { usePatient } from '@/store/patient'
 import { useT } from '@/hooks/useT'
 import { useUi } from '@/store/ui'
 import { RichText } from '@/components/shared/RichText'
+import { cn } from '@/lib/utils'
 
 /** The ride provider named on the Home card. Set in the legacy app too. */
 const RIDE_PROVIDER = "Cora's Wheels"
@@ -28,6 +30,13 @@ export function HomeScreen() {
   const lang = useUi((s) => s.lang)
   const pid = usePatient((s) => s.pid)
   const patient = PATIENTS[pid]
+
+  // The family circle. `caregiver` comes from the persisted mode the sidebar
+  // toggles, so the framing survives navigating away and back.
+  const caregiver = useUi((s) => s.caregiver)
+  const overrides = useFamily((s) => s.overrides[pid])
+  const setDone = useFamily((s) => s.setDone)
+  const firstName = patient.name.split(' ')[0]
 
   const next = useMemo(() => nextAppointment(buildPlan(patient)), [patient])
   const appt = next ? describeAppointment(next, patient.calTypes) : null
@@ -122,20 +131,18 @@ export function HomeScreen() {
                     <p className="truncate text-xs text-muted-foreground">{teamSubtitle(m)}</p>
                   </div>
                   {/*
-                    This was an inert <span> styled to look like a link — a control
-                    that did nothing and could not be reached by keyboard. It is a
-                    real button now. Messaging has no backend yet, so it says so
-                    rather than pretending.
+                    A "Message" button lived here. It had been promoted from an
+                    inert <span> to a real <button> for keyboard reachability,
+                    with a comment saying it would be "wired to the real
+                    messaging flow in a later checkpoint" — but there is no
+                    messaging backend, and no later checkpoint left to build one
+                    in. A control that announces itself, takes focus, and then
+                    does nothing when pressed is worse than no control: it
+                    reads as broken rather than as absent. Removed.
+
+                    The app's messaging-shaped surface is Remi, which is
+                    reachable from the launcher on every screen.
                   */}
-                  <button
-                    type="button"
-                    className="flex-none rounded px-2 py-1 text-xs font-bold text-link transition-colors hover:bg-accent"
-                    onClick={() => {
-                      /* wired to the real messaging flow in a later checkpoint */
-                    }}
-                  >
-                    {t('home.msg')}
-                  </button>
                 </li>
               )
             })}
@@ -153,34 +160,57 @@ export function HomeScreen() {
 
           <RichText html={patient.family.sub} className="block text-sm text-muted-foreground" />
 
+          {/* Where a family member comes in. Stated plainly rather than left
+              for the reader to infer — the reviewer's note about the access
+              flow was that it was not clear who this surface is for. */}
+          <p
+            className={cn(
+              'mt-2.5 text-xs',
+              caregiver ? 'font-semibold text-warning-fg' : 'text-muted-foreground',
+            )}
+          >
+            {caregiver ? t('home.famCgOn', { name: firstName }) : t('home.famAccess')}
+          </p>
+
           <ul className="mt-3 flex flex-col gap-2">
             {patient.family.tasks.map((task, i) => {
               const state = FAM_STATE[task.st] ?? FAM_STATE.open
-              const done = Boolean(state.c)
+              const done = isDone(overrides, i, Boolean(state.c))
               return (
-                <li
-                  key={i}
-                  className="flex items-start gap-2.5 rounded-md border border-border p-2.5"
-                >
-                  <span
-                    className={
-                      done
-                        ? 'mt-0.5 flex size-4 flex-none items-center justify-center rounded-full bg-brand-500 text-on-dark'
-                        : 'mt-0.5 size-4 flex-none rounded-full border border-border'
-                    }
-                    aria-hidden="true"
-                  >
-                    {done && <Check className="size-3" strokeWidth={3} />}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <b className="block text-sm font-semibold text-card-foreground">
-                      {decodeEntities(task.t)}
-                    </b>
-                    <span className="text-xs text-muted-foreground">{decodeEntities(task.s)}</span>
-                  </div>
-                  <span className="flex-none text-xs font-semibold text-muted-foreground">
-                    {t(state.d)}
-                  </span>
+                <li key={i}>
+                  {/*
+                    A real checkbox. This was a decorative span painted from the
+                    bundled status, so the one surface in the app that models a
+                    family sharing the work could be read and never touched.
+                    The override lives in the family store, not the record.
+                  */}
+                  <label className="flex cursor-pointer items-start gap-2.5 rounded-md border border-border p-2.5 transition-colors hover:bg-accent">
+                    <input
+                      type="checkbox"
+                      checked={done}
+                      onChange={(e) => setDone(pid, i, e.target.checked)}
+                      className="mt-0.5 size-4 flex-none accent-brand-500"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <b
+                        className={cn(
+                          'block text-sm font-semibold',
+                          done ? 'text-muted-foreground line-through' : 'text-card-foreground',
+                        )}
+                      >
+                        {decodeEntities(task.t)}
+                      </b>
+                      <span className="text-xs text-muted-foreground">{decodeEntities(task.s)}</span>
+                    </span>
+                    <span
+                      className={cn(
+                        'flex-none text-xs font-semibold',
+                        done ? 'text-success-fg' : 'text-muted-foreground',
+                      )}
+                    >
+                      {done ? t('home.done') : t(state.d)}
+                    </span>
+                  </label>
                 </li>
               )
             })}

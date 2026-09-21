@@ -1,4 +1,5 @@
-import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 /** The three phases. `tone` drives the numbered badge. */
 const PHASES = [
@@ -54,10 +55,11 @@ const PHASES = [
   },
 ] as const
 
-const BADGE: Record<string, string> = {
-  green: 'bg-brand-700 text-on-dark',
-  amber: 'bg-warning text-on-warning',
-  coral: 'bg-danger text-on-danger',
+/** Phase tone → the saturated-fill `Badge` variant. */
+const PHASE_BADGE: Record<string, 'brand' | 'solid-warning' | 'solid-danger'> = {
+  green: 'brand',
+  amber: 'solid-warning',
+  coral: 'solid-danger',
 }
 
 const CARDS = [
@@ -81,15 +83,16 @@ const CARDS = [
   },
 ] as const
 
-const TAG: Record<string, string> = {
-  green: 'bg-success-bg text-success-fg',
-  amber: 'bg-warning-bg text-warning-fg',
-  coral: 'bg-danger-bg text-danger-fg',
+/** Card tag → the tint `Badge` variant. */
+const TAG_BADGE: Record<string, 'success' | 'warning' | 'danger'> = {
+  green: 'success',
+  amber: 'warning',
+  coral: 'danger',
 }
 
 export function RoadmapScreen() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
       <div className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="text-xl font-semibold text-foreground">Roadmap</h2>
         <span className="text-sm text-muted-foreground">From DevDays draft to Louisiana pilot</span>
@@ -98,20 +101,18 @@ export function RoadmapScreen() {
       <div className="flex flex-col gap-4">
         {PHASES.map((p) => (
           <div key={p.n} className="flex gap-4">
-            <div
-              className={cn(
-                'flex size-9 flex-none items-center justify-center rounded-full text-sm font-bold',
-                BADGE[p.tone],
-              )}
-              aria-hidden="true"
-            >
+            <Badge variant={PHASE_BADGE[p.tone]} className="size-9 text-sm" aria-hidden="true">
               {p.n}
-            </div>
-            <div className="min-w-0 flex-1 rounded-lg border border-border bg-card p-5 shadow-[var(--shadow)]">
-              <h4 className="text-base font-semibold text-card-foreground">{p.h}</h4>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.d}</p>
-              <p className="mt-2.5 text-xs italic text-muted-foreground">{p.meta}</p>
-            </div>
+            </Badge>
+            <Card className="min-w-0 flex-1">
+              <CardHeader>
+                <CardTitle>{p.h}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed text-muted-foreground">{p.d}</p>
+                <p className="mt-2.5 text-xs italic text-muted-foreground">{p.meta}</p>
+              </CardContent>
+            </Card>
           </div>
         ))}
       </div>
@@ -121,9 +122,9 @@ export function RoadmapScreen() {
           <h3 className="text-base font-semibold text-accent-foreground">
             📊 Data &amp; insights — official challenge partner: ASCO
           </h3>
-          <span className="rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
+          <Badge variant="success" className="text-left whitespace-normal">
             American Society of Clinical Oncology
-          </span>
+          </Badge>
         </div>
         <p className="text-sm text-accent-foreground">
           ASCO is the challenge's official data source. BayouCare operationalizes it in three ways:{' '}
@@ -137,18 +138,15 @@ export function RoadmapScreen() {
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         {CARDS.map((c) => (
-          <section key={c.h} className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-            <span
-              className={cn(
-                'inline-block rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.05em]',
-                TAG[c.tag],
-              )}
-            >
-              {c.label}
-            </span>
-            <h3 className="mt-3 text-lg font-semibold text-card-foreground">{c.h}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{c.p}</p>
-          </section>
+          <Card key={c.h}>
+            <CardContent>
+              <Badge variant={TAG_BADGE[c.tag]} className="uppercase tracking-[0.05em]">
+                {c.label}
+              </Badge>
+              <CardTitle className="mt-3">{c.h}</CardTitle>
+              <p className="mt-2 text-sm text-muted-foreground">{c.p}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

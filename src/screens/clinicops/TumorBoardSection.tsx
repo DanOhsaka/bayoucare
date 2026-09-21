@@ -2,9 +2,9 @@ import { toast } from 'sonner'
 
 import { RichText } from '@/components/shared/RichText'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { buildMDT, tbCase, TB_IDS, type TbModel } from '@/engine/clinic/tumorBoard'
-import { cn } from '@/lib/utils'
 import { useClinic } from '@/store/clinic'
 
 /**
@@ -54,20 +54,17 @@ export function TumorBoardSection() {
 
           <div className="mt-3 flex flex-wrap gap-2">
             {CASES.map(({ id, t }) => (
-              <button
+              <Button
                 key={id}
                 type="button"
+                size="xs"
+                variant={tbId === id ? 'default' : 'outline'}
                 aria-pressed={tbId === id}
                 onClick={() => setTbId(id)}
-                className={cn(
-                  'rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
-                  tbId === id
-                    ? 'border-brand-600 bg-brand-700 text-on-dark'
-                    : 'border-border bg-background text-foreground hover:bg-accent',
-                )}
+                className="rounded-full px-2.5 font-bold"
               >
                 {t.name}
-              </button>
+              </Button>
             ))}
           </div>
         </CardContent>
@@ -85,18 +82,15 @@ export function TumorBoardSection() {
                   selected.t.hits.length === 1 ? 'rule' : 'rules'
                 } flagged`}
               </Badge>
-              <button
+              <Button
                 type="button"
+                size="xs"
+                variant={circulated ? 'outline' : 'default'}
                 onClick={circulate}
-                className={cn(
-                  'rounded-md px-3 py-1.5 text-xs font-bold transition-colors',
-                  circulated
-                    ? 'border border-border text-foreground hover:bg-background'
-                    : 'bg-primary text-primary-foreground',
-                )}
+                className="font-bold"
               >
                 {circulated ? 'Circulated ✓' : '📤 Circulate to board'}
-              </button>
+              </Button>
             </CardAction>
           </CardHeader>
           <CardContent>

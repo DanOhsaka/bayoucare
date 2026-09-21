@@ -1,5 +1,8 @@
 import { toast } from 'sonner'
 
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   ACTIONS,
   TEAM_PATIENTS,
@@ -13,21 +16,24 @@ import { contributions, W, type Counterfactual, type RiskLevel } from '@/engine/
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
 
-const PILL: Record<RiskLevel, { label: string; cls: string }> = {
-  critical: { label: 'Critical', cls: 'bg-danger-bg text-danger-fg' },
-  watch: { label: 'Watch', cls: 'bg-warning-bg text-warning-fg' },
-  none: { label: 'Stable', cls: 'bg-muted text-muted-foreground' },
+/** Risk level → chip label, and the `Badge` variant that owns its colour pair. */
+const RISK_LABEL: Record<RiskLevel, string> = {
+  critical: 'Critical',
+  watch: 'Watch',
+  none: 'Stable',
+}
+
+const RISK_VARIANT: Record<RiskLevel, 'danger' | 'warning' | 'neutral'> = {
+  critical: 'danger',
+  watch: 'warning',
+  none: 'neutral',
 }
 
 /** Risk colour thresholds, shared by every bar. */
 const riskBarClass = (v: number) => (v >= 50 ? 'bg-danger' : v >= 25 ? 'bg-warning' : 'bg-brand-500')
 
 function RiskPill({ level }: { level: RiskLevel }) {
-  return (
-    <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-bold', PILL[level].cls)}>
-      {PILL[level].label}
-    </span>
-  )
+  return <Badge variant={RISK_VARIANT[level]}>{RISK_LABEL[level]}</Badge>
 }
 
 function RiskBar({ value }: { value: number }) {
@@ -71,18 +77,15 @@ function CounterfactualLine({
         {current}% → {cf.to}%
       </span>
       <span className="font-bold text-success-fg">−{cf.drop} pts</span>
-      <button
+      <Button
         type="button"
+        size="xs"
+        variant={applied ? 'outline' : 'default'}
         onClick={onApply}
-        className={cn(
-          'ml-auto rounded-md px-3 py-1.5 text-xs font-bold transition-colors',
-          applied
-            ? 'border border-border text-foreground hover:bg-background'
-            : 'bg-primary text-primary-foreground',
-        )}
+        className="ml-auto font-bold"
       >
         {applied ? 'Applied ✓' : 'Apply'}
-      </button>
+      </Button>
     </div>
   )
 }
@@ -124,359 +127,361 @@ export function TeamScreen() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
-      <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-lg font-semibold text-card-foreground">{t('team.head')}</h3>
-          <span className="rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">{t('team.head')}</CardTitle>
+          <Badge variant="success" className="text-left whitespace-normal">
             {t('team.chip')}
-          </span>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          One dashboard: patient-reported symptoms, auto-drafted visit summaries, and a 7-day risk
-          forecast for every patient — <b className="text-card-foreground">each with the one action that changes the outcome.</b>
-        </p>
-      </section>
+          </Badge>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            One dashboard: patient-reported symptoms, auto-drafted visit summaries, and a 7-day risk
+            forecast for every patient — <b className="text-card-foreground">each with the one action that changes the outcome.</b>
+          </p>
+        </CardContent>
+      </Card>
 
-      {/* ------------------------------------------------------- impact row */}
+      {/* ------------------------------------------------------- impact row
+          `gap-0 p-5` is the app's impact-tile idiom — see SlotBoardSection. */}
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         {[
           [critCount, 'critical forecast today — 7-day unplanned-care risk ≥ 50%'],
           [watchCount, 'watch forecasts — risk 25–50%, a counterfactual action attached to each'],
           [avoided, 'unplanned-care events projected avoidable / 30 days if top actions are applied (demo model)'],
         ].map(([n, d], i) => (
-          <div key={i} className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow)]">
+          <Card key={i} className="gap-0 p-5">
             <div className="text-2xl font-bold text-link">{n}</div>
             <div className="mt-1 text-xs text-muted-foreground">{d}</div>
-          </div>
+          </Card>
         ))}
       </div>
 
       {/* ---------------------------------------------------------- alerts */}
-      <section className="mt-4 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-base font-semibold text-card-foreground">
-            Needs attention — forecast with a prescription
-          </h3>
-          <span className="rounded-full bg-danger-bg px-2.5 py-1 text-xs font-bold text-danger-fg">
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Needs attention — forecast with a prescription</CardTitle>
+          <Badge variant="danger" className="text-left whitespace-normal">
             {critCount} critical · {watchCount} watch
             {alerts.length ? ` + ${alerts.length} ${t('vitals.alertLbl')}` : ''}
-          </span>
-        </div>
+          </Badge>
+        </CardHeader>
 
-        <div className="flex flex-col gap-3">
-          {/*
-            Device-vitals alerts enter the SAME list as the forecasts, and they
-            arrive with no explicit sync: the 2am replay writes them to the vitals
-            store and this screen reads it. That is the cross-module moment.
-          */}
-          {alerts.map((v, i) => (
-            <div key={i} className="rounded-lg border-2 border-danger bg-danger-bg p-4">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <b className="text-sm font-semibold text-card-foreground">{v.name}</b>{' '}
-                  <RiskPill level="critical" />
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    Objective vitals · temp patch · {v.when} · {v.reading}
-                  </div>
-                </div>
-                <span className="rounded-full bg-danger-bg px-2.5 py-1 text-xs font-bold text-danger-fg">
-                  ⚡ auto-escalated
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-card-foreground">{v.msg}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                ⚡ Auto-escalation: on-call RN notified · caregiver SMS to Renee sent · {v.followup}
-              </p>
-            </div>
-          ))}
-
-          {flagged.map((x) => {
-            const top = x.cfs[0]
-            const isApp = top ? (applied[x.p.id] ?? new Set()).has(top.key) : false
-            return (
-              <div
-                key={x.p.id}
-                className={cn(
-                  'rounded-lg border-2 p-4',
-                  x.level === 'critical' ? 'border-danger' : 'border-warning',
-                )}
-              >
+        <CardContent>
+          <div className="flex flex-col gap-3">
+            {/*
+              Device-vitals alerts enter the SAME list as the forecasts, and they
+              arrive with no explicit sync: the 2am replay writes them to the vitals
+              store and this screen reads it. That is the cross-module moment.
+            */}
+            {alerts.map((v, i) => (
+              <div key={i} className="rounded-lg border-2 border-danger bg-danger-bg p-4">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <b className="text-sm font-semibold text-card-foreground">{x.p.name}</b>{' '}
-                    <RiskPill level={x.level} />
+                    <b className="text-sm font-semibold text-card-foreground">{v.name}</b>{' '}
+                    <RiskPill level="critical" />
                     <div className="mt-1 text-xs text-muted-foreground">
-                      {x.p.meta} · {x.p.driver}
+                      Objective vitals · temp patch · {v.when} · {v.reading}
                     </div>
                   </div>
-                  <span className="rounded-full bg-warning-bg px-2.5 py-1 text-xs font-bold text-warning-fg">
-                    7-day risk {x.cur}%
-                  </span>
+                  <Badge variant="danger">⚡ auto-escalated</Badge>
                 </div>
-                <div className="mt-2.5">
-                  <RiskBar value={x.cur} />
-                </div>
-                {top && (
-                  <CounterfactualLine
-                    cf={top}
-                    current={x.cur}
-                    applied={isApp}
-                    prominent
-                    onApply={() => toggle(x.p.id, top.key)}
-                  />
-                )}
+                <p className="mt-2 text-sm text-card-foreground">{v.msg}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  ⚡ Auto-escalation: on-call RN notified · caregiver SMS to Renee sent · {v.followup}
+                </p>
               </div>
-            )
-          })}
+            ))}
 
-          {!alerts.length && !flagged.length && (
-            <p className="text-sm text-muted-foreground">
-              No flagged patients — everyone stable.
-            </p>
-          )}
-        </div>
+            {flagged.map((x) => {
+              const top = x.cfs[0]
+              const isApp = top ? (applied[x.p.id] ?? new Set()).has(top.key) : false
+              return (
+                <div
+                  key={x.p.id}
+                  className={cn(
+                    'rounded-lg border-2 p-4',
+                    x.level === 'critical' ? 'border-danger' : 'border-warning',
+                  )}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <b className="text-sm font-semibold text-card-foreground">{x.p.name}</b>{' '}
+                      <RiskPill level={x.level} />
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {x.p.meta} · {x.p.driver}
+                      </div>
+                    </div>
+                    <Badge variant="warning">7-day risk {x.cur}%</Badge>
+                  </div>
+                  <div className="mt-2.5">
+                    <RiskBar value={x.cur} />
+                  </div>
+                  {top && (
+                    <CounterfactualLine
+                      cf={top}
+                      current={x.cur}
+                      applied={isApp}
+                      prominent
+                      onApply={() => toggle(x.p.id, top.key)}
+                    />
+                  )}
+                </div>
+              )
+            })}
 
-        <p className="mt-3 text-xs text-muted-foreground">
-          Risks from the BayouCare logistic risk model (synthetic demo data). Counterfactuals show the
-          projected risk after one action — hit Apply to log it to the worklist and watch the board
-          re-run. Device-vitals alerts (Rank 6) enter the same list, auto-escalated.
-        </p>
-      </section>
+            {!alerts.length && !flagged.length && (
+              <p className="text-sm text-muted-foreground">
+                No flagged patients — everyone stable.
+              </p>
+            )}
+          </div>
+
+          <p className="mt-3 text-xs text-muted-foreground">
+            Risks from the BayouCare logistic risk model (synthetic demo data). Counterfactuals show the
+            projected risk after one action — hit Apply to log it to the worklist and watch the board
+            re-run. Device-vitals alerts (Rank 6) enter the same list, auto-escalated.
+          </p>
+        </CardContent>
+      </Card>
 
       {/* -------------------------------------------------- morning sweep */}
-      <section className="mt-4 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-base font-semibold text-card-foreground">{t('vitals.sweepHead')}</h3>
-          <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-muted-foreground">
-            {t('vitals.sweepChip')}
-          </span>
-        </div>
-        <p className="text-sm text-muted-foreground">{t('vitals.sweepHint')}</p>
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>{t('vitals.sweepHead')}</CardTitle>
+          <Badge variant="neutral">{t('vitals.sweepChip')}</Badge>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{t('vitals.sweepHint')}</p>
 
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr>
-                {['Patient', 'Temp now', '24h', 'Weight (30d)', 'Device flags'].map((h) => (
-                  <th
-                    key={h}
-                    className="border-b border-border px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.04em] text-muted-foreground"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sweep.map((row, i) => (
-                <tr key={i}>
-                  <td className="border-b border-border px-3 py-2.5 font-semibold text-card-foreground">
-                    {String(row.name ?? '')}
-                  </td>
-                  <td className="border-b border-border px-3 py-2.5 text-card-foreground">
-                    {String(row.temp ?? '')}
-                  </td>
-                  <td className="border-b border-border px-3 py-2.5 text-muted-foreground">
-                    {String(row.tr ?? '')}
-                  </td>
-                  <td className="border-b border-border px-3 py-2.5 text-muted-foreground">
-                    {String(row.w ?? '')}
-                    {/* `&&` on an `unknown` field yields `unknown`, which is not a
-                        valid ReactNode — hence the explicit Boolean(). */}
-                    {Boolean(row.wd) && row.wd !== '—' && (
-                      <span className="ml-1 text-muted-foreground">({String(row.wd)})</span>
-                    )}
-                  </td>
-                  <td
-                    className={cn(
-                      'border-b border-border px-3 py-2.5',
-                      row.flagCls === 'flag' ? 'font-bold text-danger-fg' : 'text-muted-foreground',
-                    )}
-                  >
-                    {String(row.flag ?? '')}
-                  </td>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr>
+                  {['Patient', 'Temp now', '24h', 'Weight (30d)', 'Device flags'].map((h) => (
+                    <th
+                      key={h}
+                      className="border-b border-border px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.04em] text-muted-foreground"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {sweep.map((row, i) => (
+                  <tr key={i}>
+                    <td className="border-b border-border px-3 py-2.5 font-semibold text-card-foreground">
+                      {String(row.name ?? '')}
+                    </td>
+                    <td className="border-b border-border px-3 py-2.5 text-card-foreground">
+                      {String(row.temp ?? '')}
+                    </td>
+                    <td className="border-b border-border px-3 py-2.5 text-muted-foreground">
+                      {String(row.tr ?? '')}
+                    </td>
+                    <td className="border-b border-border px-3 py-2.5 text-muted-foreground">
+                      {String(row.w ?? '')}
+                      {/* `&&` on an `unknown` field yields `unknown`, which is not a
+                          valid ReactNode — hence the explicit Boolean(). */}
+                      {Boolean(row.wd) && row.wd !== '—' && (
+                        <span className="ml-1 text-muted-foreground">({String(row.wd)})</span>
+                      )}
+                    </td>
+                    <td
+                      className={cn(
+                        'border-b border-border px-3 py-2.5',
+                        row.flagCls === 'flag' ? 'font-bold text-danger-fg' : 'text-muted-foreground',
+                      )}
+                    >
+                      {String(row.flag ?? '')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        <p className="mt-3 text-xs text-muted-foreground">
-          Synthetic device streams — run the <b className="text-card-foreground">2 am replay</b> in the
-          patient app (Vitals → Simulate) to watch a fever land here before breakfast.
-        </p>
-      </section>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Synthetic device streams — run the <b className="text-card-foreground">2 am replay</b> in the
+            patient app (Vitals → Simulate) to watch a fever land here before breakfast.
+          </p>
+        </CardContent>
+      </Card>
 
       {/* ------------------------------------------ counterfactual board */}
-      <section className="mt-4 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-base font-semibold text-card-foreground">
-            ⚡ Counterfactual intervention board
-          </h3>
-          <span className="rounded-full bg-warning-bg px-2.5 py-1 text-xs font-bold text-warning-fg">
-            What moves the needle · demo model
-          </span>
-        </div>
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>⚡ Counterfactual intervention board</CardTitle>
+          <Badge variant="warning">What moves the needle · demo model</Badge>
+        </CardHeader>
 
-        <div className="mb-3 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              autoApply()
-              toast('⚡ Top counterfactual applied for every flagged patient — worklist updated.')
-            }}
-            className="h-9 rounded-md bg-primary px-3.5 text-xs font-bold text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            ⚡ Auto-apply top action for all flagged patients
-          </button>
-          <span className="text-xs text-muted-foreground">
-            One click runs the whole board — every flagged patient gets their best counterfactual
-            applied to the worklist.
-          </span>
-        </div>
+        <CardContent>
+          <div className="mb-3 flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              /* A long label on a 320px screen: it wraps onto a second line
+                 rather than pushing the page sideways. */
+              className="h-auto py-2 text-left text-xs font-bold whitespace-normal"
+              onClick={() => {
+                autoApply()
+                toast('⚡ Top counterfactual applied for every flagged patient — worklist updated.')
+              }}
+            >
+              ⚡ Auto-apply top action for all flagged patients
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              One click runs the whole board — every flagged patient gets their best counterfactual
+              applied to the worklist.
+            </span>
+          </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr>
-                {['Intervention', 'Helps', 'Avg risk drop', 'Projected impact'].map((h, i) => (
-                  <th
-                    key={h}
-                    className={cn(
-                      'border-b border-border px-3 py-2 text-xs font-bold uppercase tracking-[0.04em] text-muted-foreground',
-                      i === 3 ? 'text-right' : 'text-left',
-                    )}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {board.map((r) => (
-                <tr key={r.k}>
-                  <td className="border-b border-border px-3 py-3">
-                    <b className="text-card-foreground">{r.label}</b>
-                    <div className="text-xs text-muted-foreground">{r.desc}</div>
-                  </td>
-                  <td className="border-b border-border px-3 py-3 text-muted-foreground">
-                    <span className="block text-xs">Helps</span>
-                    <b className="text-card-foreground">{r.n} patients</b>
-                  </td>
-                  <td className="border-b border-border px-3 py-3 text-muted-foreground">
-                    <span className="block text-xs">Avg drop</span>
-                    <b className="text-card-foreground">{r.n ? `${r.avg.toFixed(1)} pts` : '—'}</b>
-                  </td>
-                  <td className="border-b border-border px-3 py-3 text-right">
-                    <span className="block text-xs text-muted-foreground">Avoidable</span>
-                    <b className="text-card-foreground">≈ {r.ev.toFixed(1)} events / 30d</b>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr>
+                  {['Intervention', 'Helps', 'Avg risk drop', 'Projected impact'].map((h, i) => (
+                    <th
+                      key={h}
+                      className={cn(
+                        'border-b border-border px-3 py-2 text-xs font-bold uppercase tracking-[0.04em] text-muted-foreground',
+                        i === 3 ? 'text-right' : 'text-left',
+                      )}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              </thead>
+              <tbody>
+                {board.map((r) => (
+                  <tr key={r.k}>
+                    <td className="border-b border-border px-3 py-3">
+                      <b className="text-card-foreground">{r.label}</b>
+                      <div className="text-xs text-muted-foreground">{r.desc}</div>
+                    </td>
+                    <td className="border-b border-border px-3 py-3 text-muted-foreground">
+                      <span className="block text-xs">Helps</span>
+                      <b className="text-card-foreground">{r.n} patients</b>
+                    </td>
+                    <td className="border-b border-border px-3 py-3 text-muted-foreground">
+                      <span className="block text-xs">Avg drop</span>
+                      <b className="text-card-foreground">{r.n ? `${r.avg.toFixed(1)} pts` : '—'}</b>
+                    </td>
+                    <td className="border-b border-border px-3 py-3 text-right">
+                      <span className="block text-xs text-muted-foreground">Avoidable</span>
+                      <b className="text-card-foreground">≈ {r.ev.toFixed(1)} events / 30d</b>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ---------------------------------------------------------- roster */}
-      <section className="mt-4 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-base font-semibold text-card-foreground">
-            Patient roster — 7-day risk model
-          </h3>
-          <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-muted-foreground">
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Patient roster — 7-day risk model</CardTitle>
+          <Badge variant="neutral" className="text-left whitespace-normal">
             updated daily · click a patient for counterfactual detail
-          </span>
-        </div>
+          </Badge>
+        </CardHeader>
 
-        <div className="flex flex-col">
-          {assessed.map((x) => {
-            const top = x.cfs[0]
-            return (
-              <button
-                key={x.p.id}
-                type="button"
-                onClick={() => select(selectedId === x.p.id ? null : x.p.id)}
-                className={cn(
-                  'grid grid-cols-2 items-center gap-3 border-b border-border px-2 py-3 text-left transition-colors hover:bg-accent sm:grid-cols-[2fr_1fr_1.5fr_1.4fr_auto]',
-                  selectedId === x.p.id && 'bg-accent',
-                )}
-              >
-                <div>
-                  <div className="text-sm font-semibold text-card-foreground">{x.p.name}</div>
-                  <div className="text-xs text-muted-foreground">{x.p.meta}</div>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {x.p.checkin}
-                  <br />
-                  <b className="text-card-foreground">{x.p.days}</b>
-                </div>
-                <RiskBar value={x.cur} />
-                <div className="text-xs text-muted-foreground">{top ? top.label : '—'}</div>
-                <RiskPill level={x.level} />
-              </button>
-            )
-          })}
-        </div>
+        <CardContent>
+          <div className="flex flex-col">
+            {assessed.map((x) => {
+              const top = x.cfs[0]
+              return (
+                <Button
+                  key={x.p.id}
+                  type="button"
+                  variant="ghost"
+                  onClick={() => select(selectedId === x.p.id ? null : x.p.id)}
+                  className={cn(
+                    'grid h-auto grid-cols-2 items-center gap-3 rounded-none px-2 py-3 text-left font-normal whitespace-normal sm:grid-cols-[2fr_1fr_1.5fr_1.4fr_auto]',
+                    selectedId === x.p.id && 'bg-accent',
+                  )}
+                >
+                  <div>
+                    <div className="text-sm font-semibold text-card-foreground">{x.p.name}</div>
+                    <div className="text-xs text-muted-foreground">{x.p.meta}</div>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {x.p.checkin}
+                    <br />
+                    <b className="text-card-foreground">{x.p.days}</b>
+                  </div>
+                  <RiskBar value={x.cur} />
+                  <div className="text-xs text-muted-foreground">{top ? top.label : '—'}</div>
+                  <RiskPill level={x.level} />
+                </Button>
+              )
+            })}
+          </div>
 
-        {selected && <PatientDetail patient={selected} />}
-      </section>
+          {selected && <PatientDetail patient={selected} />}
+        </CardContent>
+      </Card>
 
       {/* ------------------------------------------- summary + time saved */}
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-base font-semibold text-card-foreground">
-              🤖 Auto-drafted visit summary
-            </h3>
-            <span className="rounded-full bg-warning-bg px-2.5 py-1 text-xs font-bold text-warning-fg">
-              Generated by BayouCare
-            </span>
-          </div>
-          <div className="rounded-md border border-border bg-muted p-4 text-sm text-muted-foreground">
-            <b className="text-card-foreground">
-              Ms. Darlene Fontenot · MRN 44012 · Stage II IDC (ER+/PR+, HER2−) · Cycle 1
-            </b>
-            <br />
-            <br />
-            <b>Since last visit:</b> 5/6 check-ins completed. Fatigue 3/5 (stable), nausea 2/5
-            (well-controlled with ondansetron), no fevers, pain 1/5.
-            <br />
-            <br />
-            <b>Escalation:</b> none — within expected toxicity profile.
-            <br />
-            <br />
-            <b>Patient questions:</b> (1) How will we know chemo is working? (2) Should she pursue
-            BRCA testing — two adult daughters?
-            <br />
-            <br />
-            <b>Logistics:</b> transport confirmed for Aug 14 infusion; mileage reimbursement
-            application started.
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Clinician edits in 1 click — summary syncs to the EHR as a structured note.
-          </p>
-        </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>🤖 Auto-drafted visit summary</CardTitle>
+            <Badge variant="warning">Generated by BayouCare</Badge>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border border-border bg-muted p-4 text-sm text-muted-foreground">
+              <b className="text-card-foreground">
+                Ms. Darlene Fontenot · MRN 44012 · Stage II IDC (ER+/PR+, HER2−) · Cycle 1
+              </b>
+              <br />
+              <br />
+              <b>Since last visit:</b> 5/6 check-ins completed. Fatigue 3/5 (stable), nausea 2/5
+              (well-controlled with ondansetron), no fevers, pain 1/5.
+              <br />
+              <br />
+              <b>Escalation:</b> none — within expected toxicity profile.
+              <br />
+              <br />
+              <b>Patient questions:</b> (1) How will we know chemo is working? (2) Should she pursue
+              BRCA testing — two adult daughters?
+              <br />
+              <br />
+              <b>Logistics:</b> transport confirmed for Aug 14 infusion; mileage reimbursement
+              application started.
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Clinician edits in 1 click — summary syncs to the EHR as a structured note.
+            </p>
+          </CardContent>
+        </Card>
 
-        <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-          <h3 className="mb-3 text-base font-semibold text-card-foreground">⚡ Admin time saved</h3>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {[
-              ['2.1', 'hrs saved / week / clinician'],
-              ['41', 'auto-summaries drafted'],
-              ['9', 'calls avoided with triage flags'],
-            ].map(([n, d]) => (
-              <div key={d} className="rounded-lg border border-border bg-accent p-4">
-                <div className="text-2xl font-bold text-link">{n}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{d}</div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Pilot metrics — first 4 weeks, 8 patients. Scales to the full Ochsner oncology service
-            line.
-          </p>
-        </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>⚡ Admin time saved</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {[
+                ['2.1', 'hrs saved / week / clinician'],
+                ['41', 'auto-summaries drafted'],
+                ['9', 'calls avoided with triage flags'],
+              ].map(([n, d]) => (
+                <div key={d} className="rounded-lg border border-border bg-accent p-4">
+                  <div className="text-2xl font-bold text-link">{n}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{d}</div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Pilot metrics — first 4 weeks, 8 patients. Scales to the full Ochsner oncology service
+              line.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
@@ -500,9 +505,9 @@ function PatientDetail({ patient }: { patient: TeamPatient }) {
         <h3 className="text-base font-semibold text-accent-foreground">
           {patient.name} — counterfactual detail
         </h3>
-        <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-muted-foreground">
+        <Badge variant="neutral" className="text-left whitespace-normal">
           baseline {base}% · now {s.cur}% · {nApplied ? `${nApplied} action(s) applied` : 'no actions applied'}
-        </span>
+        </Badge>
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
@@ -526,7 +531,7 @@ function PatientDetail({ patient }: { patient: TeamPatient }) {
               </div>
             ))}
           </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-xs text-muted-foreground">
             Logistic risk model (demo): logit = {W.B0} + {W.anc}·ANC + {W.days}·missed + {W.adm}·admission
             + {W.miles}·miles + {W.sdoh}·SDOH + {W.cycle}·cycle. Each bar is weight × value — red pushes
             risk up.
@@ -548,7 +553,7 @@ function PatientDetail({ patient }: { patient: TeamPatient }) {
               />
             ))}
           </div>
-          <p className="mt-3 text-[11px] text-muted-foreground">
+          <p className="mt-3 text-xs text-muted-foreground">
             Each apply mutates the feature vector and the logistic model recomputes live — the same
             math the worklist uses.
           </p>

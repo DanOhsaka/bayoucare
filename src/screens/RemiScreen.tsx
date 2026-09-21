@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { Leaf, Settings2 } from 'lucide-react'
 
 import { RemiChat } from '@/components/ai/RemiChat'
+import { Field, INPUT_CLASS } from '@/components/shared/Field'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { REMI_PROVIDERS } from '@/engine/remi/providers'
 import { useRemi } from '@/store/remi'
 import { useT } from '@/hooks/useT'
@@ -27,108 +31,113 @@ export function RemiScreen() {
   return (
     <div className="flex flex-col gap-4">
       {/* ------------------------------------------------------------- header */}
-      <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-card-foreground">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
             <Leaf className="size-[18px] text-brand-600" aria-hidden="true" />
             Remi — your care assistant
-          </h3>
-          <span
-            className={cn(
-              'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold',
-              key ? 'bg-success-bg text-success-fg' : 'bg-muted text-muted-foreground',
-            )}
-          >
+          </CardTitle>
+          <Badge variant={key ? 'success' : 'neutral'}>
             <i className="block size-1.5 rounded-full bg-current" aria-hidden="true" />
             {engineLabel}
-          </span>
-        </div>
+          </Badge>
+        </CardHeader>
 
-        <p className="mt-2 text-sm text-muted-foreground">{t('remi.sub')}</p>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{t('remi.sub')}</p>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          {PROMPT_KEYS.map((k) => (
-            <button
-              key={k}
-              type="button"
-              disabled={busy}
-              onClick={() => void send(t(k))}
-              className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-accent disabled:opacity-50"
-            >
-              {t(k)}
-            </button>
-          ))}
-        </div>
-      </section>
+          {/* Suggestions, not controls: each one sends its own question. */}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {PROMPT_KEYS.map((k) => (
+              <Button
+                key={k}
+                type="button"
+                variant="outline"
+                size="xs"
+                disabled={busy}
+                onClick={() => void send(t(k))}
+                className="rounded-full font-semibold"
+              >
+                {t(k)}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* --------------------------------------------------------- conversation */}
-      <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <RemiChat />
-      </section>
+      <Card>
+        <CardContent>
+          <RemiChat />
+        </CardContent>
+      </Card>
 
       {/* ------------------------------------------------------ connect a model */}
-      <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="flex items-center gap-2 text-base font-semibold text-card-foreground">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <Settings2 className="size-4 text-muted-foreground" aria-hidden="true" />
             {t('remi.connectHead')}
-          </h3>
-          <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-muted-foreground">
-            {t('remi.connectChip')}
-          </span>
-        </div>
+          </CardTitle>
+          <Badge variant="neutral">{t('remi.connectChip')}</Badge>
+        </CardHeader>
 
-        <p className="mt-2 text-sm text-muted-foreground">{t('remi.connectSub')}</p>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{t('remi.connectSub')}</p>
 
-        <div className="mt-3 flex flex-wrap items-end gap-2">
-          <div className="flex min-w-[220px] flex-1 flex-col gap-1">
-            <label htmlFor="remi-key" className="text-sm font-semibold">
-              API key
-            </label>
-            <input
-              id="remi-key"
-              type="password"
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="sk-…"
-              value={draftKey}
-              onChange={(e) => setDraftKey(e.target.value)}
-              className="h-10 rounded-md border border-input bg-background px-3 font-mono text-sm text-foreground outline-none focus-visible:border-ring"
-            />
+          <div className="mt-3 flex flex-wrap items-end gap-2">
+            <div className="min-w-[220px] flex-1">
+              <Field label="API key" id="remi-key">
+                <input
+                  id="remi-key"
+                  type="password"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="sk-…"
+                  value={draftKey}
+                  onChange={(e) => setDraftKey(e.target.value)}
+                  className={cn(INPUT_CLASS, 'font-mono')}
+                />
+              </Field>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                saveKey(draftKey.trim())
+                setDraftKey('')
+              }}
+              disabled={!draftKey.trim()}
+              className="border-brand-600 font-bold text-link hover:text-link dark:border-brand-600"
+            >
+              {t('remi.connectSave')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                clearKey()
+                setDraftKey('')
+              }}
+              className="font-bold"
+            >
+              {t('remi.connectClear')}
+            </Button>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              saveKey(draftKey.trim())
-              setDraftKey('')
-            }}
-            disabled={!draftKey.trim()}
-            className="h-10 rounded-md border border-brand-600 px-3.5 text-sm font-bold text-link transition-colors hover:bg-accent disabled:opacity-50"
-          >
-            {t('remi.connectSave')}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              clearKey()
-              setDraftKey('')
-            }}
-            className="h-10 rounded-md border border-border px-3.5 text-sm font-bold text-foreground transition-colors hover:bg-accent"
-          >
-            {t('remi.connectClear')}
-          </button>
-        </div>
 
-        {/*
-          The key is kept in this browser only. It must never move into an
-          `import.meta.env.VITE_*` variable: Vite inlines any VITE_-prefixed
-          value into the public bundle, which would publish the key in the
-          JavaScript every visitor downloads.
-        */}
-        <p className="mt-2 text-xs text-muted-foreground">
-          {key ? t('remi.keySaved') : t('remi.keyNone')}
-        </p>
-      </section>
+          {/*
+            The key is kept in this browser only. It must never move into an
+            `import.meta.env.VITE_*` variable: Vite inlines any VITE_-prefixed
+            value into the public bundle, which would publish the key in the
+            JavaScript every visitor downloads.
+          */}
+          <p className="mt-2 text-xs text-muted-foreground">
+            {key ? t('remi.keySaved') : t('remi.keyNone')}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

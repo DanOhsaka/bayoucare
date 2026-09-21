@@ -26,6 +26,24 @@ export const NAV_ITEMS: NavItem[] = [
 ]
 
 /**
+ * True when `item` is the nav entry for `pathname`.
+ *
+ * Deliberately not `NavLink`'s own `isActive`, which compares the whole path:
+ * `to: '/my-care/home'` stopped matching the moment a patient opened
+ * `/my-care/calendar`, so the "My Care" tab went unmarked across eight of its
+ * nine sub-screens. That is also why the drawer had no `aria-current` to
+ * announce on those routes — and `aria-current` on the current item is the one
+ * thing a nav sheet has to get right. Matching the item's first segment keeps
+ * "My Care" current for the whole section and leaves the single-segment entries
+ * (`/overview`, `/my-plan`, `/care-team` …) matching exactly as before.
+ */
+export function isNavItemActive(item: NavItem, pathname: string): boolean {
+  if (pathname === item.to) return true
+  const section = `/${item.to.split('/').filter(Boolean)[0]}`
+  return pathname === section || pathname.startsWith(`${section}/`)
+}
+
+/**
  * The nine patient sub-screens inside "My Care".
  *
  * Every one is rendered by the same route and selected by URL, so switching

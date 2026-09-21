@@ -175,7 +175,7 @@ export function BookingDialog({ open, onOpenChange, editing }: Props) {
           <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <input
               type="checkbox"
-              className="size-4 accent-[var(--brand-700)]"
+              className="size-4 accent-brand-700"
               checked={ride}
               onChange={(e) => setRide(e.target.checked)}
             />

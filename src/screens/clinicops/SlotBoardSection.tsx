@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { WAITLIST } from '@/data'
 import {
@@ -202,13 +203,9 @@ export function SlotBoardSection() {
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={runPass}
-              className="rounded-md bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground transition-opacity hover:opacity-90"
-            >
+            <Button type="button" size="xs" onClick={runPass} className="font-bold">
               ▶ Run rebooking pass
-            </button>
+            </Button>
             <span className="text-xs text-muted-foreground">
               Protects the six highest-risk slots and queues their reminder ladders.
             </span>
@@ -247,6 +244,16 @@ export function SlotBoardSection() {
                         const label = `${p.name} · day ${r.s.day} ${r.s.time} · ${r.s.res} — ${Math.round(
                           r.p * 100,
                         )}% no-show risk`
+                        /*
+                         * Deliberately a raw `<button>`, not the `Button`
+                         * primitive: the day cell is a fixed `size-7` board
+                         * square painted by `BAND_CELL` (border + tint + solid
+                         * coral at the top band) and is a data mark, not a
+                         * button-shaped control. `Button`'s own hover colours
+                         * would fight the band palette — mint text on the solid
+                         * coral measures 2.5:1 — so the primitive cannot be
+                         * adopted here without overriding it back out again.
+                         */
                         return (
                           <button
                             key={slotKey(r.s.pid, r.s.day)}
@@ -362,22 +369,22 @@ function SlotDayCard({
 
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {SLOT_ACTION_KEYS.map((k) => (
-          <button
+          <Button
             key={k}
             type="button"
+            size="xs"
+            variant="outline"
             aria-pressed={taken(k)}
             title={SLOT_ACTIONS[k].desc}
             onClick={() => onAction(s, k)}
             className={cn(
-              'rounded-md border px-3 py-1.5 text-xs font-bold transition-colors',
-              taken(k)
-                ? 'border-brand-600 bg-brand-50 text-link'
-                : 'border-border bg-background text-foreground hover:bg-accent',
+              'font-bold',
+              taken(k) && 'border-brand-600 bg-brand-50 text-link hover:bg-brand-50 hover:text-link',
             )}
           >
             {taken(k) ? '✓ ' : ''}
             {SLOT_ACTIONS[k].label}
-          </button>
+          </Button>
         ))}
       </div>
 

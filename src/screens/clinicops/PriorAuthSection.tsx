@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 
 import { RichText } from '@/components/shared/RichText'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   AUTH_IDS,
@@ -57,32 +58,6 @@ function beatsFor(id: string): Array<[string, string]> {
     ['11:02', 'Payer acknowledged — medical-necessity review opened'],
     ['11:48', 'Approved. Authorization issued, valid 90 days from the planned cycle.'],
   ]
-}
-
-function PillButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        'rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
-        active
-          ? 'border-brand-600 bg-brand-700 text-on-dark'
-          : 'border-border bg-background text-foreground hover:bg-accent',
-      )}
-    >
-      {children}
-    </button>
-  )
 }
 
 export function PriorAuthSection() {
@@ -162,9 +137,17 @@ export function PriorAuthSection() {
 
           <div className="mt-3 flex flex-wrap gap-2">
             {CASES.map(({ id, a }) => (
-              <PillButton key={id} active={authId === id} onClick={() => setAuthId(id)}>
+              <Button
+                key={id}
+                type="button"
+                size="xs"
+                variant={authId === id ? 'default' : 'outline'}
+                aria-pressed={authId === id}
+                onClick={() => setAuthId(id)}
+                className="rounded-full px-2.5 font-bold"
+              >
                 {a.name}
-              </PillButton>
+              </Button>
             ))}
           </div>
         </CardContent>
@@ -270,15 +253,16 @@ export function PriorAuthSection() {
           <CardHeader>
             <CardTitle>Authorization request</CardTitle>
             <CardAction>
-              <button
+              <Button
                 type="button"
+                size="xs"
                 onClick={submit}
                 disabled={run !== null}
                 aria-busy={run !== null}
-                className="rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+                className="font-bold"
               >
                 📨 Submit to payer
-              </button>
+              </Button>
             </CardAction>
           </CardHeader>
           <CardContent>

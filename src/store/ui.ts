@@ -7,6 +7,7 @@ export type Theme = 'light' | 'dark'
 
 const THEME_KEY = 'bc-theme'
 const LANG_KEY = 'bc-lang'
+const CAREGIVER_KEY = 'bc-caregiver'
 
 /**
  * Presentation state only: which mode is showing, the language, the theme.
@@ -22,10 +23,24 @@ interface UiState {
   mode: Mode
   lang: Lang
   theme: Theme
+  /**
+   * Caregiver mode — a family member is the one holding the device.
+   *
+   * This was a `useState` inside `PatientSidebar` whose only effect was
+   * rewording a line of text underneath itself, and it did not survive
+   * navigating away from the sidebar. It is real state now, and persisted, so
+   * the family circle can act on it.
+   *
+   * It is still NOT an access control and must not become one: the record shown
+   * is the signed-in account's, exactly as before. What it changes is framing —
+   * see the family circle on Home.
+   */
+  caregiver: boolean
   setMode: (m: Mode) => void
   setLang: (l: Lang) => void
   setTheme: (t: Theme) => void
   toggleTheme: () => void
+  setCaregiver: (v: boolean) => void
 }
 
 function readTheme(): Theme {
@@ -82,4 +97,23 @@ export const useUi = create<UiState>((set, get) => ({
     applyTheme(next)
     set({ theme: next })
   },
+
+  caregiver: readCaregiver(),
+
+  setCaregiver: (caregiver) => {
+    try {
+      localStorage.setItem(CAREGIVER_KEY, caregiver ? '1' : '0')
+    } catch {
+      /* not fatal — the mode just will not persist */
+    }
+    set({ caregiver })
+  },
 }))
+
+function readCaregiver(): boolean {
+  try {
+    return localStorage.getItem(CAREGIVER_KEY) === '1'
+  } catch {
+    return false
+  }
+}

@@ -27,7 +27,10 @@ export function Field({
 }
 
 export const INPUT_CLASS =
-  'h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:border-ring'
+  // No `outline-none`: it suppresses the app's single global `:focus-visible`
+  // ring (utilities outrank `@layer base`), leaving a 1px border tint as the
+  // only focus cue. The border still shifts to `--ring` as well.
+  'h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring'
 
 export const SELECT_CLASS = INPUT_CLASS
 

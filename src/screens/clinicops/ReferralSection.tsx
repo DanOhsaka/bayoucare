@@ -1,6 +1,7 @@
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   ALL_REFERRALS,
@@ -98,13 +99,9 @@ export function ReferralSection() {
           <CardHeader>
             <CardTitle>Incoming referrals</CardTitle>
             <CardAction>
-              <button
-                type="button"
-                onClick={advance}
-                className="rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground transition-opacity hover:opacity-90"
-              >
+              <Button type="button" size="xs" onClick={advance} className="font-bold">
                 Advance one step
-              </button>
+              </Button>
             </CardAction>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
@@ -113,14 +110,15 @@ export function ReferralSection() {
               const tr = refTriage(r, applied)
               const sel = r.id === refId
               return (
-                <button
+                <Button
                   key={r.id}
                   type="button"
+                  variant="outline"
                   aria-pressed={sel}
                   onClick={() => setRefId(r.id)}
                   className={cn(
-                    'flex w-full items-start gap-3 rounded-md border px-3 py-2 text-left transition-colors hover:bg-accent',
-                    sel ? 'border-ring bg-accent' : 'border-border bg-card',
+                    'h-auto w-full items-start justify-start gap-3 px-3 py-2 text-left font-normal whitespace-normal',
+                    sel ? 'border-ring bg-accent' : 'bg-card',
                   )}
                 >
                   <span
@@ -150,7 +148,7 @@ export function ReferralSection() {
                       />
                     </div>
                   </div>
-                </button>
+                </Button>
               )
             })}
           </CardContent>

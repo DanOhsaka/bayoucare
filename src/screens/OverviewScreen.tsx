@@ -1,6 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 
 import { RichText } from '@/components/shared/RichText'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { useT } from '@/hooks/useT'
 import { useUi } from '@/store/ui'
 
@@ -66,7 +69,11 @@ const TOOLS = [
   ['🗺️', 'My Journey — a real roadmap', 'A living checklist of every step, shared with family.'],
   ['📈', 'Check-ins — earlier intervention', 'Daily symptom check-ins that alert the care team before things escalate.'],
   ['🚗', 'Access — care you can reach', 'Rides, telehealth, financial help, and resources — rural-first.'],
-  ['👨👩👧', 'Caregiver hub', 'Family gets a second profile — shared tasks, same plain explanations.'],
+  // Said "Family gets a second profile" — there is no caregiver account and no
+  // second profile: `Role` in the session store is patient|clinician only.
+  // Shared tasks ARE real (the family circle is a working checklist), so the
+  // line now describes what exists rather than what was intended.
+  ['👨‍👩‍👧', 'Caregiver hub', 'Family works the same task list, and caregiver mode frames the app for whoever is holding the device.'],
   ['🗓️', 'Appointments & calendar', 'Every visit, infusion and scan in one place — with reminders and a ride when you need one.'],
   ['🛡️', 'Screen & Prevent — catch it early', 'Screening reminders based on your own risk, not a generic schedule.'],
   ['📊', 'ASCO-informed guidance', 'Guidelines and education built on the official data partner.'],
@@ -103,10 +110,11 @@ const WINS = [
   ['🤝', 'Family-inclusive', 'Caregivers see everything and can help.'],
 ]
 
-const TAG_CLASS: Record<string, string> = {
-  coral: 'bg-danger-bg text-danger-fg',
-  amber: 'bg-warning-bg text-warning-fg',
-  green: 'bg-success-bg text-success-fg',
+/** Tag tone → the tint `Badge` variant. */
+const TAG_BADGE: Record<string, 'danger' | 'warning' | 'success'> = {
+  coral: 'danger',
+  amber: 'warning',
+  green: 'success',
 }
 
 function SectionTitle({ title, sub }: { title: string; sub: string }) {
@@ -115,24 +123,6 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
       <h2 className="text-xl font-semibold text-foreground">{title}</h2>
       <span className="text-sm text-muted-foreground">{sub}</span>
     </div>
-  )
-}
-
-function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)] ${className}`}>
-      {children}
-    </div>
-  )
-}
-
-function Tag({ kind, children }: { kind: string; children: React.ReactNode }) {
-  return (
-    <span
-      className={`inline-block rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.05em] ${TAG_CLASS[kind]}`}
-    >
-      {children}
-    </span>
   )
 }
 
@@ -148,7 +138,7 @@ export function OverviewScreen() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-4 py-6">
       {/* --------------------------------------------------------------- hero */}
       <section className="rounded-xl bg-[linear-gradient(160deg,var(--green-900),var(--green-700))] px-6 py-10 text-on-dark sm:px-10">
         <span className="text-xs font-bold uppercase tracking-[0.08em] text-on-dark-muted">
@@ -166,20 +156,21 @@ export function OverviewScreen() {
         <p className="mt-4 max-w-2xl text-base text-on-dark-muted">{t('hero.lead')}</p>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <button
+          <Button
             type="button"
             onClick={() => go('app')}
-            className="inline-flex h-11 items-center rounded-md bg-warning px-5 text-sm font-bold text-on-warning transition-opacity hover:opacity-90"
+            className="h-11 bg-warning px-5 font-bold text-on-warning hover:bg-warning/90"
           >
             ▶ {t('hero.cta1')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => go('team')}
-            className="inline-flex h-11 items-center rounded-md border border-white/30 bg-white/10 px-5 text-sm font-bold text-on-dark transition-colors hover:bg-white/20"
+            className="h-11 border border-white/30 bg-white/10 px-5 font-bold text-on-dark hover:bg-white/20 hover:text-on-dark dark:hover:bg-white/20"
           >
             {t('hero.cta2')}
-          </button>
+          </Button>
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -199,9 +190,13 @@ export function OverviewScreen() {
       <div className="grid gap-4 md:grid-cols-3">
         {WHY.map((c) => (
           <Card key={c.h}>
-            <Tag kind={c.tag}>{c.tagLabel}</Tag>
-            <h3 className="mt-3 text-lg font-semibold text-card-foreground">{c.h}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{c.p}</p>
+            <CardContent>
+              <Badge variant={TAG_BADGE[c.tag]} className="uppercase tracking-[0.05em]">
+                {c.tagLabel}
+              </Badge>
+              <CardTitle className="mt-3">{c.h}</CardTitle>
+              <p className="mt-2 text-sm text-muted-foreground">{c.p}</p>
+            </CardContent>
           </Card>
         ))}
       </div>
@@ -220,18 +215,20 @@ export function OverviewScreen() {
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         {TOOLS.map(([ico, h, p]) => (
           <Card key={h}>
-            <div className="flex gap-3">
-              <span
-                className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
-                aria-hidden="true"
-              >
-                {ico}
-              </span>
-              <div>
-                <h4 className="text-sm font-semibold text-card-foreground">{h}</h4>
-                <p className="mt-1 text-sm text-muted-foreground">{p}</p>
+            <CardContent>
+              <div className="flex gap-3">
+                <span
+                  className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
+                  aria-hidden="true"
+                >
+                  {ico}
+                </span>
+                <div>
+                  <h4 className="text-sm font-semibold text-card-foreground">{h}</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">{p}</p>
+                </div>
               </div>
-            </div>
+            </CardContent>
           </Card>
         ))}
       </div>
@@ -244,7 +241,9 @@ export function OverviewScreen() {
         </span>
       </blockquote>
 
-      {/* -------------------------------------------------- for evaluators */}
+      {/* -------------------------------------------------- for evaluators
+          Stays a `<details>`: the card styling here is incidental, and `Card`
+          renders a `div`, so wrapping would drop the disclosure semantics. */}
       <details className="mt-8 rounded-lg border border-border bg-card p-4 shadow-[var(--shadow)]">
         <summary className="cursor-pointer text-sm font-bold text-card-foreground">
           For evaluators — challenge mapping, the 13 ranks &amp; the pilot plan
@@ -256,7 +255,7 @@ export function OverviewScreen() {
               Official challenge — "Improve the cancer care journey for patients and caregivers, from
               diagnosis through treatment, survivorship, and supportive care."
             </div>
-            <p className="mt-2 text-sm font-bold text-brand-600">
+            <p className="mt-2 text-sm font-bold text-link">
               📊 Official data partner: ASCO — guidelines, education, and quality measures.
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
@@ -284,40 +283,48 @@ export function OverviewScreen() {
           <div className="grid gap-4 md:grid-cols-2">
             {RANKS.map(([kind, tag, h, p]) => (
               <Card key={h}>
-                <Tag kind={kind}>{tag}</Tag>
-                <h3 className="mt-3 text-base font-semibold text-card-foreground">{h}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{p}</p>
+                <CardContent>
+                  <Badge variant={TAG_BADGE[kind]} className="uppercase tracking-[0.05em]">
+                    {tag}
+                  </Badge>
+                  <CardTitle className="mt-3">{h}</CardTitle>
+                  <p className="mt-1.5 text-sm text-muted-foreground">{p}</p>
+                </CardContent>
               </Card>
             ))}
           </div>
 
           <SectionTitle title="Every barrier in the brief, answered" sub="Challenge barrier → BayouCare feature" />
           <Card>
-            <ul className="flex flex-col gap-1.5">
-              {BARRIERS.map(([b, rest]) => (
-                <li key={b} className="text-sm text-muted-foreground">
-                  <b className="text-card-foreground">{b}</b> → {rest}
-                </li>
-              ))}
-            </ul>
+            <CardContent>
+              <ul className="flex flex-col gap-1.5">
+                {BARRIERS.map(([b, rest]) => (
+                  <li key={b} className="text-sm text-muted-foreground">
+                    <b className="text-card-foreground">{b}</b> → {rest}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
           </Card>
 
           <SectionTitle title="Why BayouCare wins" sub="Differential vs. generic health apps" />
           <div className="grid gap-4 md:grid-cols-3">
             {WINS.map(([ico, h, p]) => (
               <Card key={h}>
-                <div className="flex gap-3">
-                  <span
-                    className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
-                    aria-hidden="true"
-                  >
-                    {ico}
-                  </span>
-                  <div>
-                    <h4 className="text-sm font-semibold text-card-foreground">{h}</h4>
-                    <p className="mt-1 text-sm text-muted-foreground">{p}</p>
+                <CardContent>
+                  <div className="flex gap-3">
+                    <span
+                      className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
+                      aria-hidden="true"
+                    >
+                      {ico}
+                    </span>
+                    <div>
+                      <h4 className="text-sm font-semibold text-card-foreground">{h}</h4>
+                      <p className="mt-1 text-sm text-muted-foreground">{p}</p>
+                    </div>
                   </div>
-                </div>
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -342,13 +349,13 @@ export function OverviewScreen() {
           </p>
 
           <div className="mt-7 flex flex-wrap gap-2">
-            <button
+            <Button
               type="button"
               onClick={() => go('app')}
-              className="inline-flex h-10 items-center rounded-md bg-warning px-4 text-sm font-bold text-on-warning transition-opacity hover:opacity-90"
+              className="h-10 bg-warning px-4 font-bold text-on-warning hover:bg-warning/90"
             >
               ▶ Try the patient demo
-            </button>
+            </Button>
             {[
               ['team', 'Forecast & counterfactuals'],
               ['survivorship', '📋 Survivorship plans'],
@@ -356,14 +363,15 @@ export function OverviewScreen() {
               ['clinicops', '🏥 Clinic ops — the provider side'],
               ['roadmap', 'Roadmap & pilot plan'],
             ].map(([view, label]) => (
-              <button
+              <Button
                 key={view}
                 type="button"
+                variant="outline"
                 onClick={() => go(view)}
-                className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-bold text-foreground transition-colors hover:bg-accent"
+                className="h-10 px-4 font-bold"
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

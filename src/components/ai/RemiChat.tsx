@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Leaf, Send } from 'lucide-react'
 
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { INPUT_CLASS } from '@/components/shared/Field'
 import { useRemi, type RemiMessage } from '@/store/remi'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
@@ -16,7 +19,7 @@ import { cn } from '@/lib/utils'
  */
 function MessageAuthor() {
   return (
-    <span className="mb-1 block text-[11px] font-bold uppercase tracking-[0.05em] text-link">
+    <span className="mb-1 block text-xs font-bold uppercase tracking-[0.05em] text-link">
       Remi
     </span>
   )
@@ -37,12 +40,6 @@ function TypingDots() {
       <span className="text-xs text-muted-foreground">thinking…</span>
     </span>
   )
-}
-
-const CHIP_KIND: Record<string, string> = {
-  success: 'bg-success-bg text-success-fg',
-  warning: 'bg-warning-bg text-warning-fg',
-  neutral: 'bg-muted text-muted-foreground',
 }
 
 function Bubble({ msg }: { msg: RemiMessage }) {
@@ -84,16 +81,11 @@ function Bubble({ msg }: { msg: RemiMessage }) {
 
         {msg.chips.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
+            {/* `RemiChip['kind']` is already the Badge variant name. */}
             {msg.chips.map((c, i) => (
-              <span
-                key={i}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold',
-                  CHIP_KIND[c.kind],
-                )}
-              >
+              <Badge key={i} variant={c.kind}>
                 {c.label}
-              </span>
+              </Badge>
             ))}
           </div>
         )}
@@ -159,6 +151,8 @@ export function RemiChat() {
         <label htmlFor="remi-text" className="sr-only">
           {t('remi.ph')}
         </label>
+        {/* Composer geometry is h-11 and the send button matches it, so the
+            shared control class is the base and the height is overridden. */}
         <input
           id="remi-text"
           type="text"
@@ -167,16 +161,17 @@ export function RemiChat() {
           value={draft}
           disabled={busy}
           onChange={(e) => setDraft(e.target.value)}
-          className="h-11 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:border-ring disabled:opacity-60"
+          className={cn(INPUT_CLASS, 'h-11 min-w-0 flex-1 disabled:opacity-60')}
         />
-        <button
+        <Button
           type="submit"
+          size="icon-lg"
           disabled={busy || !draft.trim()}
           aria-label={t('remi.send')}
-          className="flex size-11 flex-none items-center justify-center rounded-md bg-primary text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="size-11"
         >
           <Send className="size-4" aria-hidden="true" />
-        </button>
+        </Button>
       </form>
 
       <p className="mt-2 text-xs text-muted-foreground">{t('remi.foot')}</p>

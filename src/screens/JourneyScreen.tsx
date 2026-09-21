@@ -1,3 +1,5 @@
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
 
@@ -23,62 +25,64 @@ export function JourneyScreen() {
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-lg font-semibold text-card-foreground">{t('journey.head')}</h3>
-          <span className="rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
-            {t('journey.chip')}
-          </span>
-        </div>
-        <p className="text-sm text-muted-foreground">{t('journey.sub')}</p>
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">{t('journey.head')}</CardTitle>
+          <Badge variant="success">{t('journey.chip')}</Badge>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{t('journey.sub')}</p>
+        </CardContent>
+      </Card>
 
-      <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <ol className="flex flex-col">
-          {STEPS.map((s, i) => {
-            const done = s.state === 'done'
-            const now = s.state === 'now'
-            return (
-              <li key={s.tw} className="flex gap-3.5">
-                {/* The rail: a mark, then a connector down to the next step. */}
-                <div className="flex flex-none flex-col items-center">
-                  <span
-                    className={cn(
-                      'flex size-6 items-center justify-center rounded-full text-xs font-bold',
-                      done
-                        ? 'bg-brand-500 text-on-dark'
-                        : now
-                          ? 'border-2 border-brand-600 bg-accent text-link'
-                          : 'border border-border bg-background text-muted-foreground',
-                    )}
-                    aria-hidden="true"
-                  >
-                    {done ? '✓' : now ? '●' : i + 1}
-                  </span>
-                  {i < STEPS.length - 1 && (
+      <Card>
+        <CardContent>
+          <ol className="flex flex-col">
+            {STEPS.map((s, i) => {
+              const done = s.state === 'done'
+              const now = s.state === 'now'
+              return (
+                <li key={s.tw} className="flex gap-3.5">
+                  {/* The rail: a mark, then a connector down to the next step. */}
+                  <div className="flex flex-none flex-col items-center">
                     <span
-                      className={cn('w-px flex-1', done ? 'bg-brand-500/40' : 'bg-border')}
+                      className={cn(
+                        'flex size-6 items-center justify-center rounded-full text-xs font-bold',
+                        done
+                          ? 'bg-brand-500 text-on-dark'
+                          : now
+                            ? 'border-2 border-brand-600 bg-accent text-link'
+                            : 'border border-border bg-background text-muted-foreground',
+                      )}
                       aria-hidden="true"
-                    />
-                  )}
-                </div>
-
-                <div className={cn('pb-6', i === STEPS.length - 1 && 'pb-0')}>
-                  <div
-                    className={cn(
-                      'text-sm font-semibold',
-                      now ? 'text-link' : 'text-card-foreground',
+                    >
+                      {done ? '✓' : now ? '●' : i + 1}
+                    </span>
+                    {i < STEPS.length - 1 && (
+                      <span
+                        className={cn('w-px flex-1', done ? 'bg-brand-500/40' : 'bg-border')}
+                        aria-hidden="true"
+                      />
                     )}
-                  >
-                    {t(s.tw)}
                   </div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">{t(s.td)}</div>
-                </div>
-              </li>
-            )
-          })}
-        </ol>
-      </section>
+
+                  <div className={cn('pb-6', i === STEPS.length - 1 && 'pb-0')}>
+                    <div
+                      className={cn(
+                        'text-sm font-semibold',
+                        now ? 'text-link' : 'text-card-foreground',
+                      )}
+                    >
+                      {t(s.tw)}
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{t(s.td)}</div>
+                  </div>
+                </li>
+              )
+            })}
+          </ol>
+        </CardContent>
+      </Card>
     </div>
   )
 }

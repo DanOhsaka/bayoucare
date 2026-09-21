@@ -5,6 +5,13 @@ import { BookingDialog } from '@/components/patient/BookingDialog'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar'
 import { CAL_ANCHOR, dayKey } from '@/lib/demoClock'
 import { describeAppointment, fmtDay } from '@/lib/calendar'
@@ -128,18 +135,26 @@ export function CalendarScreen() {
     setBookingOpen(true)
   }
 
+  /*
+   * The split starts at `md`, not `lg`. The month grid is a fixed-width object —
+   * it gains nothing from a 780px-wide cell except whitespace between the day
+   * numbers — and leaving it stacked until 1024 meant 768–1023 rendered a phone's
+   * calendar blown up to tablet width, with the day detail pushed below the fold.
+   * 400px + the panel fits from 768px up.
+   */
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,400px)_1fr] lg:items-start">
-      <section className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow)]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-lg font-semibold text-card-foreground">{t('cal.head')}</h3>
+    <div className="grid gap-4 md:grid-cols-[minmax(0,400px)_1fr] md:items-start">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">{t('cal.head')}</CardTitle>
           <Badge variant="success">{t('cal.chip')}</Badge>
-        </div>
+        </CardHeader>
 
-        <p className="mt-2 text-sm text-muted-foreground">{t('cal.sub')}</p>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{t('cal.sub')}</p>
 
-        <DayDataContext.Provider value={byDay}>
-          <Calendar
+          <DayDataContext.Provider value={byDay}>
+            <Calendar
             mode="single"
             weekStartsOn={1}
             /*
@@ -173,27 +188,28 @@ export function CalendarScreen() {
             components={{ DayButton: DayWithDots }}
             // Constrained to the column: the Shadcn calendar stretches to its
             // container, and a full-width card made every day cell enormous.
-            className="mt-2 w-full [--cell-size:--spacing(8)] sm:[--cell-size:--spacing(10)]"
-          />
-        </DayDataContext.Provider>
+              className="mt-2 w-full [--cell-size:--spacing(8)] sm:[--cell-size:--spacing(10)]"
+            />
+          </DayDataContext.Provider>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3.5">
-          {legend.map((key) => (
-            <span key={key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <i
-                className={cn('block size-2 rounded-full', TYPE_DOT[key] ?? 'bg-brand-500')}
-                aria-hidden="true"
-              />
-              {types[key].label}
-            </span>
-          ))}
-          <span className="text-xs text-warning-fg">{t('cal.legendFull')}</span>
-          <span className="text-xs text-muted-foreground">{t('cal.legendClosed')}</span>
-        </div>
-      </section>
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3.5">
+            {legend.map((key) => (
+              <span key={key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <i
+                  className={cn('block size-2 rounded-full', TYPE_DOT[key] ?? 'bg-brand-500')}
+                  aria-hidden="true"
+                />
+                {types[key].label}
+              </span>
+            ))}
+            <span className="text-xs text-warning-fg">{t('cal.legendFull')}</span>
+            <span className="text-xs text-muted-foreground">{t('cal.legendClosed')}</span>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ------------------------------------------------------------ agenda */}
-      <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+      <Card>
         {/*
           Selecting a day rewrites the agenda below with no announcement, so a
           screen-reader user heard nothing at all after activating a day cell.
@@ -203,14 +219,11 @@ export function CalendarScreen() {
           {selected ? `${fmtDay(selected, lang)} — ${activeCount}` : ''}
         </p>
 
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h3
-            data-testid="cal-agenda-head"
-            className="text-base font-semibold text-card-foreground"
-          >
+        <CardHeader>
+          <CardTitle data-testid="cal-agenda-head">
             {selected ? fmtDay(selected, lang) : t('cal.book')}
-          </h3>
-          <div className="flex flex-wrap items-center gap-2">
+          </CardTitle>
+          <CardAction>
             {selected && (
               <Button
                 size="xs"
@@ -226,81 +239,83 @@ export function CalendarScreen() {
             <Button size="sm" onClick={() => openBooking(null)}>
               {t('cal.book')}
             </Button>
-          </div>
-        </div>
+          </CardAction>
+        </CardHeader>
 
-        {!selected && (
-          <p className="text-sm text-muted-foreground">
-            Choose any day on the calendar to see what is scheduled.
-          </p>
-        )}
+        <CardContent>
+          {!selected && (
+            <p className="text-sm text-muted-foreground">
+              Choose any day on the calendar to see what is scheduled.
+            </p>
+          )}
 
-        {selected && dayList?.length === 0 && (
-          <p className="text-sm text-muted-foreground">Nothing scheduled — a good day to rest.</p>
-        )}
+          {selected && dayList?.length === 0 && (
+            <p className="text-sm text-muted-foreground">Nothing scheduled — a good day to rest.</p>
+          )}
 
-        {selected && dayList && dayList.length > 0 && (
-          <ul className="flex flex-col gap-2">
-            {dayList.map((a) => {
-              const d = describeAppointment(a, types)
-              const cancelled = a.status === 'cancelled'
-              return (
-                <li
-                  key={a.id}
-                  className={cn(
-                    'flex flex-wrap items-center gap-3 rounded-md border border-border p-3',
-                    cancelled && 'opacity-60',
-                  )}
-                >
-                  <span
-                    className="flex size-9 flex-none items-center justify-center rounded-md bg-accent text-base"
-                    aria-hidden="true"
-                  >
-                    {d.icon}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <b className="block text-sm font-semibold text-card-foreground">{d.label}</b>
-                    <span className="block text-xs text-muted-foreground">
-                      {d.where} · {d.duration} min
-                    </span>
-                  </div>
-                  <span className="flex-none text-sm font-bold text-card-foreground">{a.time}</span>
-                  <Badge variant={STATUS_VARIANT[a.status]}>{t(STATUS_KEY[a.status])}</Badge>
-                  {a.ride && (
-                    <Badge variant="success">
-                      <span aria-hidden="true">🚗</span> Ride
-                    </Badge>
-                  )}
-
-                  <div className="flex flex-none gap-1">
-                    {cancelled ? (
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        onClick={() => {
-                          restore(pid, a.id)
-                          toast(t('cal.toastRestored'))
-                        }}
-                      >
-                        {t('cal.undo')}
-                      </Button>
-                    ) : (
-                      <>
-                        <Button size="xs" variant="outline" onClick={() => openBooking(a)}>
-                          {t('cal.resched')}
-                        </Button>
-                        <Button size="xs" variant="ghost" onClick={() => setCancelling(a)}>
-                          {t('cal.cancelAppt')}
-                        </Button>
-                      </>
+          {selected && dayList && dayList.length > 0 && (
+            <ul className="flex flex-col gap-2">
+              {dayList.map((a) => {
+                const d = describeAppointment(a, types)
+                const cancelled = a.status === 'cancelled'
+                return (
+                  <li
+                    key={a.id}
+                    className={cn(
+                      'flex flex-wrap items-center gap-3 rounded-md border border-border p-3',
+                      cancelled && 'opacity-60',
                     )}
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </section>
+                  >
+                    <span
+                      className="flex size-9 flex-none items-center justify-center rounded-md bg-accent text-base"
+                      aria-hidden="true"
+                    >
+                      {d.icon}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <b className="block text-sm font-semibold text-card-foreground">{d.label}</b>
+                      <span className="block text-xs text-muted-foreground">
+                        {d.where} · {d.duration} min
+                      </span>
+                    </div>
+                    <span className="flex-none text-sm font-bold text-card-foreground">{a.time}</span>
+                    <Badge variant={STATUS_VARIANT[a.status]}>{t(STATUS_KEY[a.status])}</Badge>
+                    {a.ride && (
+                      <Badge variant="success">
+                        <span aria-hidden="true">🚗</span> Ride
+                      </Badge>
+                    )}
+
+                    <div className="flex flex-none gap-1">
+                      {cancelled ? (
+                        <Button
+                          size="xs"
+                          variant="outline"
+                          onClick={() => {
+                            restore(pid, a.id)
+                            toast(t('cal.toastRestored'))
+                          }}
+                        >
+                          {t('cal.undo')}
+                        </Button>
+                      ) : (
+                        <>
+                          <Button size="xs" variant="outline" onClick={() => openBooking(a)}>
+                            {t('cal.resched')}
+                          </Button>
+                          <Button size="xs" variant="ghost" onClick={() => setCancelling(a)}>
+                            {t('cal.cancelAppt')}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       {/*
         Keyed so the form re-seeds from `editing` on mount — one instance reused

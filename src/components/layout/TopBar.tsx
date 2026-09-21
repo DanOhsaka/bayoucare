@@ -1,10 +1,15 @@
 import { Leaf, LogOut, Moon, Sun } from 'lucide-react'
+import { MobileNav } from '@/components/layout/MobileNav'
 import { NavTabs } from '@/components/layout/NavTabs'
+import { PATIENTS, type PatientId } from '@/data'
 import { LANGS, LANG_LABELS, type Lang } from '@/lib/i18n'
 import { useT } from '@/hooks/useT'
+import { usePatient } from '@/store/patient'
 import { useSession } from '@/store/session'
 import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
+
+const PATIENT_IDS = Object.keys(PATIENTS) as PatientId[]
 
 const CONTROL =
   'flex h-[34px] flex-none items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-2 text-xs font-semibold text-on-dark transition-colors hover:bg-white/20'
@@ -36,6 +41,11 @@ export function TopBar() {
   const role = useSession((s) => s.role)
   const email = useSession((s) => s.email)
   const logout = useSession((s) => s.logout)
+
+  // Patient IDENTITY — whose record is on screen — which the header doc above
+  // is careful to distinguish from session identity (the email pill).
+  const pid = usePatient((s) => s.pid)
+  const setPatient = usePatient((s) => s.setPatient)
 
   return (
     <header
@@ -80,9 +90,46 @@ export function TopBar() {
         </div>
       )}
 
+      {/*
+       * The patient picker this header documents above, which was designed,
+       * written up as "the best demo in the feature" — and then never ported.
+       * `setPatient` sat in the store called from nowhere, so a clinician
+       * account was pinned to one record.
+       *
+       * It lists the bundled roster rather than `GET /api/patients`, because
+       * every patient screen renders from `PATIENTS[pid]`; a picker sourced
+       * anywhere else could offer a record the app is unable to display.
+       * Patients never see it, the same gate as the mode switch above.
+       */}
+      {role === 'clinician' && (
+        <>
+          <label className="sr-only" htmlFor="bc-patient">
+            Viewing as patient
+          </label>
+          <select
+            id="bc-patient"
+            title="Viewing as patient"
+            value={pid}
+            onChange={(e) => setPatient(e.target.value as PatientId)}
+            className={cn(CONTROL, 'px-2')}
+          >
+            {PATIENT_IDS.map((id) => (
+              <option key={id} value={id}>
+                {PATIENTS[id].name}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+
       <NavTabs />
 
       <div className="ml-auto flex flex-none items-center gap-2">
+        {/* Below `md` this is the whole of the app's navigation; from `md` up it
+            hides itself and `NavTabs` takes over. First in the group so the
+            reading order is navigate → language → theme → sign out. */}
+        <MobileNav />
+
         <label className="sr-only" htmlFor="bc-lang">
           Language
         </label>

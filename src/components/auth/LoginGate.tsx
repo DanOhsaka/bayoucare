@@ -63,7 +63,7 @@ export function LoginGate() {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-11 rounded-sm border border-input bg-background px-3 text-base text-foreground outline-none focus-visible:border-ring"
+            className="h-11 rounded-sm border border-input bg-background px-3 text-base text-foreground focus-visible:border-ring"
           />
         </div>
 
@@ -77,7 +77,7 @@ export function LoginGate() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-11 rounded-sm border border-input bg-background px-3 text-base text-foreground outline-none focus-visible:border-ring"
+            className="h-11 rounded-sm border border-input bg-background px-3 text-base text-foreground focus-visible:border-ring"
           />
         </div>
 

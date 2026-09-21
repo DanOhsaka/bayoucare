@@ -379,3 +379,63 @@
     }
   }
 }
+
+/* ==========================================================================
+   Print
+
+   "Print my plan" and "Print SCP" call `window.print()`, and there was no print
+   stylesheet at all — so printing a care plan also printed the header, the
+   navigation, the patient sidebar, the Remi launcher, and every button on the
+   page.
+
+   This removes the chrome by selector rather than choosing a document, which is
+   what makes it safe: the legacy app solved this with a `beforeprint` class
+   toggle, and it had a documented hazard where printing from a patient screen
+   fell through to the admin SCP generator and emitted something that LOOKED
+   legitimate. Hiding chrome cannot fall through to another document, because it
+   never selects one.
+   ========================================================================== */
+@media print {
+  header,
+  nav,
+  aside,
+  button,
+  [role='dialog'],
+  [data-print='hide'] {
+    display: none !important;
+  }
+
+  /* A dark theme is a screen affordance; a printed page is ink on paper. The
+     tokens are re-pointed rather than the components restyled, so every
+     `bg-card` / `text-foreground` resolves to black-on-white for free. */
+  :root,
+  :root[data-theme='dark'] {
+    color-scheme: light;
+    --background: #ffffff;
+    --card: #ffffff;
+    --cream: #ffffff;
+    --soft: #ffffff;
+    --ink: #000000;
+    --ink-soft: #333333;
+    --line: #b0b0b0;
+    --chip-gray: #f0f0f0;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
+  /* Screen-only elevation is wasted ink. */
+  * {
+    box-shadow: none !important;
+  }
+
+  /* A card or a table row split across a page break is unreadable. */
+  section,
+  table,
+  tr {
+    break-inside: avoid;
+  }
+}

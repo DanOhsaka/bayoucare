@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   Activity,
@@ -14,6 +13,7 @@ import {
 } from 'lucide-react'
 
 import { usePatient } from '@/store/patient'
+import { useUi } from '@/store/ui'
 import { PATIENTS } from '@/data'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
@@ -42,9 +42,17 @@ export function PatientSidebar() {
   const pid = usePatient((s) => s.pid)
   const patient = PATIENTS[pid]
 
-  // Presentation only, exactly as in the legacy app: this changes the note and
-  // nothing else. It is not an access control and never was.
-  const [caregiver, setCaregiver] = useState(false)
+  /*
+   * Caregiver mode: a family member is holding the device.
+   *
+   * It is still not an access control — the record on screen is the signed-in
+   * account's, exactly as before — but it is no longer inert. It persists
+   * across navigation now (it was a local `useState`, so it silently reset when
+   * you left the sidebar), and the family circle on Home reads it to frame
+   * itself for whoever is actually using the app.
+   */
+  const caregiver = useUi((s) => s.caregiver)
+  const setCaregiver = useUi((s) => s.setCaregiver)
 
   const firstName = patient.name.split(' ')[0]
 
@@ -99,7 +107,7 @@ export function PatientSidebar() {
             {t('side.cgLabel')}
           </label>
           <p className="mt-1.5 text-xs text-warning-fg/90">
-            {caregiver ? 'On — someone else is following along' : 'Off — viewing as patient'}
+            {caregiver ? t('side.cgOn') : t('side.cgOff')}
           </p>
         </div>
       </div>
