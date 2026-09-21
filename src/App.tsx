@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/sonner'
 
 import { LoginGate } from '@/components/auth/LoginGate'
 import { AppShell } from '@/components/layout/AppShell'
+import { PendingShell } from '@/components/layout/PendingShell'
 import { MyCare } from '@/routes/MyCare'
 import { OverviewScreen } from '@/screens/OverviewScreen'
 import { MyPlanScreen } from '@/screens/MyPlanScreen'
@@ -22,13 +23,15 @@ export default function App() {
     void check()
   }, [check])
 
-  // `pending` renders nothing at all — not the gate, not the app. Painting the
+  // `pending` shows the loading shell — not the gate, not the app. Painting the
   // app and then covering it would flash a patient's record at whoever is
-  // signing in, which is the one thing a gate exists to prevent. Returning null
-  // enforces that in React rather than relying on a CSS rule, which is also why
-  // the legacy `body > *:not(#loginGate)` selector had to be abandoned: React
-  // renders into #root, so that rule would have hidden the gate itself.
-  if (auth === 'pending') return null
+  // signing in, which is the one thing a gate exists to prevent. The shell
+  // upholds that same invariant while showing that something is happening: it
+  // was `return null` until now, i.e. a white page for as long as the request
+  // takes (1.0s warm, 4.1s cold, measured), which reads as broken rather than
+  // as loading. See PendingShell — anything added to it must carry no record
+  // data, which is why the header is not part of it.
+  if (auth === 'pending') return <PendingShell />
   if (auth === 'out') return <LoginGate />
 
   return (

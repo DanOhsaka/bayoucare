@@ -9,6 +9,7 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/componen
 import { SURVIVOR_IDS } from '@/data'
 import { buildLetter } from '@/engine/survivorship/letter'
 import { scpModel, statusChip } from '@/engine/survivorship/planRows'
+import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
 
 /** Chip labels, in the order the legacy listed them. */
@@ -31,6 +32,7 @@ const TIER_VARIANT: Record<number, 'success' | 'warning' | 'danger'> = {
 export function SurvivorshipScreen() {
   const [survSel, setSurvSel] = useState('yolanda')
   const [radarSel, setRadarSel] = useState<string | null>(null)
+  const setCaregiver = useUi((s) => s.setCaregiver)
 
   const model = useMemo(() => scpModel(survSel), [survSel])
 
@@ -272,7 +274,17 @@ export function SurvivorshipScreen() {
                 type="button"
                 size="xs"
                 variant="outline"
-                onClick={() => toast('👨‍👩‍👧 Care plan shared with family circle — caregiver mode updated.')}
+                /*
+                 * This said "caregiver mode updated" and updated nothing — the
+                 * handler was the toast alone, so the button announced a change
+                 * it never made. Caregiver mode is real persisted state now, so
+                 * the claim is made true rather than deleted: turning it on is
+                 * what "share with family" means for this device.
+                 */
+                onClick={() => {
+                  setCaregiver(true)
+                  toast('👨‍👩‍👧 Care plan shared with family circle — caregiver mode is on.')
+                }}
                 className="font-bold"
               >
                 Share with family

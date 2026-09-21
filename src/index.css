@@ -346,6 +346,32 @@
     border-radius: 2px;
   }
 
+  /* The entrance for a route change. Small on purpose: 4px and a fade reads as
+     the screen settling into place, where anything larger reads as a slide the
+     second time you see it. Gated on `motion-safe` at the call site. */
+  @keyframes screen-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* The indeterminate bar shown while `/api/session` is in flight. Applied
+     through `motion-safe:` so the reduced-motion rule never has to fight it —
+     the bar simply holds a fixed position rather than appearing to stall. */
+  @keyframes pending-sweep {
+    0% {
+      transform: translateX(-110%);
+    }
+    100% {
+      transform: translateX(320%);
+    }
+  }
+
   /* Remi's thinking dots. Marked aria-hidden in the markup — the log is a live
      region, so only the settled answer is announced, not the churn before it. */
   @keyframes remi-dot {
