@@ -79,7 +79,9 @@ export function ReferralSection() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">🔗 Referral Express</CardTitle>
-          <Badge variant="neutral">mock SMART-on-FHIR R4 surface · synthetic bundle · no PHI</Badge>
+          <Badge variant="neutral" className="text-left whitespace-normal">
+            mock SMART-on-FHIR R4 surface · synthetic bundle · no PHI
+          </Badge>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
@@ -92,7 +94,7 @@ export function ReferralSection() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle>Incoming referrals</CardTitle>
             <CardAction>
@@ -154,7 +156,7 @@ export function ReferralSection() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle>Referral timeline</CardTitle>
           </CardHeader>
@@ -244,7 +246,9 @@ export function ReferralSection() {
       <Card>
         <CardHeader>
           <CardTitle>FHIR R4 bundle — posted to the receiving org</CardTitle>
-          <Badge variant="neutral">resourceType / entry[] · truncated</Badge>
+          <Badge variant="neutral" className="text-left whitespace-normal">
+            resourceType / entry[] · truncated
+          </Badge>
         </CardHeader>
         <CardContent>
           {selected ? (

@@ -35,7 +35,7 @@ export function HomeScreen() {
   return (
     <div className="flex flex-col gap-4">
       {/* ------------------------------------------------------------ greeting */}
-      <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+      <section className="min-w-0 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-lg font-semibold text-card-foreground">{ti('home.greet')}</h3>
           <span className="inline-flex items-center rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
@@ -101,7 +101,7 @@ export function HomeScreen() {
 
       <div className="grid gap-4 md:grid-cols-2">
         {/* --------------------------------------------------------- care team */}
-        <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+        <section className="min-w-0 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
           <div className="mb-3.5 flex items-center justify-between gap-3">
             <h3 className="text-base font-semibold text-card-foreground">{t('home.teamHead')}</h3>
             <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-muted-foreground">
@@ -143,7 +143,7 @@ export function HomeScreen() {
         </section>
 
         {/* ------------------------------------------------------ family circle */}
-        <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+        <section className="min-w-0 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
           <div className="mb-3.5 flex items-center justify-between gap-3">
             <h3 className="text-base font-semibold text-card-foreground">{t('home.famHead')}</h3>
             <span className="inline-flex items-center rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">

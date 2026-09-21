@@ -13,8 +13,9 @@ import { cn } from '@/lib/utils'
  * result without the CSS argument.
  *
  * The horizontal scroll on narrow screens is deliberate and matches the legacy
- * behaviour — a proper mobile drawer is a later refinement, not something to
- * rush into a shell that is still being assembled.
+ * behaviour. A drawer that lists the tabs with room for labels would still be
+ * better on a phone; this keeps them reachable, which is the part that was
+ * actually broken.
  */
 export function NavTabs() {
   const t = useT()
@@ -23,7 +24,17 @@ export function NavTabs() {
   const visible = NAV_ITEMS.filter((i) => i.mode === mode)
 
   return (
-    <nav aria-label="Main" className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+    /*
+     * Below `sm` the tabs take their own full-width row instead of sharing one
+     * with the chrome. Sharing made them the only shrinkable child in the
+     * header, so they collapsed to zero width — the tabs became unreachable
+     * while the header still overflowed the viewport. The row still scrolls:
+     * five admin tabs do not fit at 320px, and scrolling them is intended.
+     */
+    <nav
+      aria-label="Main"
+      className="order-last flex w-full min-w-0 items-center gap-1 overflow-x-auto sm:order-none sm:w-auto sm:flex-1"
+    >
       {visible.map((item) => (
         <NavLink
           key={item.view}

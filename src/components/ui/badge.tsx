@@ -23,7 +23,11 @@ import { Slot } from "radix-ui"
  * use the matching `--on-*` token rather than a hand-picked literal.
  */
 const badgeVariants = cva(
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2.5 py-1 text-xs font-bold whitespace-nowrap transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:ring-destructive/20 [&>svg]:pointer-events-none [&>svg]:size-3",
+  // `max-w-full` so a badge can never exceed its container. The status
+  // variants keep `whitespace-nowrap` — a chip that reads "Confirm-ed" is worse
+  // than no chip — but the descriptive tags (which carry a whole sentence) pass
+  // `whitespace-normal` and wrap instead of being clipped by `overflow-hidden`.
+  "inline-flex w-fit max-w-full shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2.5 py-1 text-xs font-bold whitespace-nowrap transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:ring-destructive/20 [&>svg]:pointer-events-none [&>svg]:size-3",
   {
     variants: {
       variant: {

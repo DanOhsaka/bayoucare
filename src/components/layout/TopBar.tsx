@@ -39,8 +39,16 @@ export function TopBar() {
 
   return (
     <header
+      /*
+       * Wraps rather than clipping. At 320px the logo, language select, theme
+       * toggle, email pill and sign-out are ~294px of content against 280px of
+       * box, and `NavTabs` was the only shrinkable child — so it was crushed to
+       * zero width and the header still overflowed the viewport, taking the
+       * sign-out button off-screen with it. `min-h` instead of `h` lets the bar
+       * grow to two rows rather than overflow.
+       */
       className={cn(
-        'sticky top-0 z-40 flex h-[60px] items-center gap-2 px-5',
+        'sticky top-0 z-40 flex min-h-[60px] flex-wrap items-center gap-x-3 gap-y-1.5 px-5 py-2',
         mode === 'admin' ? 'bg-brand-800' : 'bg-brand-900',
       )}
     >
@@ -53,7 +61,7 @@ export function TopBar() {
         <div
           role="group"
           aria-label="Mode"
-          className="mr-1 hidden flex-none items-center rounded-md bg-white/10 p-0.5 sm:flex"
+          className="mr-1 flex flex-none items-center rounded-md bg-white/10 p-0.5"
         >
           {(['patient', 'admin'] as const).map((m) => (
             <button
@@ -105,6 +113,8 @@ export function TopBar() {
           )}
         </button>
 
+        {/* The email pill is ~232px, which does not fit a phone beside anything
+            else — it stays a `md:` affordance. */}
         <div className="hidden items-center gap-1.5 rounded-sm border border-white/25 bg-white/10 pl-2.5 pr-1 md:flex">
           <span className="max-w-[128px] truncate text-xs text-on-dark" title={email}>
             {email}
@@ -118,6 +128,22 @@ export function TopBar() {
             {t('login.signOut')}
           </button>
         </div>
+
+        {/*
+         * Below md the pill above is hidden, and this is the ONLY sign-out
+         * control in the app — the audit found it was `hidden md:flex`, so on
+         * every phone there was no way to sign out at all. Icon-only with an
+         * accessible name, at the same 34px as the theme toggle.
+         */}
+        <button
+          type="button"
+          onClick={() => void logout()}
+          aria-label={t('login.signOut')}
+          title={t('login.signOut')}
+          className={cn(CONTROL, 'w-[34px] justify-center md:hidden')}
+        >
+          <LogOut className="size-4" aria-hidden="true" />
+        </button>
       </div>
     </header>
   )

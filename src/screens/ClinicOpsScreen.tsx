@@ -30,7 +30,9 @@ export function ClinicOpsScreen() {
               🏥 Clinic ops — the provider side of the same system
             </CardTitle>
             <CardAction>
-              <Badge variant="success">Ranks 9–13 · brief area 5 · synthetic data</Badge>
+              <Badge variant="success" className="text-left whitespace-normal">
+                Ranks 9–13 · brief area 5 · synthetic data
+              </Badge>
             </CardAction>
           </CardHeader>
           <p className="text-sm text-muted-foreground">

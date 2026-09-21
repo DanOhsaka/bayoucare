@@ -94,7 +94,7 @@ export function SurvivorshipScreen() {
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         {/* ------------------------------------------------------- summary */}
-        <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+        <section className="min-w-0 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-base font-semibold text-card-foreground">
               {s.name} · {s.age}
@@ -141,7 +141,7 @@ export function SurvivorshipScreen() {
         </section>
 
         {/* ---------------------------------------------------------- radar */}
-        <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+        <section className="min-w-0 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-base font-semibold text-card-foreground">🛰️ Late-effects radar</h3>
             <span className="rounded-full bg-warning-bg px-2.5 py-1 text-xs font-bold text-warning-fg">
@@ -215,7 +215,7 @@ export function SurvivorshipScreen() {
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         {/* ------------------------------------------------------ schedule */}
-        <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+        <section className="min-w-0 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-base font-semibold text-card-foreground">Follow-up care plan</h3>
             <span className="rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
@@ -261,7 +261,7 @@ export function SurvivorshipScreen() {
         </section>
 
         {/* -------------------------------------------------------- letter */}
-        <section className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+        <section className="min-w-0 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-base font-semibold text-card-foreground">PCP handoff letter</h3>
             <span className="flex flex-wrap justify-end gap-1.5">
