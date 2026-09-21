@@ -5,6 +5,9 @@ import '@fontsource-variable/inter'
 import '@/index.css'
 
 import App from '@/App'
+import { installTestSurface } from '@/testSurface'
+
+installTestSurface()
 
 const container = document.getElementById('root')
 if (!container) {

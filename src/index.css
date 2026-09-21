@@ -299,6 +299,21 @@
     border-radius: 2px;
   }
 
+  /* Remi's thinking dots. Marked aria-hidden in the markup — the log is a live
+     region, so only the settled answer is announced, not the churn before it. */
+  @keyframes remi-dot {
+    0%,
+    80%,
+    100% {
+      opacity: 0.3;
+      transform: translateY(0);
+    }
+    40% {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+  }
+
   /* Smooth scrolling is disorienting for motion-sensitive users. The legacy
      file handled prefers-reduced-motion twice for animation, but missed this
      one, so nav jumps still animated. */

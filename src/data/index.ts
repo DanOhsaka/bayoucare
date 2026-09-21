@@ -90,7 +90,8 @@ export interface Patient {
   surv: string | null
   trialSet: string[]
   vitals: Record<string, string | number>
-  trend: number[]
+  /** Check-in scores, oldest first. `cls` is the band, `v` the score out of 5. */
+  trend: Array<{ v: number; label: string; cls: string }>
   calTypes: Record<string, CalendarType>
   calPlan: Array<{ off: number; type: string; time: string; ride: boolean }>
 }

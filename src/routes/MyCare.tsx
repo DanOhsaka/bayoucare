@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { PATIENT_SCREENS, PatientSidebar } from '@/components/patient/PatientSidebar'
 import { HomeScreen } from '@/screens/HomeScreen'
 import { CalendarScreen } from '@/screens/CalendarScreen'
+import { RemiScreen } from '@/screens/RemiScreen'
 import { isScreen } from '@/components/layout/navItems'
 import { Placeholder } from '@/routes/Placeholder'
 import { useT } from '@/hooks/useT'
@@ -34,6 +35,8 @@ export function MyCare() {
         return <HomeScreen />
       case 'calendar':
         return <CalendarScreen />
+      case 'remi':
+        return <RemiScreen />
       default: {
         const meta = PATIENT_SCREENS.find((s) => s.key === active)
         return (

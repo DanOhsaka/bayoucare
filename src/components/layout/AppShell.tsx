@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import { TopBar } from '@/components/layout/TopBar'
+import { RemiLauncher } from '@/components/ai/RemiLauncher'
 
 /**
  * The application chrome: fixed top bar, scrolling page body, footer.
@@ -16,6 +17,7 @@ export function AppShell() {
       <main className="flex-1">
         <Outlet />
       </main>
+      <RemiLauncher />
       <footer className="border-t border-border px-6 py-5 text-center text-xs text-muted-foreground">
         BayouCare · DevDays 2026 · Demo data only — not for clinical use
       </footer>
