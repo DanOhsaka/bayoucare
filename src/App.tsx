@@ -10,6 +10,7 @@ import { MyPlanScreen } from '@/screens/MyPlanScreen'
 import { TeamScreen } from '@/screens/TeamScreen'
 import { RoadmapScreen } from '@/screens/RoadmapScreen'
 import { SurvivorshipScreen } from '@/screens/SurvivorshipScreen'
+import { PopulationScreen } from '@/screens/PopulationScreen'
 import { Placeholder } from '@/routes/Placeholder'
 import { useSession } from '@/store/session'
 import { useT } from '@/hooks/useT'
@@ -47,7 +48,7 @@ export default function App() {
             <Route path="/care-team" element={<TeamScreen />} />
             <Route path="/clinic-ops" element={<Placeholder title={t('nav.clinicops')} view="clinicops" />} />
             <Route path="/survivorship" element={<SurvivorshipScreen />} />
-            <Route path="/population" element={<Placeholder title={t('nav.pop')} view="population" />} />
+            <Route path="/population" element={<PopulationScreen />} />
             <Route path="/roadmap" element={<RoadmapScreen />} />
 
             <Route path="*" element={<Navigate to="/overview" replace />} />
