@@ -1,7 +1,6 @@
-import { useMemo, useState } from 'react'
+import { Suspense, lazy, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
-import { LateEffectsRadar } from '@/components/shared/LateEffectsRadar'
 import { RichText } from '@/components/shared/RichText'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,6 +10,30 @@ import { buildLetter } from '@/engine/survivorship/letter'
 import { scpModel, statusChip } from '@/engine/survivorship/planRows'
 import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
+
+/*
+ * Recharts is ~112 kB gzipped and ONLY this screen needs it, so it is loaded on
+ * demand rather than shipped in the initial bundle. Imported eagerly, it took
+ * the bundle from 773 kB to 1,106 kB — which would have quietly undone the boot
+ * shell work that got the first paint down to ~250ms, on an app that pitches
+ * itself as working in rural Louisiana on a slow connection.
+ */
+const LateEffectsRadar = lazy(() =>
+  import('@/components/shared/LateEffectsRadar').then((m) => ({ default: m.LateEffectsRadar })),
+)
+
+/**
+ * Sized to match the radar so the card does not jump when the chunk lands.
+ * A pulsing disc rather than a grey box: the fallback is briefly the only thing
+ * on screen, and a circle reads as "a chart is coming".
+ */
+function RadarSkeleton() {
+  return (
+    <div className="mx-auto flex aspect-square w-full max-w-[320px] items-center justify-center">
+      <div className="size-[55%] rounded-full border-2 border-dashed border-border motion-safe:animate-pulse" />
+    </div>
+  )
+}
 
 /** Chip labels, in the order the legacy listed them. */
 const CHIP_LABEL: Record<string, string> = {
@@ -148,7 +171,9 @@ export function SurvivorshipScreen() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap items-start gap-4">
-              <LateEffectsRadar hits={hits} selected={radarSel} onSelect={setRadarSel} />
+              <Suspense fallback={<RadarSkeleton />}>
+                <LateEffectsRadar hits={hits} selected={radarSel} onSelect={setRadarSel} />
+              </Suspense>
 
               <div className="min-w-[200px] flex-1">
                 <div className="flex flex-col gap-1.5">
@@ -191,7 +216,11 @@ export function SurvivorshipScreen() {
                       {detail.hit.note}
                     </>
                   ) : (
-                    'Click a spoke for the surveillance detail.'
+                    // Was "Click a spoke" — the spokes are no longer individual
+                    // controls now that the chart is a Recharts polygon. The
+                    // list above is the primary, keyboard-reachable selection
+                    // route; clicking the chart selects the same thing.
+                    'Select a category for the surveillance detail.'
                   )}
                 </div>
               </div>
