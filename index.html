@@ -29,9 +29,110 @@
         }
       })()
     </script>
+
+    <!--
+      The boot shell's styles, inline and self-contained ON PURPOSE.
+
+      This markup paints with the document — before the ~240 KB JS bundle has
+      downloaded, parsed and executed. Measured on production, that gap was
+      3.6s of white page, which a client-rendered SPA cannot paint its way out
+      of from inside React: `PendingShell` only exists once React runs.
+
+      So it cannot depend on the stylesheet either, which is why the colours
+      below are the real design tokens WITH literal fallbacks rather than
+      classes. The dark override is repeated here for the same reason — a
+      dark-mode user should not get a cream flash while the CSS is in flight.
+
+      Keep this visually identical to `src/components/layout/PendingShell.tsx`:
+      React replaces this markup on mount, and any difference shows as a blink
+      at the handover.
+    -->
+    <style>
+      .boot-shell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        min-height: 100dvh;
+        background: var(--background, #faf7f1);
+        color: var(--brand-700, #145c40);
+        font-family: 'Inter Variable', Inter, system-ui, -apple-system, sans-serif;
+      }
+      [data-theme='dark'] .boot-shell {
+        background: var(--background, #101713);
+        color: var(--brand-600, #3fa075);
+      }
+      .boot-shell .boot-mark {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .boot-shell .boot-leaf {
+        width: 20px;
+        height: 20px;
+      }
+      .boot-shell .boot-track {
+        width: 160px;
+        height: 4px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: var(--soft, #f4f7f4);
+      }
+      .boot-shell .boot-bar {
+        width: 33%;
+        height: 100%;
+        border-radius: 999px;
+        background: currentColor;
+        animation: boot-sweep 1.2s ease-in-out infinite;
+      }
+      @keyframes boot-sweep {
+        0% {
+          transform: translateX(-110%);
+        }
+        100% {
+          transform: translateX(320%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-shell .boot-bar {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      React replaces this on mount (`createRoot().render()` clears the
+      container). It carries no record data — a wordmark and a bar — for the
+      same reason `PendingShell` does not: this is what anyone sees when they
+      open the URL, including whoever is standing behind them.
+    -->
+    <div id="root">
+      <div class="boot-shell" role="status" aria-live="polite">
+        <div class="boot-mark">
+          <svg
+            class="boot-leaf"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+          </svg>
+          <span>BayouCare</span>
+        </div>
+        <div class="boot-track"><div class="boot-bar"></div></div>
+        <span class="sr-only-text">Loading</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
