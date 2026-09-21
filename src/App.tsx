@@ -7,6 +7,8 @@ import { AppShell } from '@/components/layout/AppShell'
 import { MyCare } from '@/routes/MyCare'
 import { OverviewScreen } from '@/screens/OverviewScreen'
 import { MyPlanScreen } from '@/screens/MyPlanScreen'
+import { TeamScreen } from '@/screens/TeamScreen'
+import { RoadmapScreen } from '@/screens/RoadmapScreen'
 import { Placeholder } from '@/routes/Placeholder'
 import { useSession } from '@/store/session'
 import { useT } from '@/hooks/useT'
@@ -41,14 +43,14 @@ export default function App() {
             <Route path="/my-care/:screen" element={<MyCare />} />
             <Route path="/my-plan" element={<MyPlanScreen />} />
 
-            <Route path="/care-team" element={<Placeholder title={t('nav.team')} view="team" />} />
+            <Route path="/care-team" element={<TeamScreen />} />
             <Route path="/clinic-ops" element={<Placeholder title={t('nav.clinicops')} view="clinicops" />} />
             <Route
               path="/survivorship"
               element={<Placeholder title={t('nav.surv')} view="survivorship" />}
             />
             <Route path="/population" element={<Placeholder title={t('nav.pop')} view="population" />} />
-            <Route path="/roadmap" element={<Placeholder title={t('nav.roadmap')} view="roadmap" />} />
+            <Route path="/roadmap" element={<RoadmapScreen />} />
 
             <Route path="*" element={<Navigate to="/overview" replace />} />
           </Route>

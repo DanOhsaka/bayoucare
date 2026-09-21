@@ -3,6 +3,7 @@ import { remiSafeHtml } from '@/engine/remi/safeHtml'
 import { plco2012, riskBreast, riskColo, riskLung } from '@/engine/screening'
 import { ruleFind } from '@/engine/survivorship/lateRules'
 import { scpModel } from '@/engine/survivorship/planRows'
+import { ACTIONS, TEAM_PATIENTS, probabilityOf, riskOf, useTeam } from '@/store/team'
 import { PATIENTS, SURVIVORS } from '@/data'
 import { useCheckins } from '@/store/checkins'
 import { usePatient } from '@/store/patient'
@@ -42,9 +43,13 @@ export function installTestSurface() {
     ruleFind,
     scpModel,
 
+    // The care-team model, for golden-value comparison against the legacy.
+    team: { TEAM_PATIENTS, ACTIONS, riskOf, probabilityOf },
+
     // Stores the harnesses drive directly.
     vitals: useVitals,
     checkins: useCheckins,
+    teamStore: useTeam,
 
     /** Skip the sign-in gate, as the legacy harnesses do. */
     setAuth: (auth: 'pending' | 'out' | 'in') => useSession.setState({ auth }),
