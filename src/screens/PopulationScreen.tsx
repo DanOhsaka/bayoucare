@@ -73,6 +73,15 @@ export function PopulationScreen() {
   const [tourStop, setTourStop] = useState<number | null>(null)
   const [tourLog, setTourLog] = useState<string[]>([])
 
+  /**
+   * The geographic map's hover tooltip.
+   *
+   * Follows the cursor with the same edge clamping the legacy used — without it
+   * the panel runs off the right edge on the last few columns of the state.
+   */
+  const [tip, setTip] = useState<{ name: string; x: number; y: number } | null>(null)
+  const tipParish = tip ? PARISH_DATA.find((p) => p.n === tip.name) : null
+
   const stops = useMemo(() => PARISH_DATA.filter((p) => p.rank != null).slice(0, 10), [])
 
   useInterval(
@@ -206,8 +215,17 @@ export function PopulationScreen() {
                         tabIndex={0}
                         aria-label={name}
                         aria-pressed={parish === name}
-                        className="cursor-pointer outline-offset-2"
+                        // Hover feedback the legacy had and I had missed: the
+                        // stroke darkens and thickens under the cursor, so the
+                        // map reads as interactive before you click anything.
+                        className={cn(
+                          'cursor-pointer outline-offset-2 transition-[opacity,stroke,stroke-width] duration-100',
+                          'hover:stroke-brand-900 hover:opacity-90 hover:[stroke-width:1.4]',
+                          parish === name && 'stroke-brand-900 [stroke-width:1.8]',
+                        )}
                         onClick={() => setParish(name)}
+                        onMouseMove={(e) => setTip({ name, x: e.clientX, y: e.clientY })}
+                        onMouseLeave={() => setTip(null)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault()
@@ -394,6 +412,58 @@ export function PopulationScreen() {
         <FollowQueue selected={selected} />
         <FitTracking selected={selected} />
       </div>
+
+      {/*
+        The geographic map's hover panel.
+        Fixed-position rather than absolute so it follows the cursor and is never
+        clipped by the map's scroll container. `pointer-events-none` matters: the
+        node sits under the cursor, and without it the tooltip would steal the
+        mouseleave from the path beneath and flicker.
+      */}
+      {tip && tipParish && (
+        <div
+          role="tooltip"
+          className="pointer-events-none fixed z-50 w-[262px] rounded-lg border border-border bg-card p-3 text-xs shadow-[var(--shadow-lg)]"
+          style={{
+            left: Math.min(tip.x + 14, window.innerWidth - 275),
+            top: Math.min(tip.y + 14, window.innerHeight - 210),
+          }}
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <b className="text-sm text-card-foreground">{tipParish.n} Parish</b>
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[11px] font-bold',
+                tipParish.rank == null
+                  ? 'bg-muted text-muted-foreground'
+                  : tipParish.rank <= 10
+                    ? 'bg-danger-bg text-danger-fg'
+                    : 'bg-muted text-muted-foreground',
+              )}
+            >
+              {tipParish.rank == null ? 'late-stage data suppressed' : `#${tipParish.rank} unmet need`}
+            </span>
+          </div>
+
+          <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1">
+            {(
+              [
+                ['Population', tipParish.pop.toLocaleString()],
+                ['Incidence /100k', String(tipParish.inc)],
+                ['Late-stage share', tipParish.late == null ? 'suppressed' : `${tipParish.late}%`],
+                ['Screening coverage', `${tipParish.cov}%`],
+                ['Eligible & unscreened', `≈ ${tipParish.uns.toLocaleString()}`],
+                ['Need index', tipParish.need == null ? '—' : tipParish.need.toFixed(1)],
+              ] as const
+            ).map(([k, v]) => (
+              <div key={k} className="contents">
+                <dt className="text-muted-foreground">{k}</dt>
+                <dd className="text-right font-bold text-card-foreground">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
     </div>
   )
 }
