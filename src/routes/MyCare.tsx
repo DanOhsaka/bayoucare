@@ -4,6 +4,7 @@ import { PATIENT_SCREENS, PatientSidebar } from '@/components/patient/PatientSid
 import { HomeScreen } from '@/screens/HomeScreen'
 import { CalendarScreen } from '@/screens/CalendarScreen'
 import { RemiScreen } from '@/screens/RemiScreen'
+import { PreventScreen } from '@/screens/PreventScreen'
 import { isScreen } from '@/components/layout/navItems'
 import { Placeholder } from '@/routes/Placeholder'
 import { useT } from '@/hooks/useT'
@@ -37,6 +38,8 @@ export function MyCare() {
         return <CalendarScreen />
       case 'remi':
         return <RemiScreen />
+      case 'prevent':
+        return <PreventScreen />
       default: {
         const meta = PATIENT_SCREENS.find((s) => s.key === active)
         return (

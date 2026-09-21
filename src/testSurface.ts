@@ -1,5 +1,6 @@
 import { remiAnswer } from '@/engine/remi/answer'
 import { remiSafeHtml } from '@/engine/remi/safeHtml'
+import { plco2012, riskBreast, riskColo, riskLung } from '@/engine/screening'
 import { PATIENTS } from '@/data'
 import { usePatient } from '@/store/patient'
 import { useSession } from '@/store/session'
@@ -25,6 +26,12 @@ export function installTestSurface() {
     remiAnswer,
     remiSafeHtml,
     PATIENTS,
+
+    // Screening calculators, for golden-value comparison against the legacy.
+    riskLung,
+    riskBreast,
+    riskColo,
+    plco2012,
 
     /** Skip the sign-in gate, as the legacy harnesses do. */
     setAuth: (auth: 'pending' | 'out' | 'in') => useSession.setState({ auth }),
