@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { ProgressTrack } from '@/components/shared/ProgressTrack'
@@ -34,6 +34,37 @@ const SCALE = [
 ]
 
 const METRIC_KEYS: MetricKey[] = ['need', 'late', 'inc', 'cov']
+
+/** Zoom limits for the geographic map. 1× is the fitted view, and the pan clamp
+ *  below collapses to zero translation there — so the map cannot be dragged
+ *  until it has been zoomed in, and cannot be zoomed out past its own frame. */
+const ZOOM_MIN = 1
+const ZOOM_MAX = 4
+const ZOOM_STEP = 1.5
+
+/** How far a pointer must travel, in SCREEN pixels, before the gesture counts
+ *  as a pan rather than a click. Small enough that a deliberate drag always
+ *  registers; large enough that the wobble in a normal click does not. */
+const DRAG_SLOP = 4
+
+/**
+ * Hold a view inside its legal range: the scale within `ZOOM_MIN..ZOOM_MAX`, and
+ * each translation within `[dimension * (1 - scale), 0]`.
+ *
+ * That translation range is the whole anti-lost-map guard. At scale `k` the map
+ * occupies `[x, x + k · dimension]`, so pinning `x ≤ 0` keeps the left/top edge
+ * at or past the frame and `x ≥ dimension · (1 - k)` keeps the right/bottom edge
+ * at or past it. Both bounds meet at `0` when `k` is 1, which is why the fitted
+ * view is immovable.
+ */
+function clampView(v: { k: number; x: number; y: number }) {
+  const k = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, v.k))
+  return {
+    k,
+    x: Math.min(0, Math.max(MAP.w * (1 - k), v.x)),
+    y: Math.min(0, Math.max(MAP.h * (1 - k), v.y)),
+  }
+}
 
 /**
  * The quintile ramp legend, rendered under BOTH map modes.
@@ -111,6 +142,101 @@ export function PopulationScreen() {
       x: Math.max(8, Math.min(x + 14, window.innerWidth - 275)),
       y: Math.max(8, Math.min(y + 14, window.innerHeight - 210)),
     })
+
+  /**
+   * Zoom and pan, for the geographic map only.
+   *
+   * `k` is the scale and `x`/`y` the translation of the `<g>` that wraps the
+   * parish paths — all three in VIEWBOX units, never screen pixels. Pointer
+   * deltas arrive in screen pixels, so `startPan` converts them through the
+   * rendered width; without that the map would pan at a different rate on a
+   * 320px phone than on a 1440px desktop.
+   */
+  const [view, setView] = useState({ k: ZOOM_MIN, x: 0, y: 0 })
+
+  /**
+   * True once the gesture in progress has travelled far enough to be a pan.
+   *
+   * A pan still ends with a `click` on whatever parish it started on — the
+   * browser does not know the pointer moved — so every path's `onClick` reads
+   * this and ignores the click a drag would otherwise turn into a selection.
+   * Cleared on the next pointerdown and never on pointerup, because `click`
+   * arrives after pointerup.
+   */
+  const dragged = useRef(false)
+  /** The pointer id of the pan in progress, or null. Guards against a second
+   *  pointer starting a competing gesture mid-drag. */
+  const panning = useRef<number | null>(null)
+
+  /**
+   * Zoom by `factor` about the centre of the viewBox.
+   *
+   * `x' = x + c · (k - k')` leaves the viewBox point `c` at the same place on
+   * screen, so zooming in on the middle of the state does not slide it off the
+   * edge; the clamp then trims whatever the zoom pushed past the frame.
+   */
+  const zoomTo = (factor: number) =>
+    setView((v) => {
+      const k = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, v.k * factor))
+      return clampView({ k, x: v.x + (MAP.w / 2) * (v.k - k), y: v.y + (MAP.h / 2) * (v.k - k) })
+    })
+
+  const resetView = () => setView({ k: ZOOM_MIN, x: 0, y: 0 })
+
+  /**
+   * Drag to pan. Pointer Events, so one implementation covers mouse, touch and
+   * pen; `touch-action` on the svg (below) stops a touch drag from scrolling
+   * the page instead.
+   *
+   * The move/end listeners go on `window`, not on the svg, so a drag that
+   * wanders off the map keeps panning. Pointer capture is deliberately NOT used:
+   * capture retargets the follow-up `click` to the capturing element, which
+   * would stop an ordinary click on a parish from ever reaching its path.
+   */
+  const startPan = (e: React.PointerEvent<SVGSVGElement>) => {
+    // A second finger during a pan is ignored outright, and deliberately before
+    // the flag is touched: clearing it here would let the gesture already in
+    // progress end on a `click` that selects whatever parish it was over.
+    if (panning.current != null) return
+    // Cleared on every pointerdown that could start a gesture, including one at
+    // 1× that cannot pan — a flag left set by an earlier drag would otherwise
+    // swallow the next honest click.
+    dragged.current = false
+    if (view.k <= ZOOM_MIN) return
+
+    const svg = e.currentTarget
+    const id = e.pointerId
+    const sx = e.clientX
+    const sy = e.clientY
+    const from = view
+    panning.current = id
+
+    const onMove = (ev: PointerEvent) => {
+      if (ev.pointerId !== id) return
+      const dx = ev.clientX - sx
+      const dy = ev.clientY - sy
+      if (!dragged.current) {
+        if (Math.hypot(dx, dy) <= DRAG_SLOP) return
+        dragged.current = true
+      }
+      // Screen pixels -> viewBox units. The svg is `w-full` capped at 560px and
+      // keeps its aspect ratio, so this one ratio serves both axes.
+      const s = MAP.w / svg.getBoundingClientRect().width
+      setView((v) => clampView({ ...v, x: from.x + dx * s, y: from.y + dy * s }))
+    }
+
+    const onEnd = (ev: PointerEvent) => {
+      if (ev.pointerId !== id) return
+      panning.current = null
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onEnd)
+      window.removeEventListener('pointercancel', onEnd)
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onEnd)
+    window.addEventListener('pointercancel', onEnd)
+  }
 
   const stops = useMemo(() => PARISH_DATA.filter((p) => p.rank != null).slice(0, 10), [])
 
@@ -271,6 +397,50 @@ export function PopulationScreen() {
               ) : (
                 <div className="overflow-x-auto">
                   {/*
+                    * Zoom controls. Real buttons rather than gestures alone, so
+                    * the map has a keyboard path and a discoverable one; they sit
+                    * ABOVE the svg rather than floating over it, where they would
+                    * cover the north of the state at every size. `flex-wrap` is
+                    * load-bearing: this screen has overflowed at 320px before,
+                    * and a row of controls is exactly the kind of thing that
+                    * does it.
+                    */}
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      size="icon-sm"
+                      variant="outline"
+                      aria-label="Zoom in"
+                      disabled={view.k >= ZOOM_MAX}
+                      onClick={() => zoomTo(ZOOM_STEP)}
+                    >
+                      +
+                    </Button>
+                    <Button
+                      type="button"
+                      size="icon-sm"
+                      variant="outline"
+                      aria-label="Zoom out"
+                      disabled={view.k <= ZOOM_MIN}
+                      onClick={() => zoomTo(1 / ZOOM_STEP)}
+                    >
+                      −
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      aria-label="Reset zoom and pan"
+                      disabled={view.k <= ZOOM_MIN}
+                      onClick={resetView}
+                    >
+                      Reset
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      {view.k > ZOOM_MIN ? 'Drag the map to pan.' : 'Zoom in to pan.'}
+                    </span>
+                  </div>
+                  {/*
                     * `role="img"` makes this a LEAF in the accessibility tree, and
                     * screen readers prune a leaf's descendants — which silently
                     * removed all 64 focusable parish buttons below from AT, even
@@ -279,11 +449,33 @@ export function PopulationScreen() {
                     * name while leaving its children exposed. The radar uses the
                     * same role for the same reason.
                     */}
-                  <svg viewBox={`0 0 ${MAP.w} ${MAP.h}`} className="h-auto w-full max-w-[560px]" role="group" aria-label="Louisiana parishes by screening need">
+                  {/*
+                    * `onPointerDown` is the pan gesture, and `touch-action` is
+                    * what makes it work on a touchscreen: without it the browser
+                    * claims the drag for page scrolling and the map never moves.
+                    * It is set only while zoomed in — at 1× there is nothing to
+                    * pan, so a swipe over the map scrolls the page exactly as it
+                    * does everywhere else, and the control cannot become a
+                    * scroll trap in its default state. The reset button above
+                    * restores that at any time. `select-none` stops the drag
+                    * from painting a text selection across the page.
+                    */}
+                  <svg viewBox={`0 0 ${MAP.w} ${MAP.h}`} className="h-auto w-full max-w-[560px] select-none" role="group" aria-label="Louisiana parishes by screening need" onPointerDown={startPan} style={{ touchAction: view.k > ZOOM_MIN ? 'none' : undefined }}>
                     {/*
                       * `aria-label` above is the accessible name; a <title> here
                       * would be a second, conflicting one.
                       */}
+                    {/*
+                      * Every parish path and the van marker sit inside this one
+                      * `<g>`, so a single transform pans and zooms the whole
+                      * map. Its values are VIEWBOX units, which is what makes
+                      * the pan rate independent of the rendered size. The root
+                      * svg clips to its viewport by default — nothing between it
+                      * and here sets `overflow: visible` — so whatever the
+                      * transform pushes past the frame is cut off at the edge
+                      * rather than drawn over the page.
+                      */}
+                    <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
                     {Object.entries(MAP.d).map(([name, d]) => {
                       const p = PARISH_DATA.find((x) => x.n === name)
                       const b = p ? bucketOf(p, metric) : 0
@@ -334,7 +526,19 @@ export function PopulationScreen() {
                             'hover:stroke-brand-900 hover:opacity-90 hover:[stroke-width:1.4]',
                             parish === name && 'stroke-brand-900 [stroke-width:1.8]',
                           )}
-                          onClick={() => setParish(name)}
+                          /*
+                           * A drag that started on this parish ends on it too —
+                           * the browser fires `click` at the element the gesture
+                           * began on, however far the pointer travelled — so a
+                           * pan would otherwise select whatever parish you
+                           * happened to grab. `dragged` is the gesture's own
+                           * record of having moved, still set at this point
+                           * because `click` lands after pointerup.
+                           */
+                          onClick={() => {
+                            if (dragged.current) return
+                            setParish(name)
+                          }}
                           onMouseMove={(e) => showTip(name, e.clientX, e.clientY)}
                           onMouseLeave={() => setTip(null)}
                           /*
@@ -368,6 +572,7 @@ export function PopulationScreen() {
                         strokeWidth={2}
                       />
                     )}
+                    </g>
                   </svg>
                 </div>
               )}
