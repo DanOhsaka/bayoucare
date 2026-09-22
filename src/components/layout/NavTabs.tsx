@@ -48,13 +48,9 @@ export function NavTabs() {
             to={item.to}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              // py-2 is a 36px row. `py-3` makes it 44 below `lg` and `lg:py-2`
-              // restores the desktop bar — which matters twice over, because
-              // the header's height at `lg` is what the sidebar's sticky offset
-              // is measured against.
-              'whitespace-nowrap rounded-sm px-2.5 py-3 text-sm font-semibold transition-colors lg:py-2',
+              'whitespace-nowrap rounded-sm px-2.5 py-3 text-sm font-semibold transition-[color,background-color,box-shadow] duration-200 ease-out lg:py-2',
               active
-                ? 'bg-white/20 text-on-dark'
+                ? 'bg-white/20 text-on-dark shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]'
                 : 'text-on-dark-muted hover:bg-white/10 hover:text-on-dark',
             )}
           >

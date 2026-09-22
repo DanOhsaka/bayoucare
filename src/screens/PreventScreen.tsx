@@ -50,6 +50,7 @@ function LungCalculator() {
    * the patient must land on the SAME numbers the PCP's card showed. `setV`
    * keeps its single-argument shape, so every call site below is unchanged.
    */
+  const t = useT()
   const v = useClinic((s) => s.calc.ldct)
   const setV = (next: LungInput) => useClinic.getState().setCalc('ldct', next)
   const [result, setResult] = useState<ReturnType<typeof riskLung> | null>(null)
@@ -119,7 +120,7 @@ function LungCalculator() {
           className="mt-3.5 w-full font-bold"
           onClick={() => setResult(riskLung(v))}
         >
-          Calculate my risk
+          {t('prevent.calc')}
         </Button>
 
         {result && (
@@ -177,6 +178,7 @@ function LungCalculator() {
 /* -------------------------------------------------------------- breast */
 
 function BreastCalculator() {
+  const t = useT()
   const v = useClinic((s) => s.calc.breast)
   const setV = (next: BreastInput) => useClinic.getState().setCalc('breast', next)
   const [result, setResult] = useState<ReturnType<typeof riskBreast> | null>(null)
@@ -233,7 +235,7 @@ function BreastCalculator() {
           className="mt-3.5 w-full font-bold"
           onClick={() => setResult(riskBreast(v))}
         >
-          Calculate my risk
+          {t('prevent.calc')}
         </Button>
 
         {result && (
@@ -268,6 +270,7 @@ function BreastCalculator() {
 /* ---------------------------------------------------------- colorectal */
 
 function ColoCalculator() {
+  const t = useT()
   const v = useClinic((s) => s.calc.colo)
   const setV = (next: ColoInput) => useClinic.getState().setCalc('colo', next)
   const [result, setResult] = useState<ReturnType<typeof riskColo> | null>(null)
@@ -318,7 +321,7 @@ function ColoCalculator() {
           className="mt-3.5 w-full font-bold"
           onClick={() => setResult(riskColo(v))}
         >
-          Calculate my risk
+          {t('prevent.calc')}
         </Button>
 
         {result && (
@@ -346,6 +349,137 @@ function ColoCalculator() {
   )
 }
 
+/* ------------------------------------------------------- community + family */
+
+const COMMUNITY_EVENTS = [
+  {
+    id: 'mammo-van',
+    ico: '🚐',
+    title: 'Free mammogram van',
+    where: 'Alexandria Farmers Market',
+    when: 'Sat, Sep 12 · 9 am–3 pm',
+    note: 'Walk-ins welcome · no insurance needed',
+  },
+  {
+    id: 'colo-day',
+    ico: '🩻',
+    title: 'Free colorectal screening',
+    where: 'Rapides Parish Health Unit',
+    when: 'Fri, Sep 19 · 8 am–1 pm',
+    note: 'FIT kits and scheduling on site',
+  },
+  {
+    id: 'lung-drive',
+    ico: '🫁',
+    title: 'Lung CT screening day',
+    where: 'Natchitoches',
+    when: 'Fri, Oct 3',
+    note: 'For people 50+ with a smoking history',
+  },
+] as const
+
+function CommunityEventsCard() {
+  const t = useT()
+  const [saved, setSaved] = useState<Record<string, boolean>>({})
+
+  function toggleSave(id: string, title: string) {
+    setSaved((prev) => {
+      const next = !prev[id]
+      toast(next ? `Saved “${title}” to your calendar.` : `Removed “${title}” from saved events.`)
+      return { ...prev, [id]: next }
+    })
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('prevent.nearYou')}</CardTitle>
+        <Badge variant="warning">{t('prevent.nearChip')}</Badge>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <p className="text-sm text-muted-foreground">{t('prevent.nearSub')}</p>
+        <ul className="flex flex-col gap-2">
+          {COMMUNITY_EVENTS.map((ev) => {
+            const isSaved = Boolean(saved[ev.id])
+            return (
+              <li
+                key={ev.id}
+                className="flex items-start gap-3 rounded-md border border-border p-2.5"
+              >
+                <span
+                  className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
+                  aria-hidden="true"
+                >
+                  {ev.ico}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <b className="block text-sm font-semibold text-card-foreground">{ev.title}</b>
+                  <p className="text-xs text-muted-foreground">{ev.where}</p>
+                  <p className="text-xs font-medium text-card-foreground">{ev.when}</p>
+                  <p className="text-xs text-muted-foreground">{ev.note}</p>
+                </div>
+                <Button
+                  type="button"
+                  variant={isSaved ? 'secondary' : 'outline'}
+                  size="xs"
+                  onClick={() => toggleSave(ev.id, ev.title)}
+                  aria-pressed={isSaved}
+                  className="flex-none font-bold"
+                >
+                  {isSaved ? t('prevent.saved') : t('prevent.remind')}
+                </Button>
+              </li>
+            )
+          })}
+        </ul>
+      </CardContent>
+    </Card>
+  )
+}
+
+function FamilyScreeningCard() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Looking out for family</CardTitle>
+        <Badge variant="neutral">Family</Badge>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <p className="text-sm text-muted-foreground">
+          BayouCare will nudge Renee and Marcus when it’s their turn to screen.
+        </p>
+        <ul className="flex flex-col gap-2">
+          <li className="rounded-md border border-border p-2.5">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <b className="text-sm font-semibold text-card-foreground">Renee · 34</b>
+              <span className="text-xs font-semibold text-muted-foreground">Mammogram at 40</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Reminder set for her 40th birthday — about 6 years from now.
+            </p>
+          </li>
+          <li className="rounded-md border border-border p-2.5">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <b className="text-sm font-semibold text-card-foreground">Marcus · 31</b>
+              <span className="text-xs font-semibold text-muted-foreground">Colon screening later</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Average risk starts at 45. We’ll remind him well before then.
+            </p>
+          </li>
+        </ul>
+        <div className="rounded-md border border-warning/40 bg-warning-bg p-3 text-warning-fg">
+          <b className="block text-sm">Ask at your next visit</b>
+          <p className="mt-1 text-sm">
+            Talk with Dr. Peters about BRCA testing. If family risk is higher, Renee and Marcus
+            may need to start screening sooner.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 /* ------------------------------------------------------------------ screen */
 
 export function PreventScreen() {
@@ -357,31 +491,22 @@ export function PreventScreen() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <ShieldCheck className="size-[18px] text-brand-600" aria-hidden="true" />
-            Screen &amp; prevent — catch it early
+            {t('prevent.head')}
           </CardTitle>
-          <Badge variant="success">ASCO &amp; ACS guideline-based</Badge>
+          <Badge variant="success">{t('prevent.chip')}</Badge>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Louisiana's mortality rate is above the national average largely because we find cancer
-            late. BayouCare turns screening guidelines into personal reminders — for you, your family,
-            and your community.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('prevent.sub')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>🎯 Risk-stratified screening — your plan, not a generic one</CardTitle>
-          <Badge variant="success">USPSTF 2021 · ASCO/ACS-aligned</Badge>
+          <CardTitle>{t('prevent.riskHead')}</CardTitle>
+          <Badge variant="success">{t('prevent.riskChip')}</Badge>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            BayouCare scores your personal risk (lung, breast, colorectal) and sets your next screening
-            date from it — earlier and more frequent when risk demands it, with a{' '}
-            <b className="text-card-foreground">Quit-to-Screen bundle</b> when smoking is in the
-            picture. Tap a persona to fill the form, or enter your own numbers.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('prevent.riskSub')}</p>
         </CardContent>
       </Card>
 
@@ -400,9 +525,9 @@ export function PreventScreen() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>My screening plan</CardTitle>
+            <CardTitle>{t('prevent.planHead')}</CardTitle>
             <Badge variant="success" className={CHIP_CAPS}>
-              Up to date
+              {t('prevent.planChip')}
             </Badge>
           </CardHeader>
           <CardContent>
@@ -436,69 +561,27 @@ export function PreventScreen() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Community screening events</CardTitle>
-            <Badge variant="warning" className={CHIP_CAPS}>
-              Near Alexandria
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            <ul className="flex flex-col gap-2">
-              {[
-                ['🚐', 'Mammogram mobile unit — Farmers Market', 'Alexandria · Sat, Sep 12 · 9 am–3 pm · no insurance needed'],
-                ['🩻', 'Free colorectal screening day', 'Rapides Parish Health Unit · Sep 19 · 8 am–1 pm'],
-                ['🫁', 'Lung screening drive — smokers 50+', 'Natchitoches · Oct 3 · low-dose CT event'],
-              ].map(([ico, h, p]) => (
-                <li key={h} className="flex items-center gap-3">
-                  <span
-                    className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
-                    aria-hidden="true"
-                  >
-                    {ico}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <b className="block text-sm font-semibold text-card-foreground">{h}</b>
-                    <p className="text-xs text-muted-foreground">{p}</p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="xs"
-                    onClick={() => toast('✅ Saved to your calendar.')}
-                    className="font-bold text-link hover:text-link"
-                  >
-                    Save
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+        <CommunityEventsCard />
+
+        <FamilyScreeningCard />
 
         <Card>
           <CardHeader>
-            <CardTitle>Family screening (caregiver view)</CardTitle>
+            <CardTitle>Why early screening matters here</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col gap-3">
             <p className="text-sm text-muted-foreground">
-              Renee (34) &amp; Marcus (31): BayouCare will remind them when they reach screening age —
-              mammograms starting at 40 per ASCO/ACS guidelines. The{' '}
-              <b className="text-card-foreground">BRCA testing discussion</b> flagged for your next
-              visit with Dr. Peters could move their start age earlier.
+              Louisiana finds cancer later than most of the country. Catching it early is the
+              biggest difference we can make.
             </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Why prevention matters in Louisiana</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Incidence 496.1/100k and mortality 165.2/100k — both above the US average. Catching
-              cancer early is the single biggest lever: 5-year survival for early-stage breast cancer
-              is 99%+ vs ~30% for late-stage. That gap is what this module exists to close.
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <Stat k="New cases" v="Above US avg" />
+              <Stat k="Cancer deaths" v="Above US avg" />
+              <Stat k="Early breast CA" v="99%+ survive" />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Late-stage breast cancer survival drops to about 30%. These tools exist to help
+              more people land on the early side of that gap.
             </p>
           </CardContent>
         </Card>

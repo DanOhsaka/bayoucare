@@ -4,6 +4,8 @@ import { PatientSidebar } from '@/components/patient/PatientSidebar'
 import { HomeScreen } from '@/screens/HomeScreen'
 import { CalendarScreen } from '@/screens/CalendarScreen'
 import { RemiScreen } from '@/screens/RemiScreen'
+import { CareChatScreen } from '@/screens/CareChatScreen'
+import { FamilyHelpScreen } from '@/screens/FamilyHelpScreen'
 import { PreventScreen } from '@/screens/PreventScreen'
 import { JourneyScreen } from '@/screens/JourneyScreen'
 import { UnderstandScreen } from '@/screens/UnderstandScreen'
@@ -13,11 +15,11 @@ import { AccessScreen } from '@/screens/AccessScreen'
 import { isScreen } from '@/components/layout/navItems'
 
 /**
- * The patient app: a sidebar of nine sections beside the active one.
+ * The patient app: a sidebar of sections beside the active one.
  *
  * The URL selects the section, so a refresh keeps your place and the back
  * button walks between them — neither of which the legacy class-toggling did.
- * All nine sections are built; there is no longer a fall-through placeholder.
+ * Every listed section is built; there is no longer a fall-through placeholder.
  *
  * Note: the legacy app kept every screen mounted at once and hid the inactive
  * ones with CSS, because some of them run timers whose output other screens
@@ -34,6 +36,8 @@ export function MyCare() {
     switch (active) {
       case 'home':
         return <HomeScreen />
+      case 'family':
+        return <FamilyHelpScreen />
       case 'calendar':
         return <CalendarScreen />
       case 'remi':
@@ -50,11 +54,11 @@ export function MyCare() {
         return <VitalsScreen />
       case 'access':
         return <AccessScreen />
+      case 'messages':
+        return <CareChatScreen />
       /*
-       * Unreachable: `active` comes only from `isScreen()`, which narrows to the
-       * nine keys handled above. It redirects rather than rendering the old
-       * "not built yet" placeholder — every screen is built now, and a route
-       * that advertises unfinished work is the thing being removed here.
+       * Unreachable for known screens: `active` comes from `isScreen()`. It
+       * redirects rather than rendering an unfinished placeholder.
        */
       default:
         return <Navigate to="/my-care/home" replace />

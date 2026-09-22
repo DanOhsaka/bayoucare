@@ -5,24 +5,27 @@ import { cn } from "@/lib/utils"
  * Aligned to BayouCare's established card idiom, deliberately NOT left on
  * Shadcn's defaults.
  *
- * The app hand-writes 55 cards as
+ * The app hand-writes cards as
  * `rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]`, and this
- * primitive was imported by nobody — because dropping it in unchanged would
- * have silently restyled every one of them (Shadcn ships `rounded-xl` +
- * `shadow-sm`, and splits padding into `px-6` on the header/content). Matching
- * the idiom first is what makes adopting it a no-op instead of a visual
- * regression, so screens can move over one at a time.
+ * primitive matches that so adopting it is a no-op instead of a visual
+ * regression.
  *
- * `gap-3` reproduces the app's uniform `mb-3` header rhythm, and `CardTitle` is
- * an `<h3>` because that is what every real screen already uses — the app has
- * 49 of them and no `<h1>` outside the placeholder.
+ * `data-interactive` marks cards that open or navigate — soft lift on hover,
+ * never applied to static information cards.
  */
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+function Card({
+  className,
+  interactive = false,
+  ...props
+}: React.ComponentProps<"div"> & { interactive?: boolean }) {
   return (
     <div
       data-slot="card"
+      data-interactive={interactive || undefined}
       className={cn(
-        "flex flex-col gap-3 rounded-lg border border-border bg-card p-6 text-card-foreground shadow-[var(--shadow)]",
+        "flex flex-col gap-3 rounded-lg border border-border bg-card p-6 text-card-foreground shadow-[var(--shadow)] transition-[box-shadow,border-color,transform] duration-200 ease-out",
+        interactive &&
+          "cursor-pointer motion-safe:hover:-translate-y-0.5 hover:border-brand-600/35 hover:shadow-[var(--shadow-lg)]",
         className
       )}
       {...props}
@@ -44,7 +47,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
   return (
     <h3
       data-slot="card-title"
-      className={cn("text-base font-semibold text-card-foreground", className)}
+      className={cn("typo-card-title", className)}
       {...props}
     />
   )
@@ -54,7 +57,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
       data-slot="card-description"
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("typo-muted", className)}
       {...props}
     />
   )

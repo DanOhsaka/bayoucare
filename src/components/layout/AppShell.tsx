@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+
 import { TopBar } from '@/components/layout/TopBar'
 import { RemiLauncher } from '@/components/ai/RemiLauncher'
+import { PageFade } from '@/components/shared/Motion'
 
 /**
  * The application chrome: fixed top bar, scrolling page body, footer.
@@ -32,14 +34,12 @@ export function AppShell() {
       <TopBar />
       <main className="flex-1">
         {/*
-          Keyed by pathname so the entrance replays per navigation — the wrapper
-          itself does not remount, so without the key the animation would play
-          once on first load and never again. Gated on `motion-safe`, so the
-          global reduced-motion rule wins for anyone who asked for less.
+          Keyed by pathname so the entrance replays per navigation. Framer
+          Motion respects prefers-reduced-motion via PageFade → useReducedMotion.
         */}
-        <div key={pathname} className="motion-safe:animate-[screen-in_0.16s_ease-out]">
+        <PageFade key={pathname}>
           <Outlet />
-        </div>
+        </PageFade>
       </main>
       <RemiLauncher />
       <footer className="border-t border-border px-6 py-5 text-center text-xs text-muted-foreground">

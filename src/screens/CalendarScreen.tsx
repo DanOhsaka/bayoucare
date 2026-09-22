@@ -1,4 +1,5 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { BookingDialog } from '@/components/patient/BookingDialog'
@@ -14,7 +15,7 @@ import {
 } from '@/components/ui/card'
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar'
 import { CAL_ANCHOR, dayKey } from '@/lib/demoClock'
-import { describeAppointment, fmtDay } from '@/lib/calendar'
+import { describeAppointment, fmtDay, offsetFromAnchor, rideFocusDay } from '@/lib/calendar'
 import {
   dayState,
   indexApptsByDay,
@@ -113,6 +114,7 @@ export function CalendarScreen() {
   const plan = usePlan(pid)
   const cancel = useAppointments((s) => s.cancel)
   const restore = useAppointments((s) => s.restore)
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const byDay = useMemo(() => indexApptsByDay(plan), [plan])
   const types = patient.calTypes
@@ -122,16 +124,35 @@ export function CalendarScreen() {
   const [bookingOpen, setBookingOpen] = useState(false)
   const [editing, setEditing] = useState<Appointment | null>(null)
   const [cancelling, setCancelling] = useState<Appointment | null>(null)
+  const [initialRide, setInitialRide] = useState(false)
+  const [focusRideId, setFocusRideId] = useState<string | null>(null)
+
+  // Access "Details" on a ride lands here with ?focus=ride — open Thursday (or
+  // the next ride day) so the booked appointment is visible, or an empty day
+  // ready to book with Request ride / pickup.
+  useEffect(() => {
+    if (searchParams.get('focus') !== 'ride') return
+    const active = plan.filter(isActive)
+    const day = rideFocusDay(active)
+    setSelected(day)
+    setMonth(day)
+    const onDay = active.filter((a) => dayKey(a.date) === dayKey(day))
+    const rideAppt = onDay.find((a) => a.ride) ?? onDay[0] ?? null
+    setFocusRideId(rideAppt?.id ?? null)
+    setSearchParams({}, { replace: true })
+  }, [searchParams, setSearchParams, plan])
 
   const dayList = selected ? (byDay[dayKey(selected)] ?? []) : null
   const activeCount = (dayList ?? []).filter(isActive).length
+  const selectedOff = selected ? offsetFromAnchor(selected) : undefined
 
   // Every type the patient's record defines, so the legend always matches the
   // dots that can actually appear.
   const legend = Object.keys(types)
 
-  function openBooking(appt: Appointment | null) {
+  function openBooking(appt: Appointment | null, ride = false) {
     setEditing(appt)
+    setInitialRide(ride || Boolean(appt?.ride))
     setBookingOpen(true)
   }
 
@@ -305,13 +326,16 @@ export function CalendarScreen() {
 
         <CardContent>
           {!selected && (
-            <p className="text-sm text-muted-foreground">
-              Choose any day on the calendar to see what is scheduled.
-            </p>
+            <p className="text-sm text-muted-foreground">{t('cal.pickHint')}</p>
           )}
 
           {selected && dayList?.length === 0 && (
-            <p className="text-sm text-muted-foreground">Nothing scheduled — a good day to rest.</p>
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-sm text-muted-foreground">{t('cal.rideEmpty')}</p>
+              <Button size="sm" variant="outline" onClick={() => openBooking(null, true)}>
+                {t('cal.rideRequest')}
+              </Button>
+            </div>
           )}
 
           {selected && dayList && dayList.length > 0 && (
@@ -319,12 +343,14 @@ export function CalendarScreen() {
               {dayList.map((a) => {
                 const d = describeAppointment(a, types)
                 const cancelled = a.status === 'cancelled'
+                const focused = focusRideId === a.id
                 return (
                   <li
                     key={a.id}
                     className={cn(
                       'flex flex-wrap items-center gap-3 rounded-md border border-border p-3',
                       cancelled && 'opacity-60',
+                      focused && 'border-brand-600 ring-2 ring-brand-600/30',
                     )}
                   >
                     <span
@@ -347,7 +373,7 @@ export function CalendarScreen() {
                       </Badge>
                     )}
 
-                    <div className="flex flex-none gap-1">
+                    <div className="flex flex-none flex-wrap gap-1">
                       {cancelled ? (
                         <Button
                           size="xs"
@@ -361,6 +387,11 @@ export function CalendarScreen() {
                         </Button>
                       ) : (
                         <>
+                          {!a.ride && (
+                            <Button size="xs" variant="outline" onClick={() => openBooking(a, true)}>
+                              {t('cal.rideRequest')}
+                            </Button>
+                          )}
                           <Button size="xs" variant="outline" onClick={() => openBooking(a)}>
                             {t('cal.resched')}
                           </Button>
@@ -379,14 +410,20 @@ export function CalendarScreen() {
       </Card>
 
       {/*
-        Keyed so the form re-seeds from `editing` on mount — one instance reused
-        across appointments would show the previous one's values.
+        Keyed so the form re-seeds from `editing` / the selected calendar day on
+        mount — one instance reused across appointments or empty days would show
+        the previous values (and always defaulted new books to Aug 17 / off 0).
       */}
       <BookingDialog
-        key={editing?.id ?? 'new'}
+        key={editing?.id ?? `new-${selectedOff ?? 'none'}-${initialRide ? 'ride' : 'noride'}`}
         open={bookingOpen}
-        onOpenChange={setBookingOpen}
+        onOpenChange={(o) => {
+          setBookingOpen(o)
+          if (!o) setInitialRide(false)
+        }}
         editing={editing}
+        initialOff={selectedOff}
+        initialRide={initialRide}
       />
 
       <ConfirmDialog

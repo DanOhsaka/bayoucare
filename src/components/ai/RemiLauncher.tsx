@@ -34,7 +34,7 @@ export function RemiLauncher() {
       size="lg"
       onClick={() => navigate('/my-care/remi')}
       aria-label={t('remi.launcher')}
-      className="fixed bottom-6 right-6 z-30 h-11 rounded-full font-bold shadow-[var(--shadow-lg)] transition-transform hover:scale-[1.03] hover:bg-primary"
+      className="fixed bottom-6 right-6 z-30 h-11 rounded-full font-bold shadow-[var(--shadow-lg)] motion-safe:hover:scale-[1.03] hover:bg-primary"
     >
       <Leaf className="size-4" aria-hidden="true" />
       <span className="hidden sm:inline">{t('remi.launcher')}</span>

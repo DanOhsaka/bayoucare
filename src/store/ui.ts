@@ -1,13 +1,11 @@
 import { create } from 'zustand'
-import type { Lang } from '@/lib/i18n'
-import { LANGS } from '@/lib/i18n'
+import { applyDocumentLang, LANGS, type Lang } from '@/lib/i18n'
 
 export type Mode = 'patient' | 'admin'
 export type Theme = 'light' | 'dark'
 
 const THEME_KEY = 'bc-theme'
 const LANG_KEY = 'bc-lang'
-const CAREGIVER_KEY = 'bc-caregiver'
 
 /**
  * Presentation state only: which mode is showing, the language, the theme.
@@ -18,29 +16,18 @@ const CAREGIVER_KEY = 'bc-caregiver'
  * (the 2am vitals replay feeding the Morning Sweep, the counterfactual feeding
  * the prior-auth packet). Keeping mode in its own store with no other store
  * importing it is how that stays true rather than being merely remembered.
+ *
+ * Caregiver help is not a global UI mode — it is the Family help hub (shared
+ * tasks, next visit, message care team) on the same patient record.
  */
 interface UiState {
   mode: Mode
   lang: Lang
   theme: Theme
-  /**
-   * Caregiver mode — a family member is the one holding the device.
-   *
-   * This was a `useState` inside `PatientSidebar` whose only effect was
-   * rewording a line of text underneath itself, and it did not survive
-   * navigating away from the sidebar. It is real state now, and persisted, so
-   * the family circle can act on it.
-   *
-   * It is still NOT an access control and must not become one: the record shown
-   * is the signed-in account's, exactly as before. What it changes is framing —
-   * see the family circle on Home.
-   */
-  caregiver: boolean
   setMode: (m: Mode) => void
   setLang: (l: Lang) => void
   setTheme: (t: Theme) => void
   toggleTheme: () => void
-  setCaregiver: (v: boolean) => void
 }
 
 function readTheme(): Theme {
@@ -68,12 +55,15 @@ function applyTheme(t: Theme) {
   }
 }
 
+const initialLang = readLang()
+if (typeof document !== 'undefined') applyDocumentLang(initialLang)
+
 export const useUi = create<UiState>((set, get) => ({
   // The inline boot script in index.html has already set data-theme before
   // first paint; this reads it back rather than deciding again, so React and
   // the CSS can never disagree about which theme is showing.
   mode: 'patient',
-  lang: readLang(),
+  lang: initialLang,
   theme: readTheme(),
 
   setMode: (mode) => set({ mode }),
@@ -84,6 +74,7 @@ export const useUi = create<UiState>((set, get) => ({
     } catch {
       /* not fatal */
     }
+    applyDocumentLang(lang)
     set({ lang })
   },
 
@@ -97,23 +88,4 @@ export const useUi = create<UiState>((set, get) => ({
     applyTheme(next)
     set({ theme: next })
   },
-
-  caregiver: readCaregiver(),
-
-  setCaregiver: (caregiver) => {
-    try {
-      localStorage.setItem(CAREGIVER_KEY, caregiver ? '1' : '0')
-    } catch {
-      /* not fatal — the mode just will not persist */
-    }
-    set({ caregiver })
-  },
 }))
-
-function readCaregiver(): boolean {
-  try {
-    return localStorage.getItem(CAREGIVER_KEY) === '1'
-  } catch {
-    return false
-  }
-}

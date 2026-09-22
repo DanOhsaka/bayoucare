@@ -1,14 +1,18 @@
-import { Suspense, lazy, useMemo, useState } from 'react'
+import { Component, Suspense, lazy, useMemo, useState, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ClipboardList, Printer, Radar, Send, Users } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { PageHeader } from '@/components/shared/PageHeader'
 import { RichText } from '@/components/shared/RichText'
+import { Stagger, StaggerItem } from '@/components/shared/Motion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { SURVIVOR_IDS } from '@/data'
 import { buildLetter } from '@/engine/survivorship/letter'
 import { scpModel, statusChip } from '@/engine/survivorship/planRows'
-import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
 
 /*
@@ -22,17 +26,65 @@ const LateEffectsRadar = lazy(() =>
   import('@/components/shared/LateEffectsRadar').then((m) => ({ default: m.LateEffectsRadar })),
 )
 
-/**
- * Sized to match the radar so the card does not jump when the chunk lands.
- * A pulsing disc rather than a grey box: the fallback is briefly the only thing
- * on screen, and a circle reads as "a chart is coming".
- */
+/** Matches chart + summary + value-list footprint so the card does not jump. */
 function RadarSkeleton() {
   return (
-    <div className="mx-auto flex aspect-square w-full max-w-[320px] items-center justify-center">
-      <div className="size-[55%] rounded-full border-2 border-dashed border-border motion-safe:animate-pulse" />
+    <div className="flex w-full max-w-[320px] flex-col gap-4" aria-hidden="true">
+      <Skeleton className="mx-auto aspect-square w-full max-w-[280px] rounded-full" />
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <Skeleton className="h-14 rounded-md" />
+        <Skeleton className="h-14 rounded-md" />
+        <Skeleton className="h-14 rounded-md" />
+      </div>
+      <div className="space-y-2 rounded-md border border-border p-3">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-[92%]" />
+        <Skeleton className="h-4 w-[85%]" />
+        <Skeleton className="h-4 w-[90%]" />
+      </div>
     </div>
   )
+}
+
+type BoundaryProps = { children: ReactNode; resetKey: string }
+type BoundaryState = { error: boolean }
+
+/**
+ * Catches a failed Recharts chunk load. There is no async radar API — this is
+ * the only realistic failure mode for the lazy import.
+ */
+class RadarErrorBoundary extends Component<BoundaryProps, BoundaryState> {
+  state: BoundaryState = { error: false }
+
+  static getDerivedStateFromError(): BoundaryState {
+    return { error: true }
+  }
+
+  componentDidUpdate(prev: BoundaryProps) {
+    if (prev.resetKey !== this.props.resetKey && this.state.error) {
+      this.setState({ error: false })
+    }
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="flex flex-col items-start gap-3 rounded-md border border-border bg-muted/40 p-4">
+          <div className="space-y-1">
+            <p className="typo-card-title">Couldn’t load the late-effects chart</p>
+            <p className="typo-muted">
+              Something went wrong while loading the chart. Your care plan tables below are still
+              available.
+            </p>
+          </div>
+          <Button type="button" size="sm" onClick={() => this.setState({ error: false })}>
+            Try again
+          </Button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
 }
 
 /** Chip labels, in the order the legacy listed them. */
@@ -55,7 +107,7 @@ const TIER_VARIANT: Record<number, 'success' | 'warning' | 'danger'> = {
 export function SurvivorshipScreen() {
   const [survSel, setSurvSel] = useState('yolanda')
   const [radarSel, setRadarSel] = useState<string | null>(null)
-  const setCaregiver = useUi((s) => s.setCaregiver)
+  const navigate = useNavigate()
 
   const model = useMemo(() => scpModel(survSel), [survSel])
 
@@ -78,71 +130,72 @@ export function SurvivorshipScreen() {
   const detailRow = radarSel ? rows.find((r) => r.cat === radarSel) : null
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">
-            📋 Survivorship Care Plans — auto-generated, ASCO format
-          </CardTitle>
-          <Badge variant="success" className="text-left whitespace-normal">
-            ~350,000 LA survivors · the largest population the brief names
+    <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6">
+      <PageHeader
+        title="Survivorship Care Plans"
+        subtitle={
+          <>
+            ASCO-format summary, follow-up schedule, and PCP letter — generated from the treatment
+            record — plus a late-effects radar that turns treatment exposures into a concrete
+            surveillance schedule.
+          </>
+        }
+        meta={
+          <Badge variant="neutral" className="text-left whitespace-normal">
+            ~350,000 LA survivors · largest population the brief names
           </Badge>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Every survivor gets an ASCO-style care plan from their treatment record —{' '}
-            <b className="text-card-foreground">summary + follow-up plan + PCP letter, in seconds</b> —
-            plus a <b className="text-card-foreground">late-effects radar</b> that turns "doxorubicin +
-            chest radiation" into a concrete surveillance schedule. Pick a demo survivor:
-          </p>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            {SURVIVOR_IDS.map((id) => (
-              <Button
-                key={id}
-                type="button"
-                size="xs"
-                variant={survSel === id ? 'default' : 'outline'}
-                aria-pressed={survSel === id}
-                onClick={() => pick(id)}
-                className="rounded-full px-2.5 font-bold"
-              >
-                {CHIP_LABEL[id] ?? id}
-              </Button>
-            ))}
+        }
+        action={
+          <div className="flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
+            <span className="typo-label">Demo survivor</span>
+            <div className="flex max-w-full flex-wrap gap-2 sm:justify-end">
+              {SURVIVOR_IDS.map((id) => (
+                <Button
+                  key={id}
+                  type="button"
+                  size="xs"
+                  variant={survSel === id ? 'default' : 'outline'}
+                  aria-pressed={survSel === id}
+                  onClick={() => pick(id)}
+                  className="rounded-full px-2.5 font-bold"
+                >
+                  {CHIP_LABEL[id] ?? id}
+                </Button>
+              ))}
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        }
+      />
 
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <Stagger className="grid gap-4 md:grid-cols-2">
         {/* ------------------------------------------------------- summary */}
+        <StaggerItem>
         <Card className="min-w-0">
           <CardHeader>
-            <CardTitle>
+            <CardTitle className="typo-card-title flex items-center gap-2">
+              <ClipboardList className="size-4 text-muted-foreground" aria-hidden="true" strokeWidth={1.75} />
               {s.name} · {s.age}
             </CardTitle>
             <Badge variant="success">
               MRN {s.mrn} · {s.parish} Parish
             </Badge>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
+          <CardContent className="space-y-3">
+            <p className="typo-muted">
               <b className="text-card-foreground">{s.dx}</b>
               <br />
               Diagnosed {s.dxDate} · treatment completed {s.endDate} · survivorship since{' '}
               {s.survivorSince}
             </p>
 
-            <div className="mt-3 overflow-x-auto">
+            <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
-                    <th className="border-b border-border px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.04em] text-muted-foreground">
+                    <th className="typo-label border-b border-border px-3 py-2 text-left">
                       Treatment summary (ASCO SCP Section 1)
                     </th>
-                    <th className="border-b border-border px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.04em] text-muted-foreground">
-                      Dates
-                    </th>
+                    <th className="typo-label border-b border-border px-3 py-2 text-left">Dates</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -156,27 +209,37 @@ export function SurvivorshipScreen() {
               </table>
             </div>
 
-            <p className="mt-3 text-xs text-muted-foreground">
-              Auto-generated from the treatment record — no typing. Reviewed at the survivorship clinic
-              visit.
+            <p className="typo-meta">
+              Auto-generated from the treatment record — no typing. Reviewed at the survivorship
+              clinic visit.
             </p>
           </CardContent>
         </Card>
+        </StaggerItem>
 
         {/* ---------------------------------------------------------- radar */}
+        <StaggerItem>
         <Card className="min-w-0">
           <CardHeader>
-            <CardTitle>🛰️ Late-effects radar</CardTitle>
+            <CardTitle className="typo-card-title flex items-center gap-2">
+              <Radar className="size-4 text-muted-foreground" aria-hidden="true" strokeWidth={1.75} />
+              Late-effects radar
+            </CardTitle>
             <Badge variant="warning">{hits.length} active risk rules · treatment-driven</Badge>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap items-start gap-4">
-              <Suspense fallback={<RadarSkeleton />}>
-                <LateEffectsRadar hits={hits} selected={radarSel} onSelect={setRadarSel} />
-              </Suspense>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+              <div className="min-w-0 flex-1">
+                <RadarErrorBoundary resetKey={survSel} key={survSel}>
+                  <Suspense fallback={<RadarSkeleton />}>
+                    <LateEffectsRadar hits={hits} selected={radarSel} onSelect={setRadarSel} />
+                  </Suspense>
+                </RadarErrorBoundary>
+              </div>
 
-              <div className="min-w-[200px] flex-1">
-                <div className="flex flex-col gap-1.5">
+              <div className="min-w-0 flex-1 space-y-3">
+                <p className="typo-label">Surveillance categories</p>
+                <div className="flex flex-col gap-2.5">
                   {hits.map((h) => (
                     <Button
                       key={h.cat}
@@ -185,7 +248,9 @@ export function SurvivorshipScreen() {
                       aria-pressed={radarSel === h.cat}
                       onClick={() => setRadarSel(radarSel === h.cat ? null : h.cat)}
                       className={cn(
-                        'h-auto flex-col items-start gap-0 px-3 py-2 text-left font-normal whitespace-normal',
+                        // h-auto alone loses to size=default's lg:h-9 — the two-
+                        // line label was getting crushed to 36px on desktop.
+                        'h-auto min-h-11 lg:h-auto flex-col items-start justify-start gap-1 px-3 py-2.5 text-left font-normal whitespace-normal',
                         radarSel === h.cat && 'border-brand-600 bg-accent',
                       )}
                     >
@@ -195,14 +260,14 @@ export function SurvivorshipScreen() {
                           {TIER_TEXT[h.hit.t]} risk
                         </Badge>
                       </span>
-                      <span className="mt-0.5 block text-xs text-muted-foreground">
+                      <span className="block text-xs leading-snug text-muted-foreground">
                         {h.hit.test} · {h.hit.freq}
                       </span>
                     </Button>
                   ))}
                 </div>
 
-                <div className="mt-2.5 rounded-md bg-muted p-3 text-xs text-muted-foreground">
+                <div className="rounded-md bg-muted p-3 typo-muted">
                   {radarSel && detail && detailRow ? (
                     <>
                       <b className="text-card-foreground">
@@ -216,10 +281,6 @@ export function SurvivorshipScreen() {
                       {detail.hit.note}
                     </>
                   ) : (
-                    // Was "Click a spoke" — the spokes are no longer individual
-                    // controls now that the chart is a Recharts polygon. The
-                    // list above is the primary, keyboard-reachable selection
-                    // route; clicking the chart selects the same thing.
                     'Select a category for the surveillance detail.'
                   )}
                 </div>
@@ -227,19 +288,20 @@ export function SurvivorshipScreen() {
             </div>
           </CardContent>
         </Card>
-      </div>
+        </StaggerItem>
+      </Stagger>
 
       {/*
         `lg`, not `md`: this pair is a four-column data table and a page-width
         letter. Two columns at 768–1023 left the table 336px against the 397px it
-        needs, so it scrolled sideways inside its own card — the one thing a
-        tablet reader cannot discover. Full width until there is room for two.
+        needs, so it scrolled sideways inside its own card. Full width until
+        there is room for two.
       */}
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {/* ------------------------------------------------------ schedule */}
         <Card className="min-w-0">
           <CardHeader>
-            <CardTitle>Follow-up care plan</CardTitle>
+            <CardTitle className="typo-card-title">Follow-up care plan</CardTitle>
             <Badge variant="success">ASCO SCP Section 2</Badge>
           </CardHeader>
           <CardContent>
@@ -248,10 +310,7 @@ export function SurvivorshipScreen() {
                 <thead>
                   <tr>
                     {['Test / visit', 'Frequency', 'Next due', 'Status'].map((h) => (
-                      <th
-                        key={h}
-                        className="border-b border-border px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.04em] text-muted-foreground"
-                      >
+                      <th key={h} className="typo-label border-b border-border px-3 py-2 text-left">
                         {h}
                       </th>
                     ))}
@@ -280,7 +339,7 @@ export function SurvivorshipScreen() {
         {/* -------------------------------------------------------- letter */}
         <Card className="min-w-0">
           <CardHeader>
-            <CardTitle>PCP handoff letter</CardTitle>
+            <CardTitle className="typo-card-title">PCP handoff letter</CardTitle>
             <CardAction>
               <Button
                 type="button"
@@ -288,47 +347,41 @@ export function SurvivorshipScreen() {
                 onClick={() => window.print()}
                 className="font-bold"
               >
-                🖨️ Print SCP
+                <Printer className="size-3.5" aria-hidden="true" strokeWidth={2} />
+                Print SCP
               </Button>
               <Button
                 type="button"
                 size="xs"
                 variant="outline"
-                onClick={() => toast('📨 SCP sent to the PCP clinic via secure fax + portal.')}
+                onClick={() => toast('SCP sent to the PCP clinic via secure fax + portal.')}
                 className="font-bold"
               >
+                <Send className="size-3.5" aria-hidden="true" strokeWidth={2} />
                 Share with PCP
               </Button>
               <Button
                 type="button"
                 size="xs"
                 variant="outline"
-                /*
-                 * This said "caregiver mode updated" and updated nothing — the
-                 * handler was the toast alone, so the button announced a change
-                 * it never made. Caregiver mode is real persisted state now, so
-                 * the claim is made true rather than deleted: turning it on is
-                 * what "share with family" means for this device.
-                 */
                 onClick={() => {
-                  setCaregiver(true)
-                  toast('👨‍👩‍👧 Care plan shared with family circle — caregiver mode is on.')
+                  toast('Care plan shared with family helpers.')
+                  navigate('/my-care/family')
                 }}
                 className="font-bold"
               >
+                <Users className="size-3.5" aria-hidden="true" strokeWidth={2} />
                 Share with family
               </Button>
             </CardAction>
           </CardHeader>
-          <CardContent>
-            {/* Authored prose with inline emphasis, built here from the app's own
-                data — the same rendering path as the plan's Markdown-free letter. */}
+          <CardContent className="space-y-3">
             <RichText
               html={buildLetter(s, hits)}
-              className="block whitespace-pre-line text-sm leading-relaxed text-card-foreground"
+              className="typo-body block whitespace-pre-line leading-relaxed"
             />
 
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="typo-meta">
               AI draft from the treatment record — reviewed and signed by the survivorship nurse
               navigator at the clinic visit. Demo survivors are synthetic records modeled on ASCO SCP
               templates.

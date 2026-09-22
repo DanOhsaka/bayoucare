@@ -11,6 +11,14 @@ export const LANG_LABELS: Record<Lang, string> = {
   vi: 'Tiếng Việt',
 }
 
+/** BCP 47 tags for `<html lang>` and `toLocaleDateString`. */
+export const LANG_HTML: Record<Lang, string> = {
+  en: 'en',
+  es: 'es',
+  ht: 'ht',
+  vi: 'vi',
+}
+
 type Dict = Record<string, string>
 
 const DICTS = l10n as unknown as Record<Lang, Dict>
@@ -46,4 +54,10 @@ export function interp(s: string, vars: Record<string, string | number> = {}): s
 /** True when a translated string is meant to be rendered as HTML. */
 export function isHtmlKey(key: string): boolean {
   return /\.(h1|h2|body|html)$/.test(key)
+}
+
+/** Mirror the active language onto `<html lang>` for a11y and browser UI. */
+export function applyDocumentLang(lang: Lang) {
+  if (typeof document === 'undefined') return
+  document.documentElement.lang = LANG_HTML[lang]
 }

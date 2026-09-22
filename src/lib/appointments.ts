@@ -28,17 +28,25 @@ export function isClinicClosed(d: Date): boolean {
 export type DayState = 'open' | 'full' | 'unavailable'
 
 /**
+ * How many live appointments fill a clinic day for the patient calendar.
+ *
+ * Bookable times (`SLOT_TIMES`) span the whole day in 20-minute steps; capacity
+ * stays near the old nine-slot board so "fully booked" still means something
+ * and Clinic Ops no-show math is not tied to every selectable minute.
+ */
+export const DAY_CAPACITY = 9
+
+/**
  * The state of one day, given the appointments that already sit on it.
  *
- * Capacity is `SLOT_TIMES.length` — the same slot grid the Clinic Ops no-show
- * board scores — so "full" here means the same thing it means there rather than
- * being a second, invented notion of capacity. Cancelled appointments do not
- * occupy a slot.
+ * Cancelled appointments do not occupy a slot. "Full" uses `DAY_CAPACITY`, not
+ * `SLOT_TIMES.length`, so expanding the picker does not make a day impossible
+ * to mark full.
  */
 export function dayState(d: Date, dayAppts: Appointment[]): DayState {
   if (isClinicClosed(d)) return 'unavailable'
   const live = dayAppts.filter((a) => a.status !== 'cancelled')
-  return live.length >= SLOT_TIMES.length ? 'full' : 'open'
+  return live.length >= DAY_CAPACITY ? 'full' : 'open'
 }
 
 export interface SlotOption {

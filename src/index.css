@@ -114,9 +114,9 @@
   --cat-5: #e05a3c; /* consult */
 
   /* --- Elevation and shape ---------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgba(13, 42, 28, 0.06);
-  --shadow: 0 1px 2px rgba(13, 42, 28, 0.06), 0 8px 24px -12px rgba(13, 42, 28, 0.18);
-  --shadow-lg: 0 4px 12px rgba(13, 42, 28, 0.08), 0 24px 48px -16px rgba(13, 42, 28, 0.28);
+  --shadow-sm: 0 1px 2px rgba(13, 42, 28, 0.05);
+  --shadow: 0 1px 2px rgba(13, 42, 28, 0.05), 0 10px 28px -14px rgba(13, 42, 28, 0.14);
+  --shadow-lg: 0 4px 14px rgba(13, 42, 28, 0.07), 0 22px 44px -18px rgba(13, 42, 28, 0.2);
   --radius: 14px;
 
   /* --- Shadcn contract --------------------------------------------------
@@ -208,9 +208,9 @@
      which has no headroom above the 3:1 non-text floor. */
   --cat-1: #8b7cf0;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4), 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.28), 0 10px 28px -14px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 4px 14px rgba(0, 0, 0, 0.32), 0 22px 44px -18px rgba(0, 0, 0, 0.48);
 
   --destructive-foreground: #2a120c;
 }
@@ -309,6 +309,131 @@
 }
 
 /* ==========================================================================
+   Typography scale (shared hierarchy)
+
+   Screens should prefer these over inventing one-off text sizes. Tokens map to
+   the existing `--text-*` steps so the visual system stays one ramp.
+   ========================================================================== */
+@layer components {
+  .typo-page-title {
+    font-size: var(--text-2xl);
+    line-height: var(--text-2xl--line-height);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+
+  .typo-section {
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+
+  .typo-card-title {
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    font-weight: 600;
+    color: var(--card-foreground);
+  }
+
+  .typo-metric {
+    font-size: var(--text-2xl);
+    line-height: var(--text-2xl--line-height);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--card-foreground);
+  }
+
+  .typo-body {
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--card-foreground);
+  }
+
+  .typo-muted {
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--muted-foreground);
+  }
+
+  .typo-meta {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--muted-foreground);
+  }
+
+  .typo-label {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+}
+
+/* ==========================================================================
+   Access map markers (Leaflet DivIcon)
+   ========================================================================== */
+.bc-map-marker {
+  background: transparent;
+  border: 0;
+}
+
+.bc-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  border: 2px solid var(--card);
+  box-shadow: var(--shadow);
+  color: var(--on-dark);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bc-marker-home {
+  background: var(--green-800);
+}
+
+.bc-marker-clinic {
+  background: var(--green-600);
+}
+
+.bc-marker-clinic.is-selected {
+  background: var(--green-500);
+  transform: scale(1.08);
+  box-shadow: var(--shadow-lg);
+}
+
+.leaflet-container {
+  font: inherit;
+  color: var(--foreground);
+  z-index: 0;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
+}
+
+.leaflet-popup-tip {
+  background: var(--card);
+}
+
+.leaflet-control-attribution {
+  font-size: 10px;
+  background: color-mix(in oklab, var(--card) 88%, transparent) !important;
+}
+
+/* ==========================================================================
    Base
    ========================================================================== */
 @layer base {
@@ -344,6 +469,41 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
     border-radius: 2px;
+  }
+
+  /*
+   * Hover/focus paint used to snap at the Tailwind default (~150ms, linear-ish).
+   * A shared 200ms ease-out on the interactive surface is enough to feel smooth
+   * without inventing motion for every component. Reduced-motion still collapses
+   * these via the rule further down.
+   */
+  a,
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='menuitem'],
+  summary,
+  select,
+  label {
+    transition-property: color, background-color, border-color, box-shadow, opacity,
+      transform, filter;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /*
+   * Native <select> menus are painted by the OS. On Windows the open list is
+   * almost always a white surface — and when the closed control uses
+   * `text-on-dark`, that white-on-white inherits straight into <option>. Force
+   * ink-on-card for the list itself; the closed control keeps its own classes.
+   */
+  select {
+    color-scheme: light;
+  }
+
+  select option {
+    color: #1d2a24;
+    background-color: #ffffff;
   }
 
   /* The entrance for a route change. Small on purpose: 4px and a fade reads as

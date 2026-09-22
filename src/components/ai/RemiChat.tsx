@@ -3,6 +3,7 @@ import { Leaf, Send } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { MessageIn } from '@/components/shared/Motion'
 import { INPUT_CLASS } from '@/components/shared/Field'
 import { useRemi, type RemiMessage } from '@/store/remi'
 import { useT } from '@/hooks/useT'
@@ -28,12 +29,12 @@ function MessageAuthor() {
 function TypingDots() {
   return (
     <span className="flex items-center gap-2" aria-hidden="true">
-      <span className="flex gap-1">
+      <span className="flex gap-1.5">
         {[0, 1, 2].map((i) => (
           <i
             key={i}
-            className="block size-1.5 rounded-full bg-brand-500"
-            style={{ animation: 'remi-dot 1.2s infinite', animationDelay: `${-0.16 * i}s` }}
+            className="block size-1.5 rounded-full bg-brand-500 motion-safe:animate-[remi-dot_1.2s_ease-in-out_infinite]"
+            style={{ animationDelay: `${-0.16 * i}s` }}
           />
         ))}
       </span>
@@ -46,51 +47,52 @@ function Bubble({ msg }: { msg: RemiMessage }) {
   const isUser = msg.role === 'user'
 
   return (
-    <div className={cn('flex items-start gap-2.5', isUser && 'flex-row-reverse')}>
-      {!isUser && (
-        <div
-          className="mt-0.5 flex size-7 flex-none items-center justify-center rounded-full bg-brand-100 text-link"
-          aria-hidden="true"
-        >
-          <Leaf className="size-3.5" />
-        </div>
-      )}
-
-      <div
-        className={cn(
-          'max-w-[85%] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed',
-          isUser
-            ? 'bg-brand-700 text-on-dark'
-            : 'border border-border bg-card text-card-foreground',
-        )}
-      >
-        {!isUser && <MessageAuthor />}
-
-        {msg.pending ? (
-          <TypingDots />
-        ) : (
-          /*
-            Local answers are authored strings in this repo and use <br>, which
-            the sanitiser does not restore — so they render raw, exactly as the
-            legacy app did. Cloud answers were already escaped by remiSafeHtml
-            on the way in, and user text was escaped in the store. This is the
-            one place HTML reaches Remi's DOM.
-          */
-          <div dangerouslySetInnerHTML={{ __html: msg.html }} />
-        )}
-
-        {msg.chips.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {/* `RemiChip['kind']` is already the Badge variant name. */}
-            {msg.chips.map((c, i) => (
-              <Badge key={i} variant={c.kind}>
-                {c.label}
-              </Badge>
-            ))}
+    <MessageIn>
+      <div className={cn('flex items-start gap-2.5', isUser && 'flex-row-reverse')}>
+        {!isUser && (
+          <div
+            className="mt-0.5 flex size-7 flex-none items-center justify-center rounded-full bg-brand-100 text-link"
+            aria-hidden="true"
+          >
+            <Leaf className="size-3.5" strokeWidth={1.75} />
           </div>
         )}
+
+        <div
+          className={cn(
+            'max-w-[min(85%,28rem)] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed shadow-[var(--shadow-sm)]',
+            isUser
+              ? 'bg-brand-700 text-on-dark'
+              : 'border border-border bg-card text-card-foreground',
+          )}
+        >
+          {!isUser && <MessageAuthor />}
+
+          {msg.pending ? (
+            <TypingDots />
+          ) : (
+            /*
+              Local answers are authored strings in this repo and use <br>, which
+              the sanitiser does not restore — so they render raw, exactly as the
+              legacy app did. Cloud answers were already escaped by remiSafeHtml
+              on the way in, and user text was escaped in the store. This is the
+              one place HTML reaches Remi's DOM.
+            */
+            <div dangerouslySetInnerHTML={{ __html: msg.html }} />
+          )}
+
+          {msg.chips.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {msg.chips.map((c, i) => (
+                <Badge key={i} variant={c.kind}>
+                  {c.label}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </MessageIn>
   )
 }
 
@@ -115,7 +117,13 @@ export function RemiChat() {
 
   useEffect(() => {
     const el = logRef.current
-    if (el && pinnedRef.current) el.scrollTop = el.scrollHeight
+    if (!el || !pinnedRef.current) return
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    })
   }, [messages])
 
   function onScroll() {
@@ -140,7 +148,7 @@ export function RemiChat() {
         role="log"
         aria-live="polite"
         aria-label="Conversation with Remi"
-        className="flex max-h-[52vh] min-h-[220px] flex-col gap-3 overflow-y-auto overscroll-contain p-1"
+        className="flex max-h-[52vh] min-h-[220px] flex-col gap-3 overflow-y-auto overscroll-contain scroll-smooth p-1"
       >
         {messages.map((m) => (
           <Bubble key={m.id} msg={m} />
@@ -151,8 +159,6 @@ export function RemiChat() {
         <label htmlFor="remi-text" className="sr-only">
           {t('remi.ph')}
         </label>
-        {/* Composer geometry is h-11 and the send button matches it, so the
-            shared control class is the base and the height is overridden. */}
         <input
           id="remi-text"
           type="text"
@@ -161,7 +167,7 @@ export function RemiChat() {
           value={draft}
           disabled={busy}
           onChange={(e) => setDraft(e.target.value)}
-          className={cn(INPUT_CLASS, 'h-11 min-w-0 flex-1 disabled:opacity-60')}
+          className={cn(INPUT_CLASS, 'h-11 min-w-0 flex-1')}
         />
         <Button
           type="submit"
@@ -170,7 +176,7 @@ export function RemiChat() {
           aria-label={t('remi.send')}
           className="size-11"
         >
-          <Send className="size-4" aria-hidden="true" />
+          <Send className="size-4" aria-hidden="true" strokeWidth={1.75} />
         </Button>
       </form>
 

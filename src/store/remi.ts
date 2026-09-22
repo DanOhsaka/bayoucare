@@ -254,3 +254,13 @@ usePatient.subscribe((state, prev) => {
   useRemi.setState({ messages: [], history: [], busy: false })
   useRemi.getState().greet()
 })
+
+/**
+ * Switching language rebuilds Remi's greeting in the new dictionary.
+ * Without this, the first bubble stayed English after Español was selected.
+ */
+useUi.subscribe((state, prev) => {
+  if (state.lang === prev.lang) return
+  useRemi.setState({ messages: [], history: [], busy: false })
+  useRemi.getState().greet()
+})

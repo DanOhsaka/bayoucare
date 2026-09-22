@@ -1,0 +1,123 @@
+[
+  {
+    "id": "ochsner-alexandria",
+    "name": "Ochsner Health Center — Alexandria",
+    "lat": 31.3112,
+    "lng": -92.4451,
+    "address": "211 4th St, Alexandria, LA",
+    "phone": "(318) 473-5550",
+    "hours": "Open until 6 PM",
+    "services": ["Oncology", "Infusion", "Primary care"],
+    "kind": "hospital"
+  },
+  {
+    "id": "rapides-regional",
+    "name": "Rapides Regional Medical Center",
+    "lat": 31.3089,
+    "lng": -92.4428,
+    "address": "211 4th St Ste 2, Alexandria, LA",
+    "phone": "(318) 769-3000",
+    "hours": "ER open 24 hours",
+    "services": ["Emergency", "Imaging", "Surgery"],
+    "kind": "hospital"
+  },
+  {
+    "id": "central-la-cancer",
+    "name": "Central Louisiana Cancer Center",
+    "lat": 31.2945,
+    "lng": -92.4612,
+    "address": "605 W Bayou Rd, Alexandria, LA",
+    "phone": "(318) 442-2100",
+    "hours": "Open until 5 PM",
+    "services": ["Radiation", "Medical oncology", "Survivorship"],
+    "kind": "clinic"
+  },
+  {
+    "id": "christus-st-frances",
+    "name": "CHRISTUS St. Frances Cabrini",
+    "lat": 31.2856,
+    "lng": -92.4689,
+    "address": "3330 Masonic Dr, Alexandria, LA",
+    "phone": "(318) 487-1122",
+    "hours": "Open until 7 PM",
+    "services": ["Hospital", "Lab", "Pharmacy"],
+    "kind": "hospital"
+  },
+  {
+    "id": "bayou-community-health",
+    "name": "Bayou Community Health Clinic",
+    "lat": 31.3251,
+    "lng": -92.4298,
+    "address": "1420 Jackson St, Alexandria, LA",
+    "phone": "(318) 555-0142",
+    "hours": "Open until 6 PM",
+    "services": ["Primary care", "Walk-ins", "Social work"],
+    "kind": "clinic"
+  },
+  {
+    "id": "lafayette-general",
+    "name": "Ochsner Lafayette General",
+    "lat": 30.2078,
+    "lng": -92.0198,
+    "address": "1214 Coolidge Blvd, Lafayette, LA",
+    "phone": "(337) 289-7991",
+    "hours": "Open until 8 PM",
+    "services": ["Oncology", "Infusion", "Imaging"],
+    "kind": "hospital"
+  },
+  {
+    "id": "breaux-bridge-fhq",
+    "name": "Teche Action Clinic — Breaux Bridge",
+    "lat": 30.2736,
+    "lng": -91.8993,
+    "address": "1427 Rees St, Breaux Bridge, LA",
+    "phone": "(337) 332-2851",
+    "hours": "Open until 5 PM",
+    "services": ["Primary care", "Lab", "Referrals"],
+    "kind": "clinic"
+  },
+  {
+    "id": "st-martin-hospital",
+    "name": "St. Martin Hospital",
+    "lat": 30.2821,
+    "lng": -91.9055,
+    "address": "210 Champagne Blvd, Breaux Bridge, LA",
+    "phone": "(337) 507-3500",
+    "hours": "ER open 24 hours",
+    "services": ["Emergency", "Imaging"],
+    "kind": "hospital"
+  },
+  {
+    "id": "monroe-ochsner",
+    "name": "Ochsner LSU Health — Monroe",
+    "lat": 32.5093,
+    "lng": -92.1193,
+    "address": "4864 Jackson St, Monroe, LA",
+    "phone": "(318) 330-7000",
+    "hours": "Open until 6 PM",
+    "services": ["Oncology", "Infusion", "Primary care"],
+    "kind": "hospital"
+  },
+  {
+    "id": "st-francis-monroe",
+    "name": "St. Francis Medical Center",
+    "lat": 32.4987,
+    "lng": -92.1168,
+    "address": "309 Jackson St, Monroe, LA",
+    "phone": "(318) 966-4000",
+    "hours": "ER open 24 hours",
+    "services": ["Emergency", "Surgery", "Lab"],
+    "kind": "hospital"
+  },
+  {
+    "id": "northeast-la-cancer",
+    "name": "Northeast Louisiana Cancer Institute",
+    "lat": 32.5214,
+    "lng": -92.0876,
+    "address": "411 Calypso St, Monroe, LA",
+    "phone": "(318) 966-4000",
+    "hours": "Open until 5 PM",
+    "services": ["Medical oncology", "Radiation", "Survivorship"],
+    "kind": "clinic"
+  }
+]

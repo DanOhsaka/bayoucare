@@ -45,9 +45,10 @@ const BAR_CLASS: Record<string, string> = {
  * announcement for free. The legacy used plain buttons with a `.sel` class and
  * no accessible state at all.
  *
- * The chip geometry is the app's one chip geometry — `px-2.5 py-1 text-xs` —
- * matching `Badge`. It is written out rather than imported because a scale
- * option is a control with a selected state, which is not what `Badge` is.
+ * Equal-width grid cells, not a left-packed flex row: end labels like
+ * "1 · Awful" used to inflate those chips and leave a dead strip of empty
+ * space on the right. Spreading the steps across the card keeps the scale
+ * readable as a scale.
  */
 function Scale({
   name,
@@ -65,7 +66,14 @@ function Scale({
   onChange: (v: number) => void
 }) {
   return (
-    <div role="radiogroup" aria-labelledby={labelId} className="flex flex-wrap gap-1.5">
+    <div
+      role="radiogroup"
+      aria-labelledby={labelId}
+      className={cn(
+        'grid w-full gap-2',
+        values.length === 5 ? 'grid-cols-5' : 'grid-cols-1 sm:grid-cols-3',
+      )}
+    >
       {values.map((v, i) => {
         const id = `${name}-${v}`
         const selected = value === v
@@ -75,18 +83,15 @@ function Scale({
             htmlFor={id}
             className={cn(
               /*
-               * px-2.5 py-1 measures 27px tall, and the single-character
-               * answers ("1".."5") measure 29px wide — a 1-5 scale where the
-               * two ends are the hardest things on the card to hit. `min-h-11`
-               * and `min-w-11` make every step of the scale a 44px target and,
-               * as a side effect, the same size as each other, which is what a
-               * rating scale should have been anyway.
+               * Full cell width + min-h-11: every step is the same size and a
+               * real thumb target. Text centers and wraps so "1 · Awful" does
+               * not force a wider chip than "3".
                *
                * The focus ring is on the LABEL via `has-[:focus-visible]`,
                * because the input itself is `sr-only` — that wiring is already
                * correct and is untouched.
                */
-              'min-h-11 min-w-11 cursor-pointer rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors lg:min-h-0 lg:min-w-0',
+              'flex min-h-11 w-full cursor-pointer items-center justify-center rounded-full border px-2 py-2 text-center text-xs font-semibold leading-snug transition-colors duration-200 ease-out',
               'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--ring)]',
               selected
                 ? 'border-brand-600 bg-brand-700 text-on-dark'

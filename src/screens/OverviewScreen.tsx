@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 import { RichText } from '@/components/shared/RichText'
+import { Stagger, StaggerItem } from '@/components/shared/Motion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
@@ -69,11 +70,9 @@ const TOOLS = [
   ['🗺️', 'My Journey — a real roadmap', 'A living checklist of every step, shared with family.'],
   ['📈', 'Check-ins — earlier intervention', 'Daily symptom check-ins that alert the care team before things escalate.'],
   ['🚗', 'Access — care you can reach', 'Rides, telehealth, financial help, and resources — rural-first.'],
-  // Said "Family gets a second profile" — there is no caregiver account and no
-  // second profile: `Role` in the session store is patient|clinician only.
-  // Shared tasks ARE real (the family circle is a working checklist), so the
-  // line now describes what exists rather than what was intended.
-  ['👨‍👩‍👧', 'Caregiver hub', 'Family works the same task list, and caregiver mode frames the app for whoever is holding the device.'],
+  // Shared tasks ARE real (the Family help hub is a working checklist), so the
+  // line describes helpers with concrete jobs — not a second account or mode.
+  ['👨‍👩‍👧', 'Family help hub', 'Shared tasks, the next visit, and a way to message the care team — same record, clear jobs for helpers.'],
   ['🗓️', 'Appointments & calendar', 'Every visit, infusion and scan in one place — with reminders and a ride when you need one.'],
   ['🛡️', 'Screen & Prevent — catch it early', 'Screening reminders based on your own risk, not a generic schedule.'],
   ['📊', 'ASCO-informed guidance', 'Guidelines and education built on the official data partner.'],
@@ -107,7 +106,7 @@ const BARRIERS = [
 const WINS = [
   ['📱', 'Built for low bandwidth', 'Offline-first + SMS fallback for rural patients.'],
   ['🗣️', 'Plain language, English + Spanish', '~8th-grade health literacy, by design.'],
-  ['🤝', 'Family-inclusive', 'Caregivers see everything and can help.'],
+  ['🤝', 'Family-inclusive', 'Helpers pick up rides, tasks, and messages — without a second login.'],
 ]
 
 /** Tag tone → the tint `Badge` variant. */
@@ -187,19 +186,21 @@ export function OverviewScreen() {
 
       {/* ------------------------------------------------- why Louisiana needs it */}
       <SectionTitle title="Why Louisiana needs this" sub="The numbers behind the brief" />
-      <div className="grid gap-4 md:grid-cols-3">
+      <Stagger className="grid gap-4 md:grid-cols-3">
         {WHY.map((c) => (
-          <Card key={c.h}>
-            <CardContent>
-              <Badge variant={TAG_BADGE[c.tag]} className="uppercase tracking-[0.05em]">
-                {c.tagLabel}
-              </Badge>
-              <CardTitle className="mt-3">{c.h}</CardTitle>
-              <p className="mt-2 text-sm text-muted-foreground">{c.p}</p>
-            </CardContent>
-          </Card>
+          <StaggerItem key={c.h}>
+            <Card>
+              <CardContent>
+                <Badge variant={TAG_BADGE[c.tag]} className="uppercase tracking-[0.05em]">
+                  {c.tagLabel}
+                </Badge>
+                <CardTitle className="mt-3">{c.h}</CardTitle>
+                <p className="mt-2 text-sm text-muted-foreground">{c.p}</p>
+              </CardContent>
+            </Card>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
 
       {/* ------------------------------------------------------------- journey */}
       <SectionTitle title="The journey, guided end to end" sub="Six connected tools, one platform" />
@@ -212,26 +213,28 @@ export function OverviewScreen() {
         ))}
       </div>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <Stagger className="mt-4 grid gap-4 md:grid-cols-2">
         {TOOLS.map(([ico, h, p]) => (
-          <Card key={h}>
-            <CardContent>
-              <div className="flex gap-3">
-                <span
-                  className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
-                  aria-hidden="true"
-                >
-                  {ico}
-                </span>
-                <div>
-                  <h4 className="text-sm font-semibold text-card-foreground">{h}</h4>
-                  <p className="mt-1 text-sm text-muted-foreground">{p}</p>
+          <StaggerItem key={h}>
+            <Card>
+              <CardContent>
+                <div className="flex gap-3">
+                  <span
+                    className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
+                    aria-hidden="true"
+                  >
+                    {ico}
+                  </span>
+                  <div>
+                    <h4 className="text-sm font-semibold text-card-foreground">{h}</h4>
+                    <p className="mt-1 text-sm text-muted-foreground">{p}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
 
       <blockquote className="mt-8 rounded-lg border-l-4 border-brand-600 bg-card p-6 text-base italic text-card-foreground shadow-[var(--shadow)]">
         "When my sister was diagnosed, we spent three weeks just figuring out what happened, what to do

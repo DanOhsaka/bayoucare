@@ -1,4 +1,4 @@
-import { Leaf } from 'lucide-react'
+import { BrandLogo } from '@/components/shared/BrandLogo'
 
 /**
  * What the app shows while `/api/session` is in flight.
@@ -26,10 +26,7 @@ export function PendingShell() {
       aria-live="polite"
       className="flex min-h-dvh flex-col items-center justify-center gap-5 bg-background"
     >
-      <div className="flex items-center gap-2 text-brand-700">
-        <Leaf className="size-5" aria-hidden="true" />
-        <span className="text-lg font-bold tracking-tight">BayouCare</span>
-      </div>
+      <BrandLogo size="lg" />
 
       {/*
         An indeterminate bar rather than a spinner: it reads as "working, length

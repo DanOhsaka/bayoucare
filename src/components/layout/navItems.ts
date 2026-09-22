@@ -44,7 +44,7 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
 }
 
 /**
- * The nine patient sub-screens inside "My Care".
+ * The patient sub-screens inside "My Care".
  *
  * Every one is rendered by the same route and selected by URL, so switching
  * between them keeps browser history and survives a refresh — neither of which
@@ -52,6 +52,7 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
  */
 export const SCREENS = [
   'home',
+  'family',
   'calendar',
   'prevent',
   'journey',
@@ -59,6 +60,7 @@ export const SCREENS = [
   'checkins',
   'vitals',
   'access',
+  'messages',
   'remi',
 ] as const
 

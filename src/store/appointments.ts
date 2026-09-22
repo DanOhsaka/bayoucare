@@ -88,6 +88,8 @@ export const useAppointments = create<AppointmentsState>((set, get) => ({
                 ...a,
                 off: draft.off,
                 time: draft.time,
+                type: draft.type,
+                ride: draft.ride,
                 date: dateAtOffset(draft.off),
                 // Moving an appointment puts it back in front of the clinic, so
                 // a confirmed slot becomes a request again rather than silently

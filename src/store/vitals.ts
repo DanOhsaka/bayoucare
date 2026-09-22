@@ -11,6 +11,15 @@ const T = (key: string) => translate(useUi.getState().lang, key)
 /** The replay script: time, reading, message, style. */
 export const REPLAY_STEPS = REPLAY as unknown as Array<[string, string, string, string]>
 
+/** Fever alert threshold used on the patient vitals card (°F). */
+export const FEVER_THRESHOLD_F = 100.4
+
+/** Pull Celsius from a replay reading like `38.6°C (101.5°F)`. */
+function tempCFromReading(reading: string): number | null {
+  const m = reading.match(/([\d.]+)°C/)
+  return m ? Number(m[1]) : null
+}
+
 export interface VitalsAlert {
   name: string
   when: string
@@ -53,6 +62,8 @@ export const useVitals = create<VitalsState>((set, get) => ({
   smsVisible: false,
 
   tick() {
+    // Freeze the live dial while a fever replay (or its SMS payoff) owns the reading.
+    if (get().replaying || get().smsVisible) return
     set({ tempC: +(36.7 + Math.random() * 0.5).toFixed(1) })
   },
 
@@ -65,12 +76,14 @@ export const useVitals = create<VitalsState>((set, get) => ({
     if (sweepBase === null) sweepBase = { ...sweep[0] }
     if (alertBase === 0) alertBase = alerts.length
 
+    const first = tempCFromReading(REPLAY_STEPS[0]?.[1] ?? '')
     set({
       sweep: [{ ...sweepBase }, ...sweep.slice(1)],
       alerts: alerts.slice(0, alertBase),
       replayStep: 0,
       replaying: true,
       smsVisible: false,
+      tempC: first ?? 36.8,
     })
   },
 
@@ -95,6 +108,9 @@ export const useVitals = create<VitalsState>((set, get) => ({
       return
     }
 
+    const reading = REPLAY_STEPS[replayStep]?.[1] ?? ''
+    const fromStep = tempCFromReading(reading)
+
     if (replayStep === 2) {
       const nextSweep = sweep.slice()
       nextSweep[0] = {
@@ -118,8 +134,14 @@ export const useVitals = create<VitalsState>((set, get) => ({
           followup: T('vitals.alertFollow'),
         },
       ]
-      set({ sweep: nextSweep, alerts: nextAlerts })
+      set({
+        sweep: nextSweep,
+        alerts: nextAlerts,
+        ...(fromStep != null ? { tempC: fromStep } : {}),
+      })
       remiLive.vitalsAlerts = nextAlerts as unknown as Array<Record<string, unknown>>
+    } else if (fromStep != null) {
+      set({ tempC: fromStep })
     }
 
     set({
@@ -136,6 +158,7 @@ export const useVitals = create<VitalsState>((set, get) => ({
     sweepBase = null
     alertBase = 0
     set({
+      tempC: 36.9,
       sweep: [sweepRowFor(pid)],
       alerts: [],
       replayStep: 0,

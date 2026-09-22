@@ -1,3 +1,4 @@
+import { Activity } from 'lucide-react'
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -7,8 +8,12 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts'
+import { motion, useReducedMotion } from 'framer-motion'
 
+import { EmptyState } from '@/components/shared/EmptyState'
 import type { FiredRule } from '@/engine/survivorship/lateRules'
+import { fadeIn, transitionNormal } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 
 /**
  * The late-effects radar, on Recharts.
@@ -19,16 +24,15 @@ import type { FiredRule } from '@/engine/survivorship/lateRules'
  * domain is pinned to [0, 3] so the axis cannot be rescaled to the data and
  * make a tier-1 and a tier-3 look alike.
  *
- * This replaced a hand-rolled SVG version. The trade was deliberate and worth
- * stating: the old one drew each spoke as an arc WEDGE filling out to its tier
- * radius, which no charting library expresses as a primitive. What is gained
- * here is responsive sizing, a real tooltip, and a simpler surface to keep
- * legible. What is lost is that wedge shape.
+ * Always the same radar plot — even with 1–2 fired rules (Marcus). A thin
+ * polygon is still the shared visual language; swapping to bars made the
+ * Survivorship card look like two different products depending on the demo
+ * survivor.
  *
  * Accessibility: the chart is decorative-with-a-text-alternative, not the only
- * route to the data. A visually hidden table carries every category and tier,
- * and the card beside this renders the same list in visible text with a risk
- * label each — so nothing here depends on reading geometry, or on colour.
+ * route to the data. A visible value list and an sr-only detail list carry
+ * every category and tier, and the Survivorship card beside this also renders
+ * interactive category buttons — so nothing depends on reading geometry alone.
  */
 
 const MAX_TIER = 3
@@ -59,7 +63,7 @@ function toRows(hits: FiredRule[]): Row[] {
   }))
 }
 
-/** Styled to the app's popover idiom rather than Recharts' default box. */
+/** Popover-styled tooltip — BayouCare tokens, not Recharts defaults. */
 function RadarTip({
   active,
   payload,
@@ -71,14 +75,79 @@ function RadarTip({
   const r = payload[0].payload
 
   return (
-    <div className="rounded-md border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-[var(--shadow-lg)]">
-      <b className="block font-semibold">{r.cat}</b>
-      <span className="mt-0.5 block text-muted-foreground">
+    <div
+      role="status"
+      className="rounded-md border border-border bg-popover px-3 py-2.5 text-popover-foreground shadow-[var(--shadow-lg)]"
+    >
+      <p className="text-sm font-semibold text-popover-foreground">{r.cat}</p>
+      <p className="mt-1 typo-metric text-base leading-none">
+        {r.tier}
+        <span className="text-sm font-normal text-muted-foreground"> / {MAX_TIER}</span>
+      </p>
+      <p className="mt-1 text-xs font-semibold text-card-foreground">
+        {TIER_LABEL[r.tier] ?? '—'}
+      </p>
+      <p className="mt-1.5 max-w-[220px] text-xs leading-snug text-muted-foreground">
         {r.test} · {r.freq}
-      </span>
-      <span className="mt-1 block font-bold text-card-foreground">
-        Tier {r.tier} of {MAX_TIER} · {TIER_LABEL[r.tier] ?? '—'}
-      </span>
+      </p>
+    </div>
+  )
+}
+
+function RadarPlot({
+  rows,
+  selected,
+  onSelect,
+}: {
+  rows: Row[]
+  selected: string | null
+  onSelect: (cat: string | null) => void
+}) {
+  return (
+    <div className="mx-auto aspect-square w-full max-w-[320px]">
+      <ResponsiveContainer width="100%" height="100%">
+        {/*
+          `outerRadius` is 52%, not the usual 70-75%, and that is measured
+          rather than aesthetic. Recharts places the category labels OUTSIDE
+          the plot, so the radius and the labels compete for the same box.
+          52% stays clean across 293 / 310 / 320px — the sizes actually rendered.
+        */}
+        <RadarChart data={rows} outerRadius="52%" margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+          <PolarGrid stroke="var(--line)" strokeOpacity={0.85} />
+          <PolarAngleAxis
+            dataKey="short"
+            tick={{
+              fill: 'var(--ink-soft)',
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          />
+          <PolarRadiusAxis
+            angle={90}
+            domain={[0, MAX_TIER]}
+            tickCount={MAX_TIER + 1}
+            tick={{ fill: 'var(--ink-soft)', fontSize: 11 }}
+            axisLine={false}
+          />
+          <Radar
+            name="Late-effect tier"
+            dataKey="tier"
+            stroke="var(--primary)"
+            strokeWidth={2}
+            fill="var(--primary)"
+            fillOpacity={0.16}
+            isAnimationActive={!prefersReducedMotion()}
+            animationDuration={280}
+            dot={{ r: 3.5, fill: 'var(--primary)', stroke: 'var(--card)', strokeWidth: 1.5 }}
+            activeDot={{ r: 5.5, fill: 'var(--primary)', stroke: 'var(--card)', strokeWidth: 2 }}
+            onClick={(e) => {
+              const cat = (e as unknown as { payload?: Row })?.payload?.cat
+              if (cat) onSelect(selected === cat ? null : cat)
+            }}
+          />
+          <Tooltip content={<RadarTip />} cursor={false} />
+        </RadarChart>
+      </ResponsiveContainer>
     </div>
   )
 }
@@ -87,157 +156,99 @@ export function LateEffectsRadar({
   hits,
   selected,
   onSelect,
+  className,
 }: {
   hits: FiredRule[]
   selected: string | null
   onSelect: (cat: string | null) => void
+  className?: string
 }) {
+  const reduceMotion = useReducedMotion()
+
   if (!hits.length) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No late-effect rules triggered for this treatment record.
-      </p>
+      <EmptyState
+        icon={Activity}
+        title="No late-effect rules yet"
+        description="No surveillance rules triggered for this treatment record. Pick another demo survivor, or review the treatment summary."
+        className={className}
+      />
     )
   }
 
   const rows = toRows(hits)
 
   // Risk framing, not wellness framing: the highest tier is the one to act on
-  // first, so calling it the "strongest area" would say the opposite of the
-  // truth. Both are plain comparisons over the values, no clinical judgement.
+  // first. Comparisons only — no clinical judgement beyond the encoded tiers.
   const top = rows.reduce((a, b) => (b.tier > a.tier ? b : a), rows[0])
   const low = rows.reduce((a, b) => (b.tier < a.tier ? b : a), rows[0])
+  const avg = rows.reduce((sum, r) => sum + r.tier, 0) / rows.length
 
   return (
-    <div className="flex flex-col gap-3">
-      {/*
-        SQUARE, deliberately. A radar's radius is capped by the SHORTER side, so
-        a wide-but-short box shrinks the plot while the category labels still
-        need their full width — which is exactly how "2nd cancer" got clipped at
-        375px. Matching the two gives the labels their room and the plot its
-        size at every width.
-      */}
-      <div className="mx-auto aspect-square w-full max-w-[320px]">
-        <ResponsiveContainer width="100%" height="100%">
-          {/*
-            `outerRadius` is 52%, not the usual 70-75%, and that is measured
-            rather than aesthetic. Recharts places the category labels OUTSIDE
-            the plot, so the radius and the labels compete for the same box:
+    <motion.div
+      className={cn('flex flex-col gap-4', className)}
+      initial={reduceMotion ? false : 'hidden'}
+      animate="show"
+      variants={fadeIn}
+      transition={transitionNormal}
+    >
+      <RadarPlot rows={rows} selected={selected} onSelect={onSelect} />
 
-              70%  "2nd cancer" overflowed by 18px, "Cognitive" by 7px — everywhere
-              58%  clean at 320px, still touching the edge at 293px (375px viewport)
-              52%  clean across 293 / 310 / 320px — the sizes actually rendered
-
-            The box is 293px at its smallest (a 375px phone inside the card's
-            padding), and the label is wider than the margin left for it. Shaving
-            the radius is cheaper than shrinking the text: the brief is explicit
-            that labels stay legible rather than being squeezed to fit.
-          */}
-          <RadarChart data={rows} outerRadius="52%" margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
-            <PolarGrid stroke="var(--line)" />
-            <PolarAngleAxis
-              dataKey="short"
-              tick={{ fill: 'var(--ink-soft)', fontSize: 12, fontWeight: 600 }}
-            />
-            {/*
-              Pinned domain — see the note at the top of the file. `angle={90}`
-              puts the ticks straight up the vertical instead of on the diagonal,
-              which is where Recharts puts them by default and where they cut
-              across the polygon as clutter.
-            */}
-            <PolarRadiusAxis
-              angle={90}
-              domain={[0, MAX_TIER]}
-              tickCount={MAX_TIER + 1}
-              tick={{ fill: 'var(--ink-soft)', fontSize: 11 }}
-            />
-            <Radar
-              name="Late-effect tier"
-              dataKey="tier"
-              stroke="var(--primary)"
-              strokeWidth={2}
-              fill="var(--primary)"
-              fillOpacity={0.18}
-              // Recharts animates the polygon in on mount. The global
-              // reduced-motion rule neutralises CSS animation but not this,
-              // which is SVG-attribute driven, so it is switched off here and
-              // the rule is honoured explicitly.
-              isAnimationActive={!prefersReducedMotion()}
-              animationDuration={280}
-              dot={{ r: 3, fill: 'var(--primary)', stroke: 'var(--card)', strokeWidth: 1.5 }}
-              activeDot={{ r: 5, fill: 'var(--primary)', stroke: 'var(--card)', strokeWidth: 2 }}
-              /*
-               * Recharts types onClick as a plain SVG mouse handler, but passes
-               * the clicked data point alongside the event at runtime. The cast
-               * is deliberate and guarded — if the shape ever changes, the
-               * optional chain leaves the click a no-op rather than throwing.
-               * The adjacent list remains the fully keyboard-accessible route
-               * to the same selection either way.
-               */
-              onClick={(e) => {
-                const cat = (e as unknown as { payload?: Row })?.payload?.cat
-                if (cat) onSelect(selected === cat ? null : cat)
-              }}
-            />
-            <Tooltip content={<RadarTip />} cursor={false} />
-          </RadarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* A compact read of the same numbers, so the shape is never the only way
-          to get them — and so it still works at a glance on a phone. */}
-      <dl className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
-        <div className="flex items-baseline gap-1.5">
-          <dt className="text-muted-foreground">Act on first</dt>
-          <dd className="font-bold text-card-foreground">
-            {top.cat} · tier {top.tier}
+      {/* Human-readable summary derived from the same tiers — not diagnoses. */}
+      <dl className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="rounded-md bg-muted/60 px-3 py-2">
+          <dt className="typo-meta">Act on first</dt>
+          <dd className="mt-0.5 text-sm font-semibold text-card-foreground">
+            {top.cat}
+            <span className="font-normal text-muted-foreground"> · tier {top.tier}</span>
           </dd>
         </div>
-        <div className="flex items-baseline gap-1.5">
-          <dt className="text-muted-foreground">Routine</dt>
-          <dd className="font-bold text-card-foreground">
-            {low.cat} · tier {low.tier}
+        <div className="rounded-md bg-muted/60 px-3 py-2">
+          <dt className="typo-meta">Routine</dt>
+          <dd className="mt-0.5 text-sm font-semibold text-card-foreground">
+            {low.cat}
+            <span className="font-normal text-muted-foreground"> · tier {low.tier}</span>
+          </dd>
+        </div>
+        <div className="rounded-md bg-muted/60 px-3 py-2">
+          <dt className="typo-meta">Average tier</dt>
+          <dd className="mt-0.5 text-sm font-semibold tabular-nums text-card-foreground">
+            {avg.toFixed(1)}
+            <span className="font-normal text-muted-foreground"> / {MAX_TIER}</span>
           </dd>
         </div>
       </dl>
 
-      {/*
-        The text alternative. Visually hidden, because the card beside this
-        renders the same content; present so the chart is never the sole source
-        of a value for a screen reader.
+      {/* Visible exact values — complements the interactive list on Survivorship. */}
+      <ul className="divide-y divide-border rounded-md border border-border" aria-label="Late-effect tiers by category">
+        {rows.map((r) => (
+          <li key={r.cat} className="flex items-baseline justify-between gap-3 px-3 py-2 text-sm">
+            <span className="min-w-0 font-medium text-card-foreground">{r.cat}</span>
+            <span className="flex shrink-0 items-baseline gap-2 tabular-nums">
+              <span className="font-semibold text-card-foreground">
+                {r.tier}
+                <span className="font-normal text-muted-foreground"> / {MAX_TIER}</span>
+              </span>
+              <span className="typo-meta w-14 text-right">{TIER_LABEL[r.tier]}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
 
-        `sr-only` goes on this WRAPPER, not on the <table>. On a table it does
-        not clip: `overflow: hidden` does not contain a table box the way it
-        contains a block, so the 693px-wide table escaped a 375px viewport and
-        dragged the whole page 358px sideways. A div is a block container, so
-        the clip applies.
+      {/*
+        Screen-reader backup with the extra test/frequency detail the visible
+        list omits. A list (not a <table>) — wide fixed-layout tables still
+        inflate document scrollWidth in Chromium even inside overflow-clipped
+        sr-only wrappers.
       */}
-      <div className="sr-only">
-        <table>
-          <caption>Late-effects surveillance, by category</caption>
-          <thead>
-            <tr>
-              <th scope="col">Category</th>
-              <th scope="col">Tier</th>
-              <th scope="col">Priority</th>
-              <th scope="col">Test</th>
-              <th scope="col">Frequency</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.cat}>
-                <th scope="row">{r.cat}</th>
-                <td>{r.tier}</td>
-                <td>{TIER_LABEL[r.tier] ?? '—'}</td>
-                <td>{r.test}</td>
-                <td>{r.freq}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <ul className="sr-only">
+        {rows.map((r) => (
+          <li key={r.cat}>
+            {r.cat}: tier {r.tier} of {MAX_TIER}, {TIER_LABEL[r.tier] ?? '—'}, {r.test}, {r.freq}
+          </li>
+        ))}
+      </ul>
+    </motion.div>
   )
 }
 

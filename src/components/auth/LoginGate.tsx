@@ -1,5 +1,11 @@
 import { useState, type FormEvent } from 'react'
+import { toast } from 'sonner'
+
+import { BrandLogo } from '@/components/shared/BrandLogo'
+import { LANG_TOAST } from '@/data'
+import { LANGS, LANG_LABELS, type Lang } from '@/lib/i18n'
 import { useSession } from '@/store/session'
+import { useUi } from '@/store/ui'
 import { useT } from '@/hooks/useT'
 
 /**
@@ -22,6 +28,8 @@ export function LoginGate() {
   const login = useSession((s) => s.login)
   const busy = useSession((s) => s.busy)
   const errorKey = useSession((s) => s.errorKey)
+  const lang = useUi((s) => s.lang)
+  const setLang = useUi((s) => s.setLang)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -41,11 +49,31 @@ export function LoginGate() {
         onSubmit={submit}
         className="my-auto w-full max-w-[400px] rounded-lg border border-border bg-card p-6 text-card-foreground shadow-[var(--shadow-lg)]"
       >
+        <div className="mb-4 flex flex-col items-center gap-3">
+          <BrandLogo size="lg" className="mx-auto" />
+        </div>
+
         <div className="mb-3 flex items-center justify-between gap-3">
           <h3 className="text-lg font-semibold">{t('login.title')}</h3>
-          <span className="inline-flex items-center rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
-            DevDays 2026
-          </span>
+          <label className="sr-only" htmlFor="bc-login-lang">
+            Language
+          </label>
+          <select
+            id="bc-login-lang"
+            value={lang}
+            onChange={(e) => {
+              const next = e.target.value as Lang
+              setLang(next)
+              toast(LANG_TOAST[next] ?? LANG_TOAST.en)
+            }}
+            className="h-9 rounded-sm border border-input bg-background px-2 text-xs font-semibold text-foreground"
+          >
+            {LANGS.map((l) => (
+              <option key={l} value={l}>
+                {LANG_LABELS[l]}
+              </option>
+            ))}
+          </select>
         </div>
 
         <p className="text-sm text-muted-foreground">{t('login.sub')}</p>
