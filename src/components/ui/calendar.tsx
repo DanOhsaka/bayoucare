@@ -34,10 +34,19 @@ function Calendar({
         // `--cell-size` is the floor under BOTH the day buttons (`min-w-`) and
         // the month arrows (`size-`), so it is the single knob for the
         // calendar's touch target. 44px below `lg`, the designed 32px above it.
-        // Seven 44px columns need 308px, which does not fit a 320px phone — see
-        // `CalendarScreen`, which owns the horizontal scroll that makes this
-        // possible without the page itself growing a scrollbar.
-        "group/calendar bg-background p-3 [--cell-size:--spacing(11)] lg:[--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+        // Seven 44px columns need 308px of grid.
+        //
+        // The horizontal padding is the other half of that number, and it is
+        // why this is `py-3 px-1 min-[366px]:px-3` rather than the upstream
+        // `p-3`. Below 366px `CalendarScreen` bleeds this box out to the
+        // viewport edge, where it is 318px wide, and 318 - 2 x 12 leaves only
+        // 294 of grid — 14 short. At 4px per side the same box offers 310, so
+        // the floor is met with no scroll at all. 366 is where that screen's
+        // `-mx-6` bleed starts reaching 308 on its own (`viewport - 34 - 24`),
+        // so from there up the padding goes straight back to the designed 12
+        // and this component is unchanged everywhere except the narrowest
+        // phones. The screen owns that bleed; this owns the padding.
+        "group/calendar bg-background py-3 px-1 min-[366px]:px-3 [--cell-size:--spacing(11)] lg:[--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className

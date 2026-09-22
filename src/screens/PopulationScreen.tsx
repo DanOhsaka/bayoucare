@@ -393,9 +393,17 @@ export function PopulationScreen() {
                  * the tile x/y positions are inline (below) and would create
                  * implicit columns at any other `grid-cols-N`, so re-authoring
                  * the positions per breakpoint is the alternative this avoids.
+                 *
+                 * 560 was a 44.83px tile — over the 44px floor by less than the
+                 * pixel a thumb cannot use anyway. 598 is the narrowest grid on
+                 * which a tile measures the 48px the touch pass asks for, and it
+                 * is exact rather than rounded up: twelve 48px tiles (576) plus
+                 * the eleven 2px `gap-0.5` gutters between them (22). 576/12 has
+                 * no remainder, so the browser's fractional-pixel distribution
+                 * never comes into it — every column is 48.00, measured.
                  */
                 <div className="max-w-[760px] overflow-x-auto">
-                  <div className="grid min-w-[560px] grid-cols-12 gap-0.5">
+                  <div className="grid min-w-[598px] grid-cols-12 gap-0.5">
                     {PARISH_DATA.map((p) => {
                       const b = bucketOf(p, metric)
                       const v = m.f(p)
@@ -411,10 +419,10 @@ export function PopulationScreen() {
                        *
                        * It is a toggle all the same, so it carries the touch
                        * floor: `h-11` below `lg`, the designed `h-8` above. Only
-                       * the height moves — the grid already guarantees ~45px of
-                       * width — and the inline `grid-column`/`grid-row` positions
-                       * are untouched, so the cartogram keeps its shape and
-                       * simply gets a taller row.
+                       * the height moves — the grid's `min-w-[598px]` already
+                       * guarantees 48px of width — and the inline
+                       * `grid-column`/`grid-row` positions are untouched, so the
+                       * cartogram keeps its shape and simply gets a taller row.
                        */
                       return (
                         <button

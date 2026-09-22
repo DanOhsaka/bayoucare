@@ -169,30 +169,45 @@ export function CalendarScreen() {
 
           <DayDataContext.Provider value={byDay}>
             {/*
-              The scroll container that pays for the 44px day cells, bled out to
-              the card's edges so that it only has to pay at all on the
-              narrowest phones.
+              The scroll container that pays for the 44px day cells, bled past
+              the card's padding — and, on the narrowest phones, past the page's
+              `px-4` as well — so that it ends up paying nothing anywhere.
 
-              Seven 44px columns need 308px of grid. Inside the card's 24px
-              padding a 375px phone offers 269 and a 320px phone offers 240 —
-              neither closes, which is why this wrapper exists. `-mx-6` reclaims
-              the card's own padding for the scroll viewport: 343 and 288
-              respectively, or 319 and 264 of grid once the calendar's `p-3` is
-              taken. 375 therefore fits with NO scroll and the whole month is
-              visible; 320 is 44px short and scrolls, which is the genuinely
-              impossible case and the one the brief allows scrolling for.
+              Seven 44px columns need 308px of grid. Below `sm` the card's
+              content box is `viewport - 34`: 16px of page padding, plus the
+              card's 1px border and 24px padding, on each side. `-mx-6` cancels
+              the card's own padding and nothing else, which leaves the scroll
+              viewport at 286 at 320px and 341 at 375, or 262 and 317 of grid
+              once the calendar's padding is taken. 375 clears the floor with
+              9px to spare; 320 comes up 46px short.
 
-              The cost is that the month grid sits 12px from the card edge while
-              the title above it sits at 24px. That inset difference is the
-              price of the Sunday column, and it buys back more than it spends:
-              before this, 375px clipped the last column mid-cell with nothing
-              on screen to say it was scrollable.
+              `max-[366px]:-mx-10` closes exactly that stretch. 366 is not a
+              taste call, it is where `-mx-6` starts reaching 308 on its own —
+              `viewport - 34 - 24 >= 308` — so the wider bleed is spent on the
+              phones that need it and every width from 366 up (375, 414, the
+              tablet band) is unchanged. The extra 16px per side is the page's
+              `px-4`; `-mx-10` is `-mx-6` plus it, and the card's 1px border is
+              what still keeps the wrapper 1px inside the viewport rather than
+              past it.
+
+              That is 318 of scroll viewport at 320px, and the calendar's own
+              padding is the last piece: it drops to 4px per side below 366px
+              (`calendar.tsx` owns that) leaving 310 of grid — 2px over the
+              floor, cells at 44.29, and nothing to scroll. The day cells keep
+              their 44px; it is the chrome around them that gave way.
+
+              The cost is that on a 320px phone the month grid runs 5px from
+              the screen edge while the card's own content sits at 41 — the
+              calendar escapes the card's border. That overhang is the price of
+              the Sunday column, and it buys back more than it spends: before
+              this, 320px clipped the last column mid-cell with nothing on
+              screen to say it was scrollable.
 
               From ~430px up the natural cell is already 46px, the floor stops
               binding and this wrapper has nothing left to scroll. It never
               scrolls at all from `md`, where the card is capped at 400px.
             */}
-            <div className="-mx-6 overflow-x-auto sm:mx-0">
+            <div className="-mx-6 overflow-x-auto max-[366px]:-mx-10 sm:mx-0">
             <Calendar
             mode="single"
             weekStartsOn={1}
