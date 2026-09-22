@@ -47,6 +47,13 @@ const ZOOM_STEP = 1.5
  *  registers; large enough that the wobble in a normal click does not. */
 const DRAG_SLOP = 4
 
+/** How far one arrow-key press pans, in VIEWBOX units — the same units as the
+ *  transform, so a press moves the same slice of the map whatever the rendered
+ *  width. Deliberately a stride rather than a nudge: zoomed right in the
+ *  visible window is only ~129 units wide, and 48 crosses about a third of it,
+ *  so the state is reachable in a handful of presses instead of dozens. */
+const KEY_PAN_STEP = 48
+
 /**
  * Hold a view inside its legal range: the scale within `ZOOM_MIN..ZOOM_MAX`, and
  * each translation within `[dimension * (1 - scale), 0]`.
@@ -238,6 +245,52 @@ export function PopulationScreen() {
     window.addEventListener('pointercancel', onEnd)
   }
 
+  /**
+   * Keyboard pan and zoom, for the map's wrapper — the surface that carries the
+   * tab stop.
+   *
+   * The `e.target !== e.currentTarget` guard is load-bearing. Keydown on one of
+   * the 64 focused parish paths bubbles through here, and panning then would
+   * bolt a second behaviour onto a control that only ever advertised Enter and
+   * Space — and would take the arrow keys away from the page while a parish is
+   * focused. The surface pans; the paths do not.
+   *
+   * Only the keys it actually handles are `preventDefault`ed. Tab is not, which
+   * is what still lets focus leave the surface.
+   */
+  const onMapKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.target !== e.currentTarget) return
+
+    let dx = 0
+    let dy = 0
+    if (e.key === 'ArrowLeft') dx = -KEY_PAN_STEP
+    else if (e.key === 'ArrowRight') dx = KEY_PAN_STEP
+    else if (e.key === 'ArrowUp') dy = -KEY_PAN_STEP
+    else if (e.key === 'ArrowDown') dy = KEY_PAN_STEP
+
+    if (dx !== 0 || dy !== 0) {
+      e.preventDefault()
+      // The same `clampView` the drag goes through, so a run of presses stops
+      // exactly where a drag would. At 1× that clamp collapses to the single
+      // point 0, so each of these is a no-op rather than a move.
+      setView((v) => clampView({ ...v, x: v.x + dx, y: v.y + dy }))
+      return
+    }
+
+    // `+`/`=` and `-`/`_` are the shifted and unshifted halves of one key each,
+    // so the zoom works whether or not Shift is held. `zoomTo` is the buttons'
+    // own function — same factor, same clamp — which is why `+` at 4× idles.
+    if (e.key === '+' || e.key === '=') {
+      e.preventDefault()
+      zoomTo(ZOOM_STEP)
+      return
+    }
+    if (e.key === '-' || e.key === '_') {
+      e.preventDefault()
+      zoomTo(1 / ZOOM_STEP)
+    }
+  }
+
   const stops = useMemo(() => PARISH_DATA.filter((p) => p.rank != null).slice(0, 10), [])
 
   useInterval(
@@ -395,7 +448,34 @@ export function PopulationScreen() {
                   </div>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                /* The map's keyboard surface — the tab stop lives HERE, on the
+                 * wrapper, and not on the svg inside it. Two reasons, both
+                 * load-bearing:
+                 *
+                 *  - Ordering. This is one extra stop, immediately BEFORE the
+                 *    64 parish paths: reach the map, pan it, then walk into the
+                 *    parishes. Do not move it below the paths, and do not add a
+                 *    second one.
+                 *
+                 *  - The ring. This div is a scroll container, and a scroll
+                 *    container clips its DESCENDANTS to its padding box. The
+                 *    svg fills it edge to edge on the left, right and bottom,
+                 *    so an outline on the svg lost those three sides — the
+                 *    whole point of a focus ring, gone. An element's own
+                 *    outline is never clipped by its own `overflow`, so on the
+                 *    div the ring survives intact.
+                 *
+                 * The label states the keys, because a focusable group whose
+                 * name only describes its contents leaves a keyboard user to
+                 * discover the bindings by pressing things.
+                 */
+                <div
+                  className="overflow-x-auto"
+                  role="group"
+                  aria-label="Louisiana parish map. Arrow keys pan when zoomed in; plus and minus zoom."
+                  tabIndex={0}
+                  onKeyDown={onMapKeyDown}
+                >
                   {/*
                     * Zoom controls. Real buttons rather than gestures alone, so
                     * the map has a keyboard path and a discoverable one; they sit
@@ -406,6 +486,16 @@ export function PopulationScreen() {
                     * does it.
                     */}
                   <div className="mb-2 flex flex-wrap items-center gap-2">
+                    {/*
+                      * 44px at the base size, back to the primitive's own 32px
+                      * from `lg` up. 32 is a fine mouse target and a bad thumb
+                      * one, and `size="icon-sm"` is 32 by definition — so the
+                      * override is per-call rather than a change to `Button`,
+                      * which every other screen also uses. `lg` rather than
+                      * `sm`/`md` on purpose: tablets are touch screens too, and
+                      * `lg` is the same breakpoint at which this card stops
+                      * stacking and goes two-column.
+                      */}
                     <Button
                       type="button"
                       size="icon-sm"
@@ -413,6 +503,7 @@ export function PopulationScreen() {
                       aria-label="Zoom in"
                       disabled={view.k >= ZOOM_MAX}
                       onClick={() => zoomTo(ZOOM_STEP)}
+                      className="size-11 lg:size-8"
                     >
                       +
                     </Button>
@@ -423,6 +514,7 @@ export function PopulationScreen() {
                       aria-label="Zoom out"
                       disabled={view.k <= ZOOM_MIN}
                       onClick={() => zoomTo(1 / ZOOM_STEP)}
+                      className="size-11 lg:size-8"
                     >
                       −
                     </Button>
@@ -433,6 +525,7 @@ export function PopulationScreen() {
                       aria-label="Reset zoom and pan"
                       disabled={view.k <= ZOOM_MIN}
                       onClick={resetView}
+                      className="h-11 lg:h-8"
                     >
                       Reset
                     </Button>
