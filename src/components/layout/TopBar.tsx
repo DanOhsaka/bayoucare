@@ -11,8 +11,17 @@ import { cn } from '@/lib/utils'
 
 const PATIENT_IDS = Object.keys(PATIENTS) as PatientId[]
 
+/*
+ * 44px below `lg`, the designed 34px above it.
+ *
+ * 34px was sized against the header's own row, not against a thumb — and this
+ * is the app's only navigation, language and sign-out control on a phone, so
+ * it was the whole chrome that was under-sized. `lg:h-[34px]`/`lg:w-[34px]`
+ * keeps the desktop bar byte-identical, which also means the header height at
+ * `lg` does not move and the sidebar's sticky offset stays correct.
+ */
 const CONTROL =
-  'flex h-[34px] flex-none items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-2 text-xs font-semibold text-on-dark transition-colors hover:bg-white/20'
+  'flex h-11 flex-none items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-2 text-xs font-semibold text-on-dark transition-colors hover:bg-white/20 lg:h-[34px]'
 
 /**
  * The application chrome.
@@ -80,7 +89,10 @@ export function TopBar() {
               aria-pressed={mode === m}
               onClick={() => setMode(m)}
               className={cn(
-                'rounded-[5px] px-2.5 py-1 text-xs font-bold transition-colors',
+                // ~25px at py-1. The mode switch is the control that swaps the
+                // whole app between patient and admin, so it is worth a real
+                // target rather than the smallest one in the bar.
+                'min-h-11 rounded-[5px] px-2.5 py-1 text-xs font-bold transition-colors lg:min-h-0',
                 mode === m ? 'bg-white/90 text-brand-900' : 'text-on-dark-muted hover:text-on-dark',
               )}
             >
@@ -149,7 +161,7 @@ export function TopBar() {
         <button
           type="button"
           onClick={toggleTheme}
-          className={cn(CONTROL, 'w-[34px] justify-center')}
+          className={cn(CONTROL, 'w-11 justify-center lg:w-[34px]')}
           aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
           title={theme === 'dark' ? 'Light' : 'Dark'}
         >
@@ -160,16 +172,28 @@ export function TopBar() {
           )}
         </button>
 
-        {/* The email pill is ~232px, which does not fit a phone beside anything
-            else — it stays a `md:` affordance. */}
+        {/*
+            The email pill is ~232px, which does not fit a phone beside anything
+            else — it stays a `md:` affordance.
+
+            The truncation cap is wider below `lg` because `title` is the only
+            other place the full address exists, and `title` is a hover
+            affordance: on the tablet this pill is shown to, the address was
+            permanently unreadable past the 17th character. 180px holds the
+            demo addresses in full at `text-xs`, so the truncation simply stops
+            happening at the widths where hovering is not available. It returns
+            to the designed 128px at `lg`, keeping the desktop pill's width.
+        */}
         <div className="hidden items-center gap-1.5 rounded-sm border border-white/25 bg-white/10 pl-2.5 pr-1 md:flex">
-          <span className="max-w-[128px] truncate text-xs text-on-dark" title={email}>
+          <span className="max-w-[180px] truncate text-xs text-on-dark lg:max-w-[128px]" title={email}>
             {email}
           </span>
           <button
             type="button"
             onClick={() => void logout()}
-            className="flex items-center gap-1.5 rounded-[5px] px-2 py-1 text-xs font-bold text-on-dark transition-colors hover:bg-white/25"
+            // ~25px at py-1; `min-h-11` below `lg` for the same reason the
+            // chrome controls got it. `lg:min-h-0` restores the pill's height.
+            className="flex min-h-11 items-center gap-1.5 rounded-[5px] px-2 py-1 text-xs font-bold text-on-dark transition-colors hover:bg-white/25 lg:min-h-0"
           >
             <LogOut className="size-3.5" aria-hidden="true" />
             {t('login.signOut')}
@@ -180,14 +204,14 @@ export function TopBar() {
          * Below md the pill above is hidden, and this is the ONLY sign-out
          * control in the app — the audit found it was `hidden md:flex`, so on
          * every phone there was no way to sign out at all. Icon-only with an
-         * accessible name, at the same 34px as the theme toggle.
+         * accessible name, at the same size as the theme toggle.
          */}
         <button
           type="button"
           onClick={() => void logout()}
           aria-label={t('login.signOut')}
           title={t('login.signOut')}
-          className={cn(CONTROL, 'w-[34px] justify-center md:hidden')}
+          className={cn(CONTROL, 'w-11 justify-center md:hidden lg:w-[34px]')}
         >
           <LogOut className="size-4" aria-hidden="true" />
         </button>

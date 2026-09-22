@@ -61,10 +61,24 @@ export function MyCare() {
     }
   }
 
+  /*
+   * The two-column split starts at `md`, not `lg`.
+   *
+   * `lg:grid` here was paired with `lg:flex-col` in `PatientSidebar`, so
+   * between 768 and 1023 the nine sections were a horizontal pill strip
+   * scrolling past a full tablet width of empty header — the layout was
+   * deferred precisely because moving one of the pair without the other
+   * produces a sidebar beside a nav that is still a row, or the reverse. Both
+   * sides move together; see the note in `PatientSidebar`.
+   *
+   * The column is 240px at `md` (it widens to the designed 260px at `lg`)
+   * because at 768 the content column is the tightest it ever gets, and the
+   * calendar and the two-up grids below it are the ones that feel it first.
+   */
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 lg:grid lg:grid-cols-[260px_1fr] lg:items-start lg:gap-6">
+    <div className="mx-auto max-w-6xl px-4 py-6 md:grid md:grid-cols-[240px_1fr] md:items-start md:gap-6 lg:grid-cols-[260px_1fr]">
       <PatientSidebar />
-      <div className="mt-4 min-w-0 lg:mt-0">{renderScreen()}</div>
+      <div className="mt-4 min-w-0 md:mt-0">{renderScreen()}</div>
     </div>
   )
 }

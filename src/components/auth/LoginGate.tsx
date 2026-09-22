@@ -118,7 +118,10 @@ export function LoginGate() {
               className="flex flex-col items-start gap-px rounded-sm border border-border bg-card px-2.5 py-1.5 text-left leading-tight transition-colors hover:bg-accent"
             >
               <b className="text-xs font-semibold text-card-foreground">{a.name}</b>
-              <span className="font-mono text-[11px] text-muted-foreground">
+              {/* `text-xs`, not `text-[11px]` — 11px is under the type scale's
+                  floor, and this is the one string on the login screen a
+                  reviewer has to read character by character to type. */}
+              <span className="font-mono text-xs text-muted-foreground">
                 {a.email} · {a.pass}
               </span>
             </button>

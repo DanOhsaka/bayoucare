@@ -136,15 +136,29 @@ export function CalendarScreen() {
   }
 
   /*
-   * The split starts at `md`, not `lg`. The month grid is a fixed-width object —
-   * it gains nothing from a 780px-wide cell except whitespace between the day
-   * numbers — and leaving it stacked until 1024 meant 768–1023 rendered a phone's
-   * calendar blown up to tablet width, with the day detail pushed below the fold.
-   * 400px + the panel fits from 768px up.
+   * The split starts at `lg`, not `md`.
+   *
+   * It moved to `md` when the calendar was the full width of the page, and
+   * 400px + the panel genuinely did fit from 768. It no longer does: the
+   * patient sidebar became a column at `md` (see `MyCare`), which takes 240px
+   * out of the content row and leaves ~470 at 768. In that space the two
+   * columns fight, `minmax(0,400px)` loses the argument to the panel's
+   * min-content, and the month grid ends up ~195px wide — under its own 308px
+   * floor, so it starts scrolling on a screen with room to spare.
+   *
+   * Stacked, the calendar gets the whole ~470px column at tablet width, which
+   * is WIDER than the 400px it had there before, and the day detail moves below
+   * it. Nothing is lost: the panel was 320px beside a 400px calendar before,
+   * and is 470 below a 470px one now.
    */
   return (
-    <div className="grid gap-4 md:grid-cols-[minmax(0,400px)_1fr] md:items-start">
-      <Card>
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,400px)_1fr] lg:items-start">
+      {/* `min-w-0` matters: this Card is a grid item, so its automatic minimum
+          size is its min-content size — which includes the month grid's 308px
+          floor and the calendar's own padding. Without it the card refuses to
+          shrink to the column, the page grows a scrollbar, and the scroll
+          container added below never gets the chance to do its job. */}
+      <Card className="min-w-0">
         <CardHeader>
           <CardTitle className="text-lg">{t('cal.head')}</CardTitle>
           <Badge variant="success">{t('cal.chip')}</Badge>
@@ -154,6 +168,31 @@ export function CalendarScreen() {
           <p className="text-sm text-muted-foreground">{t('cal.sub')}</p>
 
           <DayDataContext.Provider value={byDay}>
+            {/*
+              The scroll container that pays for the 44px day cells, bled out to
+              the card's edges so that it only has to pay at all on the
+              narrowest phones.
+
+              Seven 44px columns need 308px of grid. Inside the card's 24px
+              padding a 375px phone offers 269 and a 320px phone offers 240 —
+              neither closes, which is why this wrapper exists. `-mx-6` reclaims
+              the card's own padding for the scroll viewport: 343 and 288
+              respectively, or 319 and 264 of grid once the calendar's `p-3` is
+              taken. 375 therefore fits with NO scroll and the whole month is
+              visible; 320 is 44px short and scrolls, which is the genuinely
+              impossible case and the one the brief allows scrolling for.
+
+              The cost is that the month grid sits 12px from the card edge while
+              the title above it sits at 24px. That inset difference is the
+              price of the Sunday column, and it buys back more than it spends:
+              before this, 375px clipped the last column mid-cell with nothing
+              on screen to say it was scrollable.
+
+              From ~430px up the natural cell is already 46px, the floor stops
+              binding and this wrapper has nothing left to scroll. It never
+              scrolls at all from `md`, where the card is capped at 400px.
+            */}
+            <div className="-mx-6 overflow-x-auto sm:mx-0">
             <Calendar
             mode="single"
             weekStartsOn={1}
@@ -188,8 +227,12 @@ export function CalendarScreen() {
             components={{ DayButton: DayWithDots }}
             // Constrained to the column: the Shadcn calendar stretches to its
             // container, and a full-width card made every day cell enormous.
-              className="mt-2 w-full [--cell-size:--spacing(8)] sm:[--cell-size:--spacing(10)]"
+            // The `--cell-size` overrides that used to sit here are gone —
+            // they were pinning the grid to a 32/40px floor that is under the
+            // touch minimum; `calendar.tsx` now owns that number.
+              className="mt-2 w-full"
             />
+            </div>
           </DayDataContext.Provider>
 
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3.5">

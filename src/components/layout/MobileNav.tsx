@@ -16,15 +16,20 @@ import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
 
 /*
- * Mirrors `TopBar`'s `CONTROL`, deliberately and at the same 34px height as the
- * theme toggle and sign-out it sits beside. It is a plain `<button>` rather than
- * the `Button` primitive for the same reason those two are: `Button`'s variants
- * are styled for light surfaces, and the chrome is dark in BOTH themes. Nothing
- * here suppresses the outline, so this control focuses on the global
- * `:focus-visible` ring exactly like its neighbours.
+ * Mirrors `TopBar`'s `CONTROL`, deliberately: same geometry, same 44px below
+ * `lg` and same designed 34px above it. These two strings are a pair and have
+ * to move together — this one is the app's entire navigation on a phone, so it
+ * was the single most important control in the audit to get right, and it is
+ * the one that was missed first time precisely because the string is a copy.
+ *
+ * It is a plain `<button>` rather than the `Button` primitive for the same
+ * reason the TopBar controls are: `Button`'s variants are styled for light
+ * surfaces, and the chrome is dark in BOTH themes. Nothing here suppresses the
+ * outline, so this control focuses on the global `:focus-visible` ring exactly
+ * like its neighbours.
  */
 const CONTROL =
-  'flex h-[34px] flex-none items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-2 text-xs font-semibold text-on-dark transition-colors hover:bg-white/20'
+  'flex h-11 flex-none items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-2 text-xs font-semibold text-on-dark transition-colors hover:bg-white/20 lg:h-[34px]'
 
 /** New in this pass — see the handover note. English until the dictionary has them. */
 const NEW_KEYS: Record<string, string> = {
@@ -76,7 +81,7 @@ export function MobileNav() {
           type="button"
           aria-label={label('nav.menu')}
           title={label('nav.menu')}
-          className={cn(CONTROL, 'w-[34px] justify-center md:hidden')}
+          className={cn(CONTROL, 'w-11 justify-center md:hidden lg:w-[34px]')}
         >
           <Menu className="size-4" aria-hidden="true" />
         </button>

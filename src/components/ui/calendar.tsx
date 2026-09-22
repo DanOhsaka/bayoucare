@@ -31,7 +31,13 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        "group/calendar bg-background p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+        // `--cell-size` is the floor under BOTH the day buttons (`min-w-`) and
+        // the month arrows (`size-`), so it is the single knob for the
+        // calendar's touch target. 44px below `lg`, the designed 32px above it.
+        // Seven 44px columns need 308px, which does not fit a 320px phone — see
+        // `CalendarScreen`, which owns the horizontal scroll that makes this
+        // possible without the page itself growing a scrollbar.
+        "group/calendar bg-background p-3 [--cell-size:--spacing(11)] lg:[--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className

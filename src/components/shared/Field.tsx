@@ -30,7 +30,11 @@ export const INPUT_CLASS =
   // No `outline-none`: it suppresses the app's single global `:focus-visible`
   // ring (utilities outrank `@layer base`), leaving a 1px border tint as the
   // only focus cue. The border still shifts to `--ring` as well.
-  'h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring'
+  //
+  // 44px below `lg`, the designed 40px above it. A 40px field is a mouse-sized
+  // field; it is 4px under the thumb floor and a text input is the one control
+  // a user has to hit twice (once to focus, once to place the caret).
+  'h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring lg:h-10'
 
 export const SELECT_CLASS = INPUT_CLASS
 
@@ -46,7 +50,11 @@ export function PersonaButton({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-foreground transition-colors hover:bg-accent"
+      // `min-h-11` at base: the py-1 pill measures 27px, which is the smallest
+      // tap target in the app and the one most often used in a row (the
+      // calculator personas are six of them side by side). `lg:min-h-0` hands
+      // the height back to the padding at the one width it was designed for.
+      className="min-h-11 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-foreground transition-colors hover:bg-accent lg:min-h-0"
     >
       {children}
     </button>

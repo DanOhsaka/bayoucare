@@ -231,7 +231,12 @@ export function SlotBoardSection() {
                     className="flex items-center gap-2.5 border-b border-border py-1 last:border-b-0"
                   >
                     <div className="flex w-40 flex-none items-center gap-1.5">
-                      <b className="min-w-0 truncate text-xs font-semibold text-card-foreground">
+                      {/* `lg:truncate`: in a 160px column at phone width the
+                          name was clipped at ~86% ("Wade Guillo"). The prefix
+                          identifies the patient, but a worklist you cannot
+                          read a surname off is the wrong place to save a line,
+                          and the name is the row's only identifier. */}
+                      <b className="min-w-0 text-xs font-semibold text-card-foreground lg:truncate">
                         {p.name}
                       </b>
                       <Badge variant={BAND_BADGE[slotBand(worst)]}>
@@ -253,6 +258,11 @@ export function SlotBoardSection() {
                          * would fight the band palette — mint text on the solid
                          * coral measures 2.5:1 — so the primitive cannot be
                          * adopted here without overriding it back out again.
+                         *
+                         * It is still a toggle, though, so it still has to be
+                         * tappable: 44px below `lg`, the designed 28px above it.
+                         * The row is `flex-wrap`, so the board reflows onto more
+                         * lines at phone widths rather than overflowing.
                          */
                         return (
                           <button
@@ -263,7 +273,7 @@ export function SlotBoardSection() {
                             title={label}
                             onClick={() => setSlotDay(selected ? 0 : r.s.day)}
                             className={cn(
-                              'flex size-7 items-center justify-center rounded-md border text-xs font-bold transition-transform hover:-translate-y-px',
+                              'flex size-11 items-center justify-center rounded-md border text-xs font-bold transition-transform hover:-translate-y-px lg:size-7',
                               BAND_CELL[slotBand(r.p)],
                               selected && 'ring-2 ring-brand-700',
                               r.actions.length > 0 && 'opacity-45',

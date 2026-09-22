@@ -74,7 +74,19 @@ function Scale({
             key={v}
             htmlFor={id}
             className={cn(
-              'cursor-pointer rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors',
+              /*
+               * px-2.5 py-1 measures 27px tall, and the single-character
+               * answers ("1".."5") measure 29px wide — a 1-5 scale where the
+               * two ends are the hardest things on the card to hit. `min-h-11`
+               * and `min-w-11` make every step of the scale a 44px target and,
+               * as a side effect, the same size as each other, which is what a
+               * rating scale should have been anyway.
+               *
+               * The focus ring is on the LABEL via `has-[:focus-visible]`,
+               * because the input itself is `sr-only` — that wiring is already
+               * correct and is untouched.
+               */
+              'min-h-11 min-w-11 cursor-pointer rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors lg:min-h-0 lg:min-w-0',
               'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--ring)]',
               selected
                 ? 'border-brand-600 bg-brand-700 text-on-dark'
@@ -186,7 +198,21 @@ export function CheckinsScreen() {
         </CardHeader>
 
         <CardContent>
-          <div className="flex h-[140px] items-end gap-3">
+          {/*
+            `h-[160px]` rather than the previous 140: the bar heights are
+            unchanged (`v * 20`), but each column now carries a visible score
+            under its day label and needed the 20px to hold it. Tops out at
+            100 + two 6px gaps + two 16px labels = 144.
+
+            The bar's `title` is kept — it is still the better affordance under
+            a mouse — but it is no longer the ONLY source. It was: this chart
+            has no y-axis, so on a touch device the six scores it plots were
+            literally unreadable, with the tooltip unreachable and the bars
+            themselves unfocusable `<div>`s. The number is now always visible,
+            which is the one of the brief's three options (focus, tap, always
+            visible) that works without a pointer of any kind.
+          */}
+          <div className="flex h-[160px] items-end gap-3">
             {trendBars.map((d, i) => (
               <div key={`${d.label}-${i}`} className="flex flex-1 flex-col items-center gap-1.5">
                 <div
@@ -195,6 +221,10 @@ export function CheckinsScreen() {
                   title={`Score ${d.v}/5`}
                 />
                 <span className="text-xs text-muted-foreground">{d.label}</span>
+                <span className="text-xs font-semibold tabular-nums text-card-foreground">
+                  {d.v}
+                  <span className="font-normal text-muted-foreground">/5</span>
+                </span>
               </div>
             ))}
           </div>

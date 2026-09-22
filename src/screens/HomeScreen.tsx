@@ -64,16 +64,18 @@ export function HomeScreen() {
               visibly, on the app's main screen. It now uses the same key as the
               sidebar entry, which does exist.
             */}
+            {/* `h-11 lg:h-9`: 36px is under the touch floor, and these are the
+                two primary actions on the home screen. */}
             <Link
               to="/my-care/calendar"
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-brand-600 px-3.5 text-sm font-bold text-link transition-colors hover:bg-accent"
+              className="inline-flex h-11 items-center gap-2 rounded-md border border-brand-600 px-3.5 text-sm font-bold text-link transition-colors hover:bg-accent lg:h-9"
             >
               <CalendarDays className="size-4" aria-hidden="true" />
               {t('side.calendar')}
             </Link>
             <Link
               to="/my-care/checkins"
-              className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3.5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+              className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-3.5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 lg:h-9"
             >
               <ClipboardList className="size-4" aria-hidden="true" />
               {t('home.checkinBtn')}
@@ -128,7 +130,13 @@ export function HomeScreen() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <b className="block text-sm font-semibold text-card-foreground">{m.name}</b>
-                    <p className="truncate text-xs text-muted-foreground">{teamSubtitle(m)}</p>
+                    {/* `lg:truncate` rather than a bare `truncate`: at 320px this
+                        line measures ~57px wider than its column and was being
+                        clipped at 77%, which cut "Ochsner Baton Rouge" down to
+                        "Ochsner Baton R". Where the practice is matters on a
+                        navigation app, and it appears nowhere else on the card,
+                        so it wraps to a second line on a phone instead. */}
+                    <p className="text-xs text-muted-foreground lg:truncate">{teamSubtitle(m)}</p>
                   </div>
                   {/*
                     A "Message" button lived here. It had been promoted from an

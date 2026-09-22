@@ -408,6 +408,13 @@ export function PopulationScreen() {
                        * shaped by the quintile ramp — none of which the
                        * button-shaped primitive (fixed height, `shrink-0`,
                        * rounded-md) can express without being overridden away.
+                       *
+                       * It is a toggle all the same, so it carries the touch
+                       * floor: `h-11` below `lg`, the designed `h-8` above. Only
+                       * the height moves — the grid already guarantees ~45px of
+                       * width — and the inline `grid-column`/`grid-row` positions
+                       * are untouched, so the cartogram keeps its shape and
+                       * simply gets a taller row.
                        */
                       return (
                         <button
@@ -427,7 +434,7 @@ export function PopulationScreen() {
                           onClick={() => setParish(p.n)}
                           style={{ gridColumn: p.x, gridRow: p.y }}
                           className={cn(
-                            'relative flex h-8 items-center justify-center rounded-sm text-xs font-bold transition-transform hover:scale-110',
+                            'relative flex h-11 items-center justify-center rounded-sm text-xs font-bold transition-transform hover:scale-110 lg:h-8',
                             SCALE[b],
                             parish === p.n && 'ring-2 ring-brand-700',
                             vanHere === p.n && 'ring-2 ring-warning',

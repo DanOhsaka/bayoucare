@@ -340,8 +340,14 @@ export function TeamScreen() {
             <Button
               type="button"
               /* A long label on a 320px screen: it wraps onto a second line
-                 rather than pushing the page sideways. */
-              className="h-auto py-2 text-left text-xs font-bold whitespace-normal"
+                 rather than pushing the page sideways.
+                 `min-h-11` sits alongside `h-auto` because the two answer
+                 different questions — `h-auto` lets the box grow past one line,
+                 the minimum stops it collapsing to two lines' worth of 33px at
+                 the widths where it does not wrap. They do not conflict:
+                 min-height wins over an automatic height, and the label still
+                 wraps freely past 44px. */
+              className="h-auto min-h-11 py-2 text-left text-xs font-bold whitespace-normal lg:min-h-0"
               onClick={() => {
                 autoApply()
                 toast('⚡ Top counterfactual applied for every flagged patient — worklist updated.')

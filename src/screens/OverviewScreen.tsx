@@ -352,7 +352,9 @@ export function OverviewScreen() {
             <Button
               type="button"
               onClick={() => go('app')}
-              className="h-10 bg-warning px-4 font-bold text-on-warning hover:bg-warning/90"
+              // `h-11 lg:h-10` — the 40px this asked for is under the touch
+              // floor, and these are the demo's entry points.
+              className="h-11 bg-warning px-4 font-bold text-on-warning hover:bg-warning/90 lg:h-10"
             >
               ▶ Try the patient demo
             </Button>
@@ -368,7 +370,7 @@ export function OverviewScreen() {
                 type="button"
                 variant="outline"
                 onClick={() => go(view)}
-                className="h-10 px-4 font-bold"
+                className="h-11 px-4 font-bold lg:h-10"
               >
                 {label}
               </Button>
