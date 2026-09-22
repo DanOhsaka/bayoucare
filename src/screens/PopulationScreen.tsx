@@ -35,6 +35,47 @@ const SCALE = [
 
 const METRIC_KEYS: MetricKey[] = ['need', 'late', 'inc', 'cov']
 
+/**
+ * The quintile ramp legend, rendered under BOTH map modes.
+ *
+ * One component rather than a copy per mode, so the cartogram and the geographic
+ * map cannot drift apart. The end labels come from `METRICS[metric]` rather than
+ * a hard-coded phrase: `worse` is what flips them, so the need index reads
+ * "lower … higher" while Screening coverage correctly reads "higher … lower".
+ * The caption is the only mode-dependent part, because "each tile is one parish"
+ * and the numbered rank badges describe the cartogram and nothing else.
+ */
+function MapLegend({ metric, mode }: { metric: MetricKey; mode: 'tiles' | 'geo' }) {
+  const m = METRICS[metric]
+
+  return (
+    <>
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <span>
+          {m.worse ? 'lower' : 'higher'} {m.label.toLowerCase()}
+        </span>
+        {SCALE.map((c, i) => (
+          <span key={i} className={cn('block size-3.5 rounded-sm', c)} aria-hidden="true" />
+        ))}
+        <span>
+          {m.worse ? 'higher' : 'lower'} {m.label.toLowerCase()}
+        </span>
+      </div>
+
+      <p className="mt-2 text-xs text-muted-foreground">
+        {mode === 'tiles'
+          ? 'Tile cartogram — each tile is one parish; positions approximate geography. Numbered badges = top-10 unmet-need rank.'
+          : 'Geographic map — real Census parish boundaries; hover or focus a parish for its numbers.'}{' '}
+        <b className="text-card-foreground">
+          Incidence &amp; late-stage: State Cancer Profiles / USCS. Screening coverage &amp;
+          population: CDC PLACES 2025. {mode === 'tiles' ? 'Hatched tiles' : 'Muted parishes'} = late
+          stage suppressed (&lt;16 cases).
+        </b>
+      </p>
+    </>
+  )
+}
+
 export function PopulationScreen() {
   const [metric, setMetric] = useState<MetricKey>('need')
   const [mode, setMode] = useState<'tiles' | 'geo'>('tiles')
@@ -47,13 +88,29 @@ export function PopulationScreen() {
   const [tourLog, setTourLog] = useState<string[]>([])
 
   /**
-   * The geographic map's hover tooltip.
+   * The geographic map's hover/focus tooltip.
    *
    * Follows the cursor with the same edge clamping the legacy used — without it
    * the panel runs off the right edge on the last few columns of the state.
    */
   const [tip, setTip] = useState<{ name: string; x: number; y: number } | null>(null)
   const tipParish = tip ? PARISH_DATA.find((p) => p.n === tip.name) : null
+
+  /**
+   * Show the panel for `name` beside a viewport point, kept inside the window.
+   *
+   * The clamp lives HERE, at hover/focus time, not at render. Reading
+   * `window.innerWidth` while rendering bakes in whatever the viewport happened
+   * to be when the panel first appeared, so resizing left the panel stranded
+   * past the edge until the pointer moved again. 275/210 are the legacy's own
+   * margins — the `w-[262px]` panel plus its 14px offset from the pointer.
+   */
+  const showTip = (name: string, x: number, y: number) =>
+    setTip({
+      name,
+      x: Math.max(8, Math.min(x + 14, window.innerWidth - 275)),
+      y: Math.max(8, Math.min(y + 14, window.innerHeight - 210)),
+    })
 
   const stops = useMemo(() => PARISH_DATA.filter((p) => p.rank != null).slice(0, 10), [])
 
@@ -230,6 +287,20 @@ export function PopulationScreen() {
                     {Object.entries(MAP.d).map(([name, d]) => {
                       const p = PARISH_DATA.find((x) => x.n === name)
                       const b = p ? bucketOf(p, metric) : 0
+                      /*
+                       * The path's label carries the value, exactly as the
+                       * cartogram tile's already does — "Webster Parish" on its
+                       * own left a screen-reader user with a name and no number
+                       * while the tooltip showed both. Computed for the CURRENT
+                       * metric, so switching to Late-stage % relabels all 64
+                       * paths. A name missing from PARISH_DATA falls back to the
+                       * bare parish name rather than claiming "suppressed".
+                       */
+                      const v = p ? m.f(p) : null
+                      const valTxt = v == null ? 'suppressed (<16 cases)' : m.fmt(v)
+                      const rankTxt =
+                        p && m.worse && p.rank != null ? ` · unmet-need rank #${p.rank}` : ''
+                      const label = p ? `${name} — ${valTxt}${rankTxt}` : name
                       const fill =
                         b === 0
                           ? 'var(--muted)'
@@ -253,7 +324,7 @@ export function PopulationScreen() {
                           strokeWidth={0.6}
                           role="button"
                           tabIndex={0}
-                          aria-label={name}
+                          aria-label={label}
                           aria-pressed={parish === name}
                           // Hover feedback the legacy had and I had missed: the
                           // stroke darkens and thickens under the cursor, so the
@@ -264,8 +335,20 @@ export function PopulationScreen() {
                             parish === name && 'stroke-brand-900 [stroke-width:1.8]',
                           )}
                           onClick={() => setParish(name)}
-                          onMouseMove={(e) => setTip({ name, x: e.clientX, y: e.clientY })}
+                          onMouseMove={(e) => showTip(name, e.clientX, e.clientY)}
                           onMouseLeave={() => setTip(null)}
+                          /*
+                           * Keyboard parity for the panel below: a focused path has
+                           * no cursor to follow, so anchor the panel to the path's
+                           * own box instead. Without this a sighted keyboard user
+                           * could select a parish and still never see the numbers
+                           * the mouse gets.
+                           */
+                          onFocus={(e) => {
+                            const r = e.currentTarget.getBoundingClientRect()
+                            showTip(name, r.left + r.width / 2, r.bottom)
+                          }}
+                          onBlur={() => setTip(null)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                               e.preventDefault()
@@ -289,20 +372,8 @@ export function PopulationScreen() {
                 </div>
               )}
 
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span>{m.worse ? 'lower' : 'higher'} {m.label.toLowerCase()}</span>
-                {SCALE.map((c, i) => (
-                  <span key={i} className={cn('block size-3.5 rounded-sm', c)} aria-hidden="true" />
-                ))}
-                <span>{m.worse ? 'higher' : 'lower'} {m.label.toLowerCase()}</span>
-              </div>
-
-              <p className="mt-2 text-xs text-muted-foreground">
-                Tile cartogram — each tile is one parish; positions approximate geography. Numbered
-                badges = top-10 unmet-need rank. <b className="text-card-foreground">Incidence &amp;
-                late-stage: State Cancer Profiles / USCS. Screening coverage &amp; population: CDC
-                PLACES 2025. Hatched tiles = late stage suppressed (&lt;16 cases).</b>
-              </p>
+              {/* One legend for both modes — see `MapLegend` above. */}
+              <MapLegend metric={metric} mode={mode} />
             </div>
 
             {/* ------------------------------------------------ side panel */}
@@ -455,11 +526,13 @@ export function PopulationScreen() {
       </div>
 
       {/*
-        The geographic map's hover panel.
+        The geographic map's hover/focus panel.
         Fixed-position rather than absolute so it follows the cursor and is never
         clipped by the map's scroll container. `pointer-events-none` matters: the
         node sits under the cursor, and without it the tooltip would steal the
-        mouseleave from the path beneath and flicker.
+        mouseleave from the path beneath and flicker. `left`/`top` arrive already
+        clamped against the live viewport — `showTip` clamps when the panel is
+        opened, so these are final and a later resize cannot strand it off-screen.
       */}
       {tip && tipParish && (
         /* Deliberately not `Card`: this is the map's cursor-following overlay,
@@ -467,10 +540,7 @@ export function PopulationScreen() {
         <div
           role="tooltip"
           className="pointer-events-none fixed z-50 w-[262px] rounded-lg border border-border bg-card p-3 text-xs shadow-[var(--shadow-lg)]"
-          style={{
-            left: Math.min(tip.x + 14, window.innerWidth - 275),
-            top: Math.min(tip.y + 14, window.innerHeight - 210),
-          }}
+          style={{ left: tip.x, top: tip.y }}
         >
           <div className="flex flex-wrap items-center gap-2">
             <b className="text-sm text-card-foreground">{tipParish.n} Parish</b>
