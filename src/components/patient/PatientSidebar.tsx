@@ -1,4 +1,4 @@
-import { useLocation, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { LayoutGroup, motion, MotionConfig, useReducedMotion } from 'motion/react'
 import {
   Activity,
@@ -14,7 +14,6 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import { ScrollRail } from '@/components/shared/ScrollRail'
 import { UnreadCount } from '@/components/shared/UnreadCount'
 import { PATIENTS } from '@/data'
 import { SPRING_THUMB } from '@/lib/ease'
@@ -29,7 +28,7 @@ export interface PatientScreen {
   labelKey: string
 }
 
-/** The patient sub-screens, in the order the sidebar lists them. */
+/** The patient sub-screens, in the order the sidebar / menu lists them. */
 export const PATIENT_SCREENS: PatientScreen[] = [
   { key: 'home', icon: House, labelKey: 'side.home' },
   { key: 'family', icon: Users, labelKey: 'side.family' },
@@ -43,12 +42,9 @@ export const PATIENT_SCREENS: PatientScreen[] = [
   { key: 'messages', icon: MessageCircle, labelKey: 'side.messages' },
 ]
 
-function linkClass(isActive: boolean, rail: boolean) {
+function linkClass(isActive: boolean) {
   return cn(
-    'relative isolate flex items-center gap-2 rounded-full text-sm font-semibold transition-colors duration-200 ease-out motion-safe:active:scale-[0.99]',
-    rail
-      ? 'snap-start flex-none px-3 py-2.5'
-      : 'w-full gap-2.5 px-3 py-3 lg:py-2',
+    'relative isolate flex w-full items-center gap-2.5 rounded-full px-3 py-3 text-sm font-semibold transition-colors duration-200 ease-out motion-safe:active:scale-[0.99] lg:py-2',
     isActive
       ? 'text-on-dark'
       : 'text-foreground hover:bg-accent/70 hover:text-accent-foreground',
@@ -58,12 +54,10 @@ function linkClass(isActive: boolean, rail: boolean) {
 function ScreenLink({
   screen,
   unread,
-  rail,
   layoutId,
 }: {
   screen: PatientScreen
   unread: number
-  rail?: boolean
   layoutId: string
 }) {
   const t = useT()
@@ -74,7 +68,7 @@ function ScreenLink({
   return (
     <NavLink
       to={`/my-care/${screen.key}`}
-      className={({ isActive }) => linkClass(isActive, !!rail)}
+      className={({ isActive }) => linkClass(isActive)}
     >
       {({ isActive }) => (
         <>
@@ -101,7 +95,6 @@ function ScreenLink({
 }
 
 export function PatientSidebar() {
-  const location = useLocation()
   const pid = usePatient((s) => s.pid)
   const patient = PATIENTS[pid]
   const unreadMap = useCareChat((s) => s.unread)
@@ -110,12 +103,9 @@ export function PatientSidebar() {
   const firstName = patient.name.split(' ')[0]
 
   /*
-   * The sidebar becomes a column at `md`, not `lg` — it is the other half of
-   * the pairing in `MyCare`, and neither half is correct alone.
-   *
-   * Below `md` the eleven sections ride a ScrollRail (chevrons + edge fades)
-   * instead of a native overflow scrollbar. The sticky offsets at `md`/`lg`
-   * track the measured header heights — see the layout report.
+   * Profile card always. Section list is tablet+ only — on phones those
+   * links live under Menu → My Care (see MobileNav). Sticky offsets track
+   * the measured header heights.
    */
   return (
     <aside className="min-w-0 md:sticky md:top-[112px] md:self-start lg:top-[60px]">
@@ -132,25 +122,6 @@ export function PatientSidebar() {
               {patient.short}
             </span>
           </div>
-        </div>
-
-        {/* Narrow: scroll rail. Tablet+ : vertical list. */}
-        <div className="mt-3 md:hidden">
-          <MotionConfig transition={SPRING_THUMB}>
-            <LayoutGroup id="patient-rail">
-              <ScrollRail aria-label="My Care sections" activeKey={location.pathname}>
-                {PATIENT_SCREENS.map((s) => (
-                  <ScreenLink
-                    key={s.key}
-                    screen={s}
-                    unread={messagesUnread}
-                    rail
-                    layoutId="patient-care-rail-pill"
-                  />
-                ))}
-              </ScrollRail>
-            </LayoutGroup>
-          </MotionConfig>
         </div>
 
         <MotionConfig transition={SPRING_THUMB}>

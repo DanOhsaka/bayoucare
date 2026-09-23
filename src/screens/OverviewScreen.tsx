@@ -78,7 +78,7 @@ function PatientHome() {
             <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
               {t(`overview.${greetingHour()}`)}
             </p>
-            <h1 className="mt-1 text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            <h1 className="mt-1 text-balance text-2xl font-semibold tracking-tight text-foreground font-display sm:text-3xl">
               {ti('home.greet')}
             </h1>
             <p className="mt-2 max-w-xl text-pretty text-sm text-muted-foreground">{t('home.sub')}</p>
@@ -201,7 +201,7 @@ function ClinicianHome() {
         <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
           {t('overview.clinicianKicker')}
         </p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground font-display sm:text-3xl">
           {t('overview.clinicianGreet')}
         </h1>
         <p className="mt-2 max-w-xl text-sm text-muted-foreground">

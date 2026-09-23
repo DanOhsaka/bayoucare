@@ -11,6 +11,8 @@ import { TextShimmer } from '@/components/motion/text-shimmer'
 import { TiltCard } from '@/components/motion/tilt-card'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { TracingBeam } from '@/components/ui/tracing-beam'
+import { SiteFooter } from '@/components/layout/SiteFooter'
 import {
   MARKETING_JOURNEY,
   MARKETING_STATS,
@@ -28,7 +30,7 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
       <TextReveal
         text={title}
         as="h2"
-        className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
+        className="text-2xl font-semibold tracking-tight text-foreground font-display sm:text-3xl"
         whileInView
       />
       <p className="text-sm text-muted-foreground">{sub}</p>
@@ -66,6 +68,7 @@ export function LandingPage() {
       <PublicHeader />
 
       <main className="relative z-10 mx-auto w-full max-w-6xl flex-1 px-3 py-6 sm:px-5 sm:py-10">
+        <TracingBeam className="max-w-none">
         <section className="relative overflow-hidden rounded-3xl border border-border glass px-5 py-10 sm:px-10 sm:py-14">
           <AnimatedBadge
             className="mb-5 border-border bg-background/60 text-[10px] uppercase tracking-[0.12em] text-muted-foreground"
@@ -76,7 +79,7 @@ export function LandingPage() {
           <TextReveal
             text={line1.trim()}
             as="h1"
-            className="block text-3xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:text-5xl"
+            className="block text-3xl font-semibold leading-[1.1] tracking-tight text-foreground font-display sm:text-4xl md:text-5xl"
             stagger={0.05}
           />
           <ChromaticTextReveal
@@ -84,7 +87,7 @@ export function LandingPage() {
             words={[line2, 'Care that walks with you.', 'One plan. Every parish.']}
             colors={['#1db87f', '#34d399', '#e8a317', '#60a5fa']}
             foregroundColor="var(--primary)"
-            className="mt-2 block text-3xl font-semibold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl"
+            className="mt-2 block text-3xl font-semibold leading-[1.1] tracking-tight font-display sm:text-4xl md:text-5xl"
             loop
             duration={1.35}
             retractDuration={0.85}
@@ -229,7 +232,7 @@ export function LandingPage() {
           <TextReveal
             text={t('landing.getStartedHead')}
             as="h2"
-            className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
+            className="text-xl font-semibold tracking-tight text-foreground font-display sm:text-2xl"
             whileInView
           />
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
@@ -251,18 +254,10 @@ export function LandingPage() {
           </div>
           <p className="mt-3 text-xs text-muted-foreground">{t('landing.demoNote')}</p>
         </section>
+        </TracingBeam>
       </main>
 
-      <footer className="relative z-10 border-t border-border px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-center text-xs text-muted-foreground sm:px-6 sm:py-5">
-        BayouCare · DevDays 2026 ·{' '}
-        <button
-          type="button"
-          onClick={openLogin}
-          className="font-medium text-primary hover:underline"
-        >
-          {t('landing.signIn')}
-        </button>
-      </footer>
+      <SiteFooter variant="public" className="relative z-10" />
     </div>
   )
 }

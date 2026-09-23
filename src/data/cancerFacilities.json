@@ -1,0 +1,114 @@
+[
+  {
+    "id": "ochsner-alexandria",
+    "name": "Ochsner Health Center — Alexandria",
+    "lat": 31.3112,
+    "lng": -92.4451,
+    "kind": "ochsner",
+    "services": ["Oncology", "Infusion", "Primary care"]
+  },
+  {
+    "id": "central-la-cancer",
+    "name": "Central Louisiana Cancer Center",
+    "lat": 31.2945,
+    "lng": -92.4612,
+    "kind": "cancer",
+    "services": ["Radiation", "Medical oncology", "Survivorship"]
+  },
+  {
+    "id": "rapides-regional",
+    "name": "Rapides Regional Medical Center",
+    "lat": 31.3089,
+    "lng": -92.4428,
+    "kind": "hospital",
+    "services": ["Emergency", "Imaging", "Surgery"]
+  },
+  {
+    "id": "lafayette-general",
+    "name": "Ochsner Lafayette General",
+    "lat": 30.2078,
+    "lng": -92.0198,
+    "kind": "ochsner",
+    "services": ["Oncology", "Infusion", "Imaging"]
+  },
+  {
+    "id": "monroe-ochsner",
+    "name": "Ochsner LSU Health — Monroe",
+    "lat": 32.5093,
+    "lng": -92.1193,
+    "kind": "ochsner",
+    "services": ["Oncology", "Infusion", "Primary care"]
+  },
+  {
+    "id": "northeast-la-cancer",
+    "name": "Northeast Louisiana Cancer Institute",
+    "lat": 32.5214,
+    "lng": -92.0876,
+    "kind": "cancer",
+    "services": ["Medical oncology", "Radiation", "Survivorship"]
+  },
+  {
+    "id": "ochsner-baton-rouge",
+    "name": "Ochsner Medical Center — Baton Rouge",
+    "lat": 30.3918,
+    "lng": -91.0892,
+    "kind": "ochsner",
+    "services": ["Medical oncology", "Infusion", "Radiation"]
+  },
+  {
+    "id": "mary-bird-perkins-br",
+    "name": "Mary Bird Perkins Cancer Center — Baton Rouge",
+    "lat": 30.4072,
+    "lng": -91.0965,
+    "kind": "cancer",
+    "services": ["Radiation", "Medical oncology", "Survivorship"]
+  },
+  {
+    "id": "ochsner-new-orleans",
+    "name": "Ochsner Medical Center — New Orleans",
+    "lat": 29.9602,
+    "lng": -90.1445,
+    "kind": "ochsner",
+    "services": ["Comprehensive cancer", "Infusion", "Research"]
+  },
+  {
+    "id": "ochsner-jefferson",
+    "name": "Ochsner Cancer Institute — Jefferson",
+    "lat": 29.9628,
+    "lng": -90.1654,
+    "kind": "ochsner",
+    "services": ["Medical oncology", "Radiation", "Surgery"]
+  },
+  {
+    "id": "ochsner-lsu-shreveport",
+    "name": "Ochsner LSU Health — Shreveport",
+    "lat": 32.4802,
+    "lng": -93.7621,
+    "kind": "ochsner",
+    "services": ["Oncology", "Infusion", "Academic medicine"]
+  },
+  {
+    "id": "willis-knighton-cancer",
+    "name": "Willis-Knighton Cancer Center",
+    "lat": 32.4521,
+    "lng": -93.7912,
+    "kind": "cancer",
+    "services": ["Radiation", "Medical oncology", "Proton therapy"]
+  },
+  {
+    "id": "mary-bird-perkins-covington",
+    "name": "Mary Bird Perkins — Covington",
+    "lat": 30.4755,
+    "lng": -90.1009,
+    "kind": "cancer",
+    "services": ["Radiation", "Medical oncology"]
+  },
+  {
+    "id": "thibodaux-regional",
+    "name": "Thibodaux Regional Cancer Center",
+    "lat": 29.7958,
+    "lng": -90.8245,
+    "kind": "cancer",
+    "services": ["Medical oncology", "Infusion"]
+  }
+]

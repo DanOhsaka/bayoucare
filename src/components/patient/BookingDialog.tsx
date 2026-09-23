@@ -2,7 +2,15 @@ import { useMemo, useState } from 'react'
 import { Car } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { Field, SELECT_CLASS } from '@/components/shared/Field'
+import { Field } from '@/components/shared/Field'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/motion/select'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -53,6 +61,9 @@ type DayRow = {
   slots: ReturnType<typeof slotsFor>
 }
 
+const FIELD_TRIGGER =
+  'h-11 px-3 py-0 text-sm shadow-[var(--shadow-sm)] lg:h-10'
+
 /**
  * Book or reschedule an appointment.
  *
@@ -89,6 +100,8 @@ export function BookingDialog({ open, onOpenChange, editing, initialOff, initial
   const [time, setTime] = useState(editing?.time ?? '')
   const [ride, setRide] = useState(editing?.ride ?? initialRide ?? false)
   const [error, setError] = useState<string | null>(null)
+  /** Keep at most one booking select panel open — they stack in one dialog. */
+  const [openField, setOpenField] = useState<'day' | 'type' | 'time' | null>(null)
 
   /*
    * One year of days, each with its own state and slot grid. The appointment
@@ -149,7 +162,11 @@ export function BookingDialog({ open, onOpenChange, editing, initialOff, initial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      {/*
+        overflow-visible so beUI Select panels are not clipped by the dialog's
+        default overflow-y-auto (absolute menus paint outside the trigger).
+      */}
+      <DialogContent className="overflow-visible">
         <DialogHeader>
           <DialogTitle>{editing ? t('cal.reschedHead') : t('cal.bookHead')}</DialogTitle>
           <DialogDescription>{t('cal.bookSub')}</DialogDescription>
@@ -160,59 +177,83 @@ export function BookingDialog({ open, onOpenChange, editing, initialOff, initial
               reusing it here labelled the day picker "My appointments", which
               is what a screenshot caught. This is its own key. */}
           <Field label={t('cal.day')} id="booking-day">
-            <select
+            <Select
               id="booking-day"
-              className={SELECT_CLASS}
-              value={off}
-              onChange={(e) => setOff(Number(e.target.value))}
+              value={String(off)}
+              open={openField === 'day'}
+              onOpenChange={(next) => setOpenField(next ? 'day' : null)}
+              onValueChange={(v) => setOff(Number(v))}
             >
-              {daysByMonth.map((group) => (
-                <optgroup key={group.label} label={group.label}>
-                  {group.days.map((d) => (
-                    <option key={d.off} value={d.off} disabled={d.state !== 'open'}>
-                      {fmtShort(d.date, lang)}
-                      {d.state === 'full' ? ` — ${t('cal.fullDay')}` : ''}
-                      {d.state === 'unavailable' ? ` — ${t('cal.closed')}` : ''}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+              <SelectTrigger className={FIELD_TRIGGER} aria-label={t('cal.day')}>
+                <SelectValue placeholder={t('cal.day')} />
+              </SelectTrigger>
+              <SelectContent>
+                {daysByMonth.map((group) => (
+                  <div key={group.label}>
+                    <SelectLabel>{group.label}</SelectLabel>
+                    {group.days.map((d) => {
+                      const label =
+                        fmtShort(d.date, lang) +
+                        (d.state === 'full' ? ` — ${t('cal.fullDay')}` : '') +
+                        (d.state === 'unavailable' ? ` — ${t('cal.closed')}` : '')
+                      return (
+                        <SelectItem
+                          key={d.off}
+                          value={String(d.off)}
+                          disabled={d.state !== 'open'}
+                          className="text-sm"
+                        >
+                          {label}
+                        </SelectItem>
+                      )
+                    })}
+                  </div>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
 
           <Field label={t('cal.type')} id="booking-type">
-            <select
+            <Select
               id="booking-type"
-              className={SELECT_CLASS}
               value={type}
-              onChange={(e) => setType(e.target.value)}
+              open={openField === 'type'}
+              onOpenChange={(next) => setOpenField(next ? 'type' : null)}
+              onValueChange={setType}
             >
-              {typeKeys.map((k) => (
-                <option key={k} value={k}>
-                  {types[k].label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className={FIELD_TRIGGER} aria-label={t('cal.type')}>
+                <SelectValue placeholder={t('cal.type')} />
+              </SelectTrigger>
+              <SelectContent>
+                {typeKeys.map((k) => (
+                  <SelectItem key={k} value={k} className="text-sm">
+                    {types[k].label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
 
           <Field label={t('cal.pickTime')} id="booking-time">
-            <select
+            <Select
               id="booking-time"
-              className={SELECT_CLASS}
-              value={chosen}
+              value={chosen || undefined}
               disabled={free.length === 0}
-              onChange={(e) => setTime(e.target.value)}
+              open={openField === 'time'}
+              onOpenChange={(next) => setOpenField(next ? 'time' : null)}
+              onValueChange={setTime}
             >
-              {free.length === 0 ? (
-                <option value="">{t('cal.noSlots')}</option>
-              ) : (
-                free.map((s) => (
-                  <option key={s.time} value={s.time}>
+              <SelectTrigger className={FIELD_TRIGGER} aria-label={t('cal.pickTime')}>
+                <SelectValue placeholder={free.length === 0 ? t('cal.noSlots') : t('cal.pickTime')} />
+              </SelectTrigger>
+              <SelectContent>
+                {free.map((s) => (
+                  <SelectItem key={s.time} value={s.time} className="text-sm tabular-nums">
                     {s.time}
-                  </option>
-                ))
-              )}
-            </select>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
 
           <div className="flex flex-col gap-2">

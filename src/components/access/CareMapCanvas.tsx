@@ -188,7 +188,7 @@ export function CareMapCanvas({
           <Polyline
             positions={routePositions}
             pathOptions={{
-              color: '#0285f7',
+              color: '#1db87f',
               weight: 5,
               opacity: routePending ? 0.4 : 0.95,
               lineCap: 'round',

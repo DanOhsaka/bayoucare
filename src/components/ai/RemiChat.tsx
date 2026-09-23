@@ -119,7 +119,7 @@ export function RemiChat() {
         role="log"
         aria-live="polite"
         aria-label="Conversation with Remi"
-        className="flex max-h-[min(52dvh,calc(100dvh-14rem))] min-h-[12rem] flex-col gap-4 overflow-y-auto overscroll-contain scroll-smooth p-1 sm:max-h-[min(52vh,calc(100dvh-16rem))] sm:min-h-[220px]"
+        className="flex max-h-[min(52dvh,calc(100dvh-14rem))] min-h-[12rem] flex-col gap-4 overflow-y-auto overscroll-contain scroll-smooth p-1 [scrollbar-gutter:stable] sm:max-h-[min(52vh,calc(100dvh-16rem))] sm:min-h-[220px]"
       >
         {messages.map((m) => (
           <Bubble key={m.id} msg={m} />

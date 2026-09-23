@@ -60,7 +60,7 @@
   --neutral-bg: oklch(95% 0.006 145);
   --neutral-fg: oklch(42% 0.02 145);
   --on-warning: #3a2400;
-  --link: #0285f7;
+  --link: var(--green-600);
   --on-dark-success: #7fd4ae;
   --on-dark-warning: #f0b85a;
   --on-dark-danger: #f09a82;
@@ -97,19 +97,19 @@
   --card-foreground: var(--ink);
   --popover: var(--card);
   --popover-foreground: var(--ink);
-  --primary: #0285f7;
+  --primary: var(--green-700);
   --primary-foreground: #ffffff;
   --secondary: var(--soft);
   --secondary-foreground: var(--ink);
   --muted: var(--chip-gray);
   --muted-foreground: var(--ink-soft);
-  --accent: color-mix(in oklab, #0285f7 10%, white);
-  --accent-foreground: #0369a1;
+  --accent: color-mix(in oklab, var(--green-500) 12%, white);
+  --accent-foreground: var(--green-800);
   --destructive: var(--danger);
   --destructive-foreground: #ffffff;
   --border: var(--line);
   --input: var(--line);
-  --ring: color-mix(in oklab, #0285f7 45%, transparent);
+  --ring: color-mix(in oklab, var(--green-600) 45%, transparent);
 }
 
 /* ==========================================================================
@@ -158,8 +158,8 @@
   --neutral-bg: #242424;
   --neutral-fg: oklch(68% 0.02 145);
 
-  --accent-foreground: #7dd3fc;
-  --link: #38bdf8;
+  --accent-foreground: var(--green-500);
+  --link: var(--green-500);
   --on-brand-tint: #eaf8f0;
   --on-dark: #eaf8f0;
   --on-dark-muted: #8fc9ad;
@@ -180,10 +180,10 @@
   --glass-thin-bg: rgb(18 18 18 / 0.5);
 
   --destructive-foreground: #2a120c;
-  --primary: #0285f7;
-  --primary-foreground: #ffffff;
-  --accent: color-mix(in oklab, #0285f7 18%, #1a1a1a);
-  --ring: color-mix(in oklab, #0285f7 50%, transparent);
+  --primary: var(--green-500);
+  --primary-foreground: #06281c;
+  --accent: color-mix(in oklab, var(--green-500) 18%, #1a1a1a);
+  --ring: color-mix(in oklab, var(--green-500) 50%, transparent);
 }
 
 /* ==========================================================================
@@ -280,7 +280,8 @@
   --text-3xl: 1.875rem;
   --text-3xl--line-height: 1.15;
 
-  --font-sans: 'Sora Variable', Sora, system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', Fraunces, Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
@@ -292,14 +293,16 @@
    ========================================================================== */
 @layer components {
   .typo-page-title {
+    font-family: var(--font-display);
     font-size: var(--text-2xl);
     line-height: var(--text-2xl--line-height);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--foreground);
   }
 
   .typo-section {
+    font-family: var(--font-display);
     font-size: var(--text-lg);
     line-height: var(--text-lg--line-height);
     font-weight: 600;
@@ -447,6 +450,21 @@
     }
   }
 
+  @keyframes pin-ripple {
+    0% {
+      transform: scale(0.55);
+      opacity: 0.55;
+    }
+    70% {
+      transform: scale(1.35);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1.35);
+      opacity: 0;
+    }
+  }
+
   .bc-chrome-bar {
     background-image:
       linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 42%),
@@ -459,7 +477,7 @@
 }
 
 /* ==========================================================================
-   Access map markers (Leaflet DivIcon) — beUI pill markers + primary blue
+   Access map markers (Leaflet DivIcon) — beUI pill markers + brand green
    ========================================================================== */
 .bc-map-marker {
   background: transparent;
@@ -565,10 +583,14 @@
     scroll-behavior: smooth;
     /* Device emulators + foldables: never let a wide child paint a sideways page. */
     overflow-x: clip;
+    /* Thin, quiet scrollbars — a bright thumb reads louder than Remi's chrome. */
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--ink-soft) 45%, transparent) transparent;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
+    margin: 0;
     font-family: var(--font-sans);
     font-size: var(--text-base);
     line-height: 1.55;
@@ -576,9 +598,33 @@
     /* Notch / home-indicator devices (Galaxy, iPhone, foldables). */
     padding-left: env(safe-area-inset-left, 0);
     padding-right: env(safe-area-inset-right, 0);
+    /* Smooth vertical scroll without sideways rubber bands on mobile. */
+    overscroll-behavior-x: none;
   }
 
-  /* Light mode only — white cards wash out thin Inter; dark mode already has
+  #root {
+    min-height: 100dvh;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--ink-soft) 40%, transparent);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--ink-soft) 60%, transparent);
+  }
+
+  /* Light mode only — white cards wash out thin UI sans; dark mode already has
      enough contrast on green/ink surfaces. */
   :root:not([data-theme='dark']) body {
     font-weight: 500;
@@ -603,6 +649,18 @@
     line-height: 1.2;
     letter-spacing: -0.01em;
     font-weight: 600;
+  }
+
+  /* Display serif on page heroes only — dense clinic h2/h3 stay on the UI sans
+     via components that do not use a bare <h1>. */
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
   }
 
   /* One focus ring for the whole app. The legacy file had exactly one
@@ -758,6 +816,24 @@
       opacity: 1;
     }
   }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
+  .maplibregl-ctrl-attrib {
+    @apply bg-background! text-muted-foreground! border-border! rounded-md! border! shadow-sm!;
+  }
+  .maplibregl-ctrl-attrib a {
+    @apply text-muted-foreground!;
+  }
+  .maplibregl-ctrl-attrib a:hover {
+    @apply text-foreground!;
+  }
+  .maplibregl-ctrl-attrib-button {
+    @apply bg-transparent! dark:invert;
+  }
 }
 
 /* ==========================================================================
@@ -819,7 +895,6 @@
     break-inside: avoid;
   }
 }
-
 
 /* ==========================================================================
    beUI surface utilities (from https://beui.dev/theme.css)

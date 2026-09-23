@@ -1,10 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { ChevronDown, Menu, X } from 'lucide-react'
 
 import { Drawer } from '@/components/motion/drawer'
 import { NAV_ITEMS, isNavItemActive } from '@/components/layout/navItems'
+import { PATIENT_SCREENS } from '@/components/patient/PatientSidebar'
+import { UnreadCount } from '@/components/shared/UnreadCount'
+import { PATIENTS } from '@/data'
 import { useT } from '@/hooks/useT'
+import { unreadTotal, useCareChat } from '@/store/careChat'
+import { usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
 
@@ -18,14 +23,26 @@ const NEW_KEYS: Record<string, string> = {
 }
 
 /**
- * App menu — trigger sits left of the logo; full-height drawer opens from the left
- * (ported to document.body so it spans the whole viewport like beUI).
+ * App menu — trigger sits left of the logo; full-height drawer opens from the left.
+ * Patient "My Care" expands to the section list that used to live in the
+ * horizontal ScrollRail on the profile card.
  */
 export function MobileNav({ className }: { className?: string }) {
   const t = useT()
   const mode = useUi((s) => s.mode)
   const pathname = useLocation().pathname
+  const pid = usePatient((s) => s.pid)
+  const patient = PATIENTS[pid]
+  const unreadMap = useCareChat((s) => s.unread)
+  const messagesUnread = unreadTotal(unreadMap, pid, patient.careTeam)
+
   const [open, setOpen] = useState(false)
+  const inMyCare = pathname.startsWith('/my-care')
+  const [careOpen, setCareOpen] = useState(inMyCare)
+
+  useEffect(() => {
+    if (open && inMyCare) setCareOpen(true)
+  }, [open, inMyCare])
 
   const label = (key: string) => {
     const s = t(key)
@@ -80,6 +97,75 @@ export function MobileNav({ className }: { className?: string }) {
         >
           {visible.map((item) => {
             const active = isNavItemActive(item, pathname)
+
+            if (item.view === 'app') {
+              return (
+                <div key={item.view} className="flex flex-col gap-1">
+                  <button
+                    type="button"
+                    aria-expanded={careOpen}
+                    aria-controls="menu-my-care-sections"
+                    onClick={() => setCareOpen((v) => !v)}
+                    className={cn(
+                      'flex w-full items-center justify-between gap-2 rounded-2xl px-4 py-3.5 text-left text-base font-semibold transition-colors',
+                      active || careOpen
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-foreground hover:bg-accent hover:text-accent-foreground',
+                    )}
+                  >
+                    <span>{t(item.key)}</span>
+                    <ChevronDown
+                      className={cn(
+                        'size-4 shrink-0 transition-transform duration-200',
+                        careOpen && 'rotate-180',
+                      )}
+                      aria-hidden="true"
+                    />
+                  </button>
+
+                  {careOpen ? (
+                    <div
+                      id="menu-my-care-sections"
+                      role="group"
+                      aria-label={t(item.key)}
+                      className="ml-2 flex flex-col gap-0.5 border-l border-border py-1 pl-2"
+                    >
+                      {PATIENT_SCREENS.map((screen) => {
+                        const to = `/my-care/${screen.key}`
+                        const sectionActive =
+                          pathname === to || pathname.startsWith(`${to}/`)
+                        const Icon = screen.icon
+                        const showUnread = screen.key === 'messages' && messagesUnread > 0
+                        return (
+                          <Link
+                            key={screen.key}
+                            to={to}
+                            aria-current={sectionActive ? 'page' : undefined}
+                            onClick={() => setOpen(false)}
+                            className={cn(
+                              'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors',
+                              sectionActive
+                                ? 'bg-brand-700 text-on-dark'
+                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                            )}
+                          >
+                            <Icon className="size-4 flex-none" aria-hidden="true" />
+                            <span className="min-w-0 flex-1 truncate">{t(screen.labelKey)}</span>
+                            {showUnread ? (
+                              <UnreadCount
+                                count={messagesUnread}
+                                tone={sectionActive ? 'onDark' : 'danger'}
+                              />
+                            ) : null}
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              )
+            }
+
             return (
               <Link
                 key={item.view}

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
 import { PublicHeader } from '@/components/layout/PublicHeader'
+import { SiteFooter } from '@/components/layout/SiteFooter'
 import { CylinderCarousel } from '@/components/motion/cylinder-carousel'
 import { ShaderBackground } from '@/components/motion/shader-background'
 import { Button } from '@/components/ui/button'
@@ -52,7 +53,7 @@ export function DemoAccountsPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Demo accounts
           </p>
-          <h1 className="mt-2 text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          <h1 className="mt-2 text-balance text-3xl font-semibold tracking-tight text-foreground font-display sm:text-4xl">
             Pick who you are walking with
           </h1>
           <p className="mt-2 text-pretty text-sm text-muted-foreground sm:text-base">
@@ -150,6 +151,8 @@ export function DemoAccountsPage() {
           </div>
         </div>
       </main>
+
+      <SiteFooter variant="public" className="relative z-10" />
     </div>
   )
 }

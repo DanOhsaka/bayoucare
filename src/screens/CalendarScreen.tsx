@@ -173,7 +173,7 @@ export function CalendarScreen() {
    * and is 470 below a 470px one now.
    */
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,400px)_1fr] lg:items-start">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,460px)_1fr] lg:items-start">
       {/* `min-w-0` matters: this Card is a grid item, so its automatic minimum
           size is its min-content size — which includes the month grid's 308px
           floor and the calendar's own padding. Without it the card refuses to
@@ -394,7 +394,12 @@ export function CalendarScreen() {
                           <Button size="xs" variant="outline" onClick={() => openBooking(a)}>
                             {t('cal.resched')}
                           </Button>
-                          <Button size="xs" variant="ghost" onClick={() => setCancelling(a)}>
+                          <Button
+                            size="xs"
+                            variant="ghost"
+                            className="text-destructive hover:bg-destructive/15 hover:text-destructive"
+                            onClick={() => setCancelling(a)}
+                          >
                             {t('cal.cancelAppt')}
                           </Button>
                         </>

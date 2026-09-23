@@ -1,6 +1,5 @@
 import { LogIn } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { toast } from 'sonner'
 
 import { LoginForm } from '@/components/auth/LoginForm'
 import {
@@ -9,24 +8,17 @@ import {
   CenterMorphModalTrigger,
 } from '@/components/motion/center-morph-modal'
 import { BrandLogo } from '@/components/shared/BrandLogo'
+import { LanguageSelect } from '@/components/shared/LanguageSelect'
 import { ThemeModeControl } from '@/components/shared/ThemeModeControl'
 import { Button } from '@/components/ui/button'
-import { LANG_TOAST } from '@/data'
-import { LANGS, LANG_LABELS, LANG_SHORT, type Lang } from '@/lib/i18n'
 import { useT } from '@/hooks/useT'
 import { useUi } from '@/store/ui'
-import { cn } from '@/lib/utils'
-
-const CONTROL =
-  'flex h-11 flex-none items-center gap-2 rounded-full border border-border bg-background/70 px-2.5 text-xs font-medium text-foreground backdrop-blur-md transition-colors hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:h-9'
 
 /**
  * Public chrome — sign-in opens with beUI center-morph unfold.
  */
 export function PublicHeader() {
   const t = useT()
-  const lang = useUi((s) => s.lang)
-  const setLang = useUi((s) => s.setLang)
   const loginOpen = useUi((s) => s.loginOpen)
   const setLoginOpen = useUi((s) => s.setLoginOpen)
 
@@ -42,26 +34,7 @@ export function PublicHeader() {
         </Link>
 
         <nav className="ml-auto flex min-w-0 flex-none items-center gap-1.5 sm:gap-2.5">
-          <label className="sr-only" htmlFor="bc-public-lang">
-            Language
-          </label>
-          <select
-            id="bc-public-lang"
-            value={lang}
-            title={LANG_LABELS[lang]}
-            onChange={(e) => {
-              const next = e.target.value as Lang
-              setLang(next)
-              toast(LANG_TOAST[next] ?? LANG_TOAST.en)
-            }}
-            className={cn(CONTROL, 'max-w-[4.75rem] px-1.5 sm:max-w-none sm:px-2.5')}
-          >
-            {LANGS.map((l) => (
-              <option key={l} value={l}>
-                {LANG_SHORT[l]} · {LANG_LABELS[l]}
-              </option>
-            ))}
-          </select>
+          <LanguageSelect compact />
 
           <ThemeModeControl />
 

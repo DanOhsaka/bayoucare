@@ -128,21 +128,26 @@ async function streamReveal(
     ),
   }))
 
-  for (let n = 1; n <= total; n++) {
+  // Reveal in small chunks so long replies do not setState once per glyph.
+  const chunk = total > 280 ? 4 : total > 120 ? 3 : 2
+  for (let n = chunk; n < total; n += chunk) {
     if (gen !== undefined && gen !== greetGen) return
     const prefix = typeHtmlPrefix(fullHtml, n)
     set((s) => ({
       messages: s.messages.map((m) =>
-        m.id === id
-          ? { ...m, html: prefix, chips, pending: false, streaming: n < total }
-          : m,
+        m.id === id ? { ...m, html: prefix, chips, pending: false, streaming: true } : m,
       ),
     }))
-    await delay(charDelay(lastVisibleChar(prefix)))
+    await delay(Math.max(10, charDelay(lastVisibleChar(prefix)) * 0.85))
   }
 
   if (gen !== undefined && gen !== greetGen) return
-  set({ busy: false })
+  set((s) => ({
+    messages: s.messages.map((m) =>
+      m.id === id ? { ...m, html: fullHtml, chips, pending: false, streaming: false } : m,
+    ),
+    busy: false,
+  }))
 }
 
 /**

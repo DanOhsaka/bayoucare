@@ -6,10 +6,9 @@ import { toast } from 'sonner'
 
 import { SigningInStage } from '@/components/auth/SigningInStage'
 import { Input } from '@/components/motion/input'
+import { LanguageSelect } from '@/components/shared/LanguageSelect'
 import { ThemeModeControl } from '@/components/shared/ThemeModeControl'
 import { BrandLogo } from '@/components/shared/BrandLogo'
-import { LANG_TOAST } from '@/data'
-import { LANGS, LANG_LABELS, LANG_SHORT, type Lang } from '@/lib/i18n'
 import { duration, EASE_OUT } from '@/lib/motion'
 import { useSession } from '@/store/session'
 import { useUi } from '@/store/ui'
@@ -35,8 +34,6 @@ export function LoginForm({
   const login = useSession((s) => s.login)
   const busy = useSession((s) => s.busy)
   const errorKey = useSession((s) => s.errorKey)
-  const lang = useUi((s) => s.lang)
-  const setLang = useUi((s) => s.setLang)
   const setLoginOpen = useUi((s) => s.setLoginOpen)
   const loginPrefill = useUi((s) => s.loginPrefill)
   const clearLoginPrefill = useUi((s) => s.clearLoginPrefill)
@@ -147,7 +144,7 @@ export function LoginForm({
             <div className="mb-6 flex flex-col items-center gap-3 text-center">
               <BrandLogo size="lg" className="mx-auto" />
               <div>
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">
                   {isSignup ? t('login.signupTitle') : t('login.title')}
                 </h1>
                 <p className="mt-1.5 text-sm text-muted-foreground">
@@ -157,25 +154,7 @@ export function LoginForm({
             </div>
 
             <div className="mb-4 flex justify-end">
-              <label className="sr-only" htmlFor="bc-login-lang">
-                Language
-              </label>
-              <select
-                id="bc-login-lang"
-                value={lang}
-                onChange={(e) => {
-                  const next = e.target.value as Lang
-                  setLang(next)
-                  toast(LANG_TOAST[next] ?? LANG_TOAST.en)
-                }}
-                className="h-9 rounded-full border border-border bg-background px-3 text-xs font-medium text-foreground"
-              >
-                {LANGS.map((l) => (
-                  <option key={l} value={l}>
-                    {LANG_SHORT[l]} · {LANG_LABELS[l]}
-                  </option>
-                ))}
-              </select>
+              <LanguageSelect className="w-auto min-w-[10.5rem]" />
             </div>
 
             <div className="flex flex-col gap-3">

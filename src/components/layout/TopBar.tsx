@@ -1,18 +1,14 @@
 import { LogOut } from 'lucide-react'
-import { toast } from 'sonner'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { NavTabs } from '@/components/layout/NavTabs'
 import { BrandLogo } from '@/components/shared/BrandLogo'
+import { LanguageSelect } from '@/components/shared/LanguageSelect'
+import { PatientSelect } from '@/components/shared/PatientSelect'
 import { ThemeModeControl } from '@/components/shared/ThemeModeControl'
-import { LANG_TOAST, PATIENTS, type PatientId } from '@/data'
-import { LANGS, LANG_LABELS, LANG_SHORT, type Lang } from '@/lib/i18n'
 import { useT } from '@/hooks/useT'
-import { usePatient } from '@/store/patient'
 import { useSession } from '@/store/session'
 import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
-
-const PATIENT_IDS = Object.keys(PATIENTS) as PatientId[]
 
 /*
  * 44px below `lg`, the designed 34px above it.
@@ -49,17 +45,9 @@ export function TopBar() {
   const t = useT()
   const mode = useUi((s) => s.mode)
   const setMode = useUi((s) => s.setMode)
-  const lang = useUi((s) => s.lang)
-  const setLang = useUi((s) => s.setLang)
-
   const role = useSession((s) => s.role)
   const email = useSession((s) => s.email)
   const logout = useSession((s) => s.logout)
-
-  // Patient IDENTITY — whose record is on screen — which the header doc above
-  // is careful to distinguish from session identity (the email pill).
-  const pid = usePatient((s) => s.pid)
-  const setPatient = usePatient((s) => s.setPatient)
 
   const isClinician = role === 'clinician'
 
@@ -90,40 +78,6 @@ export function TopBar() {
     )
   }
 
-  /*
-   * The patient picker this header documents above, which was designed,
-   * written up as "the best demo in the feature" — and then never ported.
-   * `setPatient` sat in the store called from nowhere, so a clinician
-   * account was pinned to one record.
-   *
-   * It lists the bundled roster rather than `GET /api/patients`, because
-   * every patient screen renders from `PATIENTS[pid]`; a picker sourced
-   * anywhere else could offer a record the app is unable to display.
-   * Patients never see it, the same gate as the mode switch above.
-   */
-  function patientSelect(id: string, className?: string) {
-    return (
-      <>
-        <label className="sr-only" htmlFor={id}>
-          Viewing as patient
-        </label>
-        <select
-          id={id}
-          title="Viewing as patient"
-          value={pid}
-          onChange={(e) => setPatient(e.target.value as PatientId)}
-          className={cn(CONTROL, 'min-w-0 px-2.5', className)}
-        >
-          {PATIENT_IDS.map((patientId) => (
-            <option key={patientId} value={patientId}>
-              {PATIENTS[patientId].name}
-            </option>
-          ))}
-        </select>
-      </>
-    )
-  }
-
   return (
     <header
       className={cn(
@@ -151,33 +105,19 @@ export function TopBar() {
         {isClinician && (
           <div className="hidden items-center gap-2 lg:flex">
             {modeSwitch()}
-            {patientSelect('bc-patient-lg', 'w-[13rem]')}
+            {/*
+             * Bundled roster only — every patient screen renders from
+             * PATIENTS[pid]; a picker from GET /api/patients could offer a
+             * record the app cannot display.
+             */}
+            <PatientSelect className="w-[13rem]" />
           </div>
         )}
 
         <NavTabs />
 
         <div className="ml-auto flex min-w-0 flex-none items-center gap-1.5 sm:gap-2.5">
-          <label className="sr-only" htmlFor="bc-lang">
-            Language
-          </label>
-          <select
-            id="bc-lang"
-            value={lang}
-            onChange={(e) => {
-              const next = e.target.value as Lang
-              setLang(next)
-              toast(LANG_TOAST[next] ?? LANG_TOAST.en)
-            }}
-            title={LANG_LABELS[lang]}
-            className={cn(CONTROL, 'max-w-[4.75rem] px-1.5 sm:max-w-none sm:px-2.5')}
-          >
-            {LANGS.map((l) => (
-              <option key={l} value={l}>
-                {LANG_SHORT[l]} · {LANG_LABELS[l]}
-              </option>
-            ))}
-          </select>
+          <LanguageSelect compact />
 
           <ThemeModeControl />
 
@@ -234,7 +174,7 @@ export function TopBar() {
       {isClinician && (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 lg:hidden">
           {modeSwitch()}
-          {patientSelect('bc-patient-sm', 'w-full')}
+          <PatientSelect />
         </div>
       )}
     </header>

@@ -42,6 +42,13 @@ const TRIAGE_BADGE: Record<RiskLevel, 'danger' | 'warning' | 'success'> = {
   none: 'success',
 }
 
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  const a = parts[0]?.[0] ?? ''
+  const b = parts.length > 1 ? parts[parts.length - 1]![0] : ''
+  return (a + b).toUpperCase() || '?'
+}
+
 export function ReferralSection() {
   const refId = useClinic((s) => s.refId)
   const setRefId = useClinic((s) => s.setRefId)
@@ -82,12 +89,12 @@ export function ReferralSection() {
         <CardHeader>
           <CardTitle className="text-lg">Referral Express</CardTitle>
           <Badge variant="neutral" className="text-left whitespace-normal">
-           mock SMART-on-FHIR R4 surface · synthetic bundle · no PHI
+            mock SMART-on-FHIR R4 surface · synthetic bundle · no PHI
           </Badge>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-           A rural PCP sends one referral; labs, pathology and consent ride along; both ends can see
+            A rural PCP sends one referral; labs, pathology and consent ride along; both ends can see
             the status. Triage urgency is{' '}
             <b className="text-card-foreground">the same logistic risk score</b> the care-team
             dashboard uses — not a separate model.
@@ -95,13 +102,13 @@ export function ReferralSection() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid items-start gap-4 md:grid-cols-2">
         <Card className="min-w-0">
           <CardHeader>
             <CardTitle>Incoming referrals</CardTitle>
             <CardAction>
               <Button type="button" size="xs" onClick={advance} className="font-bold">
-               Advance one step
+                Advance one step
               </Button>
             </CardAction>
           </CardHeader>
@@ -110,32 +117,45 @@ export function ReferralSection() {
               const p = refProgress(r, refStep[r.id] ?? 0)
               const tr = refTriage(r, applied)
               const sel = r.id === refId
+              const name = refPatient(r)?.name ?? r.pid
               return (
                 <Button
                   key={r.id}
                   type="button"
                   variant="outline"
                   aria-pressed={sel}
-                  onClick={() =>setRefId(r.id)}
+                  onClick={() => setRefId(r.id)}
                   className={cn(
-                    'h-auto w-full items-start justify-start gap-3 px-3 py-2 text-left font-normal whitespace-normal',
-                    sel ? 'border-ring bg-accent' : 'bg-card',
+                    'h-auto w-full items-center justify-start gap-3 rounded-xl px-3 py-2.5 text-left font-normal whitespace-normal shadow-none motion-safe:hover:scale-100 motion-safe:active:scale-[0.99]',
+                    sel
+                      ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/40 hover:border-brand-500 hover:bg-brand-500/15'
+                      : 'border-border bg-muted/30 hover:bg-muted/50',
                   )}
                 >
                   <span
                     aria-hidden="true"
-                    className="flex size-9 flex-none items-center justify-center rounded-md bg-background text-base"
+                    className={cn(
+                      'flex size-9 flex-none items-center justify-center rounded-full text-xs font-bold tracking-wide',
+                      sel
+                        ? 'bg-brand-600 text-on-dark'
+                        : 'bg-brand-700/90 text-on-dark dark:bg-brand-800',
+                    )}
                   >
-                    
+                    {initials(name)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-3">
-                      <b className="truncate text-sm font-semibold text-card-foreground">
-                        {refPatient(r)?.name ?? r.pid}
+                    <div className="flex items-center justify-between gap-2">
+                      <b className="min-w-0 truncate text-sm font-semibold text-card-foreground">
+                        {name}
                       </b>
-                      <Badge variant={TRIAGE_BADGE[tr.level]}>{tr.score}% risk</Badge>
+                      <Badge
+                        variant={TRIAGE_BADGE[tr.level]}
+                        className="max-w-[9.5rem] shrink-0 truncate"
+                      >
+                        {tr.score}% risk
+                      </Badge>
                     </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
                       {r.fromCity} → {refDestCity(r)} · {p.done}/{p.total} steps · {r.coverage}
                     </p>
                     <ProgressTrack
@@ -156,81 +176,75 @@ export function ReferralSection() {
           </CardHeader>
           <CardContent>
             {selected && progress && triage ? (
-              <>
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <b className="text-card-foreground">{selected.to}</b>
-                  <Badge variant="neutral">{selected.coverage}</Badge>
-                  <Badge variant={TRIAGE_BADGE[triage.level]}>
-                   triage {triage.score}% — Rank 1 model
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <b className="text-card-foreground">{selected.to}</b>
+                    <Badge variant="neutral">{selected.coverage}</Badge>
+                  </div>
+                  <Badge
+                    variant={TRIAGE_BADGE[triage.level]}
+                    className="w-fit max-w-full whitespace-normal"
+                  >
+                    triage {triage.score}% — Rank 1 model
                   </Badge>
                 </div>
 
-                <ol className="flex flex-col">
-                  {steps.map((s, i) => (
-                    <li key={s.label} className="relative flex items-start gap-2.5 py-1.5">
-                      {i < steps.length - 1 && (
-                        <span
-                          aria-hidden="true"
-                          className={cn(
-                            'absolute bottom-0 left-[5px] top-[19px] w-px',
-                            s.done ? 'bg-brand-100' : 'bg-border',
-                          )}
-                        />
-                      )}
+                <ol className="relative ms-1.5 flex flex-col border-s border-border ps-4">
+                  {steps.map((s) => (
+                    <li key={s.label} className="relative pb-3 last:pb-0">
                       <span
                         aria-hidden="true"
                         className={cn(
-                          'mt-1 size-[11px] flex-none rounded-full',
-                          s.done ? 'bg-brand-500' : 'bg-border',
+                          'absolute -start-[1.28rem] top-1.5 size-2.5 rounded-full ring-4 ring-card',
+                          s.done ? 'bg-brand-500' : 'bg-muted-foreground/35',
                         )}
                       />
-                      <div>
-                        <div
-                          className={cn(
-                            'text-sm',
-                            s.done
-                              ? 'font-semibold text-card-foreground'
-                              : 'font-medium text-muted-foreground',
-                          )}
-                        >
-                          {s.label}
-                        </div>
-                        <div className="text-xs text-muted-foreground">{s.when}</div>
+                      <div
+                        className={cn(
+                          'text-sm leading-snug',
+                          s.done
+                            ? 'font-semibold text-card-foreground'
+                            : 'font-medium text-muted-foreground',
+                        )}
+                      >
+                        {s.label}
                       </div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">{s.when}</div>
                     </li>
                   ))}
                 </ol>
 
-                <div className="mt-3 grid grid-cols-2 gap-x-3.5 gap-y-2 text-xs">
+                <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-muted/25 p-3 text-xs">
                   <div>
                     <span className="block text-muted-foreground">Distance</span>
-                    <span className="block font-extrabold text-card-foreground">
+                    <span className="mt-0.5 block text-sm font-bold text-card-foreground">
                       {selected.miles} mi
                     </span>
                   </div>
                   <div>
                     <span className="block text-muted-foreground">Transport</span>
-                    <span className="block font-extrabold text-card-foreground">
+                    <span className="mt-0.5 block text-sm font-bold text-card-foreground">
                       {selected.transport}
                     </span>
                   </div>
                   <div>
                     <span className="block text-muted-foreground">Broadband</span>
-                    <span className="block font-extrabold text-card-foreground">
+                    <span className="mt-0.5 block text-sm font-bold text-card-foreground">
                       {selected.broadband}
                     </span>
                   </div>
                   <div>
                     <span className="block text-muted-foreground">Complete</span>
-                    <span className="block font-extrabold text-card-foreground">
+                    <span className="mt-0.5 block text-sm font-bold text-card-foreground">
                       {progress.pct}%
                     </span>
                   </div>
                 </div>
-              </>
+              </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-               Select a referral to see its timeline.
+                Select a referral to see its timeline.
               </p>
             )}
           </CardContent>
@@ -241,7 +255,7 @@ export function ReferralSection() {
         <CardHeader>
           <CardTitle>FHIR R4 bundle — posted to the receiving org</CardTitle>
           <Badge variant="neutral" className="text-left whitespace-normal">
-           resourceType / entry[] · truncated
+            resourceType / entry[] · truncated
           </Badge>
         </CardHeader>
         <CardContent>
@@ -251,7 +265,7 @@ export function ReferralSection() {
             </pre>
           ) : (
             <p className="text-sm text-muted-foreground">
-             Select a referral to see the bundle that was posted.
+              Select a referral to see the bundle that was posted.
             </p>
           )}
         </CardContent>

@@ -51,30 +51,63 @@
       at the handover. Loader: CSS comet (same idea as beUI Loader variant="comet").
     -->
     <style>
+      /* Kill the browser default body margin before CSS arrives — otherwise a
+         cream/white frame rings the boot splash on every reload. */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        background: #f7f7f5;
+      }
+      html[data-theme='dark'],
+      html[data-theme='dark'] body {
+        background: #121212;
+      }
+      #root {
+        min-height: 100dvh;
+        background: inherit;
+      }
       .boot-shell {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 20px;
+        box-sizing: border-box;
         min-height: 100dvh;
-        background: var(--background, #f7f7f5);
-        color: var(--brand-700, #0f6b4c);
-        font-family: 'Sora Variable', Sora, system-ui, sans-serif;
+        width: 100%;
+        margin: 0;
+        border: 0;
+        outline: none;
+        background: #f7f7f5;
+        color: #0f6b4c;
+        font-family: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
       }
       [data-theme='dark'] .boot-shell {
-        background: var(--background, #121212);
-        color: var(--brand-600, #3ecf8e);
+        background: #121212;
+        color: #3ecf8e;
       }
       .boot-shell .boot-mark {
         display: flex;
         flex-direction: column;
         align-items: center;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
       }
       .boot-shell .boot-logo {
         height: 112px;
         width: auto;
         object-fit: contain;
+        border: 0;
+        outline: none;
+        /* Logo asset is on a white plate — blend it into the splash. */
+        border-radius: 16px;
+      }
+      [data-theme='dark'] .boot-shell .boot-logo {
+        /* Soften the white plate so it does not read as a hard border frame. */
+        box-shadow: none;
       }
       /* beUI comet — orbiting trail, no track / no white fill */
       .boot-shell .boot-comet {

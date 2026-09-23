@@ -8,6 +8,7 @@ import { RequireClinician } from '@/components/auth/RequireClinician'
 import { AppErrorBoundary } from '@/components/layout/AppErrorBoundary'
 import { AppShell } from '@/components/layout/AppShell'
 import { PendingShell } from '@/components/layout/PendingShell'
+import { ScrollToTop } from '@/components/layout/ScrollToTop'
 import { MyCare } from '@/routes/MyCare'
 import { LandingPage } from '@/screens/LandingPage'
 import { DemoAccountsPage } from '@/screens/DemoAccountsPage'
@@ -24,6 +25,7 @@ import { useSession } from '@/store/session'
 function PublicApp() {
   return (
     <HashRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/login" element={<LoginGate />} />
         <Route path="/demo" element={<DemoAccountsPage />} />
@@ -38,6 +40,7 @@ function PublicApp() {
 function SignedInApp() {
   return (
     <HashRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<AppShell />}>
           <Route path="/" element={<Navigate to="/overview" replace />} />

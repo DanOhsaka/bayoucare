@@ -31,22 +31,9 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        // `--cell-size` is the floor under BOTH the day buttons (`min-w-`) and
-        // the month arrows (`size-`), so it is the single knob for the
-        // calendar's touch target. 44px below `lg`, the designed 32px above it.
-        // Seven 44px columns need 308px of grid.
-        //
-        // The horizontal padding is the other half of that number, and it is
-        // why this is `py-3 px-1 min-[366px]:px-3` rather than the upstream
-        // `p-3`. Below 366px `CalendarScreen` bleeds this box out to the
-        // viewport edge, where it is 318px wide, and 318 - 2 x 12 leaves only
-        // 294 of grid — 14 short. At 4px per side the same box offers 310, so
-        // the floor is met with no scroll at all. 366 is where that screen's
-        // `-mx-6` bleed starts reaching 308 on its own (`viewport - 34 - 24`),
-        // so from there up the padding goes straight back to the designed 12
-        // and this component is unchanged everywhere except the narrowest
-        // phones. The screen owns that bleed; this owns the padding.
-        "group/calendar bg-background py-3 px-1 min-[366px]:px-3 [--cell-size:--spacing(11)] lg:[--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+        // `--cell-size` floors day tiles and month chevrons. Larger tiles so
+        // each day reads as a real square, not a tight chip.
+        "group/calendar bg-background py-3 px-1 min-[366px]:px-3 [--cell-size:3.25rem] min-[400px]:[--cell-size:3.75rem] lg:[--cell-size:3.5rem] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className
@@ -107,7 +94,7 @@ function Calendar({
           "flex-1 rounded-md text-[0.8rem] font-normal text-muted-foreground select-none",
           defaultClassNames.weekday
         ),
-        week: cn("mt-2 flex w-full", defaultClassNames.week),
+        week: cn("mt-2.5 flex w-full gap-1", defaultClassNames.week),
         week_number_header: cn(
           "w-(--cell-size) select-none",
           defaultClassNames.week_number_header
@@ -117,12 +104,7 @@ function Calendar({
           defaultClassNames.week_number
         ),
         day: cn(
-          // `z` bumps on hover/focus so the day-button glow can spill onto
-          // neighboring cells instead of sitting under them.
-          "group/day relative aspect-square h-full w-full p-0 text-center select-none [&:last-child[data-selected=true]_button]:rounded-r-md has-[:hover]:z-20 has-[:focus-visible]:z-20",
-          props.showWeekNumber
-            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-md"
-            : "[&:first-child[data-selected=true]_button]:rounded-l-md",
+          "group/day relative aspect-square h-full w-full p-0 text-center select-none",
           defaultClassNames.day
         ),
         range_start: cn(
@@ -131,10 +113,9 @@ function Calendar({
         ),
         range_middle: cn("rounded-none", defaultClassNames.range_middle),
         range_end: cn("rounded-r-md bg-accent", defaultClassNames.range_end),
-        today: cn(
-          "rounded-md bg-accent text-accent-foreground data-[selected=true]:rounded-none",
-          defaultClassNames.today
-        ),
+        // Today is marked with a small underline on the day number (see
+        // CalendarDayButton) — not a filled square that reads as a stray box.
+        today: cn("text-foreground", defaultClassNames.today),
         outside: cn(
           "text-muted-foreground aria-selected:text-muted-foreground",
           defaultClassNames.outside
@@ -213,6 +194,7 @@ function CalendarDayButton({
       variant="ghost"
       size="icon"
       data-day={day.date.toLocaleDateString()}
+      data-today={modifiers.today || undefined}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&
@@ -223,11 +205,19 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 overflow-visible leading-none font-normal transition-[color,background-color,box-shadow,transform,ring-color] duration-200 ease-out group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground [&>span]:text-xs [&>span]:opacity-70",
-        // Distinctive hover glow — brand ring + soft bloom, stronger than the
-        // ghost button's plain accent wash so the hovered tile reads clearly.
-        "hover:z-20 hover:bg-brand-50 hover:text-on-brand-tint hover:ring-2 hover:ring-brand-500 hover:shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-brand-500)_35%,transparent),0_0_18px_6px_color-mix(in_srgb,var(--color-brand-500)_45%,transparent),0_0_36px_12px_color-mix(in_srgb,var(--color-brand-500)_22%,transparent)] motion-safe:hover:scale-[1.12] motion-safe:hover:translate-y-0 dark:hover:bg-brand-500/25 dark:hover:text-foreground dark:hover:ring-brand-500 dark:hover:shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-brand-500)_50%,transparent),0_0_20px_8px_color-mix(in_srgb,var(--color-brand-500)_55%,transparent),0_0_40px_14px_color-mix(in_srgb,var(--color-brand-500)_28%,transparent)]",
-        "data-[selected-single=true]:hover:bg-primary data-[selected-single=true]:hover:text-primary-foreground data-[selected-single=true]:hover:ring-brand-100 data-[selected-single=true]:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.55),0_0_22px_8px_color-mix(in_srgb,var(--color-brand-500)_55%,transparent),0_0_40px_14px_color-mix(in_srgb,var(--color-brand-500)_30%,transparent)]",
+        // Square day tile (not a pill/circle). Override Button rounded-full,
+        // fixed icon size, overflow clip, and hover scale.
+        "relative z-0 flex aspect-square !size-auto h-full w-full min-h-(--cell-size) min-w-(--cell-size) flex-col gap-1 !overflow-visible !rounded-lg border-0 text-base leading-none font-semibold shadow-none",
+        "motion-safe:hover:!scale-100 motion-safe:active:!scale-100",
+        "transition-[color,background-color,box-shadow] duration-200 ease-out",
+        // Hover face + glow behind the tile.
+        "hover:z-10 hover:bg-brand-50 hover:text-on-brand-tint hover:shadow-[0_0_0_1.5px_color-mix(in_srgb,var(--color-brand-500)_75%,transparent),0_0_14px_3px_color-mix(in_srgb,var(--color-brand-500)_45%,transparent),0_0_28px_10px_color-mix(in_srgb,var(--color-brand-500)_25%,transparent)] dark:hover:bg-brand-500/25 dark:hover:text-foreground",
+        // Selection stays on top of any neighbour glow.
+        "data-[selected-single=true]:z-20 data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[selected-single=true]:hover:bg-primary data-[selected-single=true]:hover:text-primary-foreground data-[selected-single=true]:hover:shadow-none",
+        "data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground",
+        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
+        "data-[today]:after:pointer-events-none data-[today]:after:absolute data-[today]:after:bottom-1.5 data-[today]:after:left-1/2 data-[today]:after:h-0.5 data-[today]:after:w-3.5 data-[today]:after:-translate-x-1/2 data-[today]:after:rounded-full data-[today]:after:bg-brand-500 data-[selected-single=true]:data-[today]:after:bg-primary-foreground",
+        "[&>span]:text-xs [&>span]:opacity-70",
         defaultClassNames.day,
         className
       )}
