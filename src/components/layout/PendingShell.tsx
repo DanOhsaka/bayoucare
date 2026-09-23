@@ -14,10 +14,7 @@ export function PendingShell() {
       className="flex min-h-dvh flex-col items-center justify-center gap-5 bg-background"
     >
       <BrandLogo size="lg" />
-      <div className="text-primary">
-        <Loader variant="comet" size={36} label="Loading" />
-      </div>
-      <span className="sr-only">Loading</span>
+      <Loader variant="comet" size={36} label="Loading" className="text-primary" />
     </div>
   )
 }
