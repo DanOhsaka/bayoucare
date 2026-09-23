@@ -28,17 +28,14 @@ function MessageAuthor() {
 
 function TypingDots() {
   return (
-    <span className="flex items-center gap-2" aria-hidden="true">
-      <span className="flex gap-1.5">
-        {[0, 1, 2].map((i) => (
-          <i
-            key={i}
-            className="block size-1.5 rounded-full bg-brand-500 motion-safe:animate-[remi-dot_1.2s_ease-in-out_infinite]"
-            style={{ animationDelay: `${-0.16 * i}s` }}
-          />
-        ))}
-      </span>
-      <span className="text-xs text-muted-foreground">thinking…</span>
+    <span className="flex items-center gap-1.5 py-0.5" aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <i
+          key={i}
+          className="block size-1.5 rounded-full bg-brand-500 motion-safe:animate-[remi-dot_1.2s_ease-in-out_infinite]"
+          style={{ animationDelay: `${-0.16 * i}s` }}
+        />
+      ))}
     </span>
   )
 }
@@ -78,7 +75,13 @@ function Bubble({ msg }: { msg: RemiMessage }) {
               on the way in, and user text was escaped in the store. This is the
               one place HTML reaches Remi's DOM.
             */
-            <div dangerouslySetInnerHTML={{ __html: msg.html }} />
+            <div
+              dangerouslySetInnerHTML={{
+                __html: msg.streaming
+                  ? `${msg.html}<span class="bc-remi-caret" aria-hidden="true"></span>`
+                  : msg.html,
+              }}
+            />
           )}
 
           {msg.chips.length > 0 && (

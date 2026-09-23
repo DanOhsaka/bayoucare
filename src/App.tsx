@@ -3,6 +3,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from '@/components/ui/sonner'
 
 import { LoginGate } from '@/components/auth/LoginGate'
+import { RequireClinician } from '@/components/auth/RequireClinician'
 import { AppShell } from '@/components/layout/AppShell'
 import { PendingShell } from '@/components/layout/PendingShell'
 import { MyCare } from '@/routes/MyCare'
@@ -46,11 +47,11 @@ export default function App() {
             <Route path="/my-care/:screen" element={<MyCare />} />
             <Route path="/my-plan" element={<MyPlanScreen />} />
 
-            <Route path="/care-team" element={<TeamScreen />} />
-            <Route path="/clinic-ops" element={<ClinicOpsScreen />} />
-            <Route path="/survivorship" element={<SurvivorshipScreen />} />
-            <Route path="/population" element={<PopulationScreen />} />
-            <Route path="/roadmap" element={<RoadmapScreen />} />
+            <Route path="/care-team" element={<RequireClinician><TeamScreen /></RequireClinician>} />
+            <Route path="/clinic-ops" element={<RequireClinician><ClinicOpsScreen /></RequireClinician>} />
+            <Route path="/survivorship" element={<RequireClinician><SurvivorshipScreen /></RequireClinician>} />
+            <Route path="/population" element={<RequireClinician><PopulationScreen /></RequireClinician>} />
+            <Route path="/roadmap" element={<RequireClinician><RoadmapScreen /></RequireClinician>} />
 
             <Route path="*" element={<Navigate to="/overview" replace />} />
           </Route>

@@ -117,7 +117,9 @@ function Calendar({
           defaultClassNames.week_number
         ),
         day: cn(
-          "group/day relative aspect-square h-full w-full p-0 text-center select-none [&:last-child[data-selected=true]_button]:rounded-r-md",
+          // `z` bumps on hover/focus so the day-button glow can spill onto
+          // neighboring cells instead of sitting under them.
+          "group/day relative aspect-square h-full w-full p-0 text-center select-none [&:last-child[data-selected=true]_button]:rounded-r-md has-[:hover]:z-20 has-[:focus-visible]:z-20",
           props.showWeekNumber
             ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-md"
             : "[&:first-child[data-selected=true]_button]:rounded-l-md",
@@ -221,7 +223,11 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-accent-foreground [&>span]:text-xs [&>span]:opacity-70",
+        "flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 overflow-visible leading-none font-normal transition-[color,background-color,box-shadow,transform,ring-color] duration-200 ease-out group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground [&>span]:text-xs [&>span]:opacity-70",
+        // Distinctive hover glow — brand ring + soft bloom, stronger than the
+        // ghost button's plain accent wash so the hovered tile reads clearly.
+        "hover:z-20 hover:bg-brand-50 hover:text-on-brand-tint hover:ring-2 hover:ring-brand-500 hover:shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-brand-500)_35%,transparent),0_0_18px_6px_color-mix(in_srgb,var(--color-brand-500)_45%,transparent),0_0_36px_12px_color-mix(in_srgb,var(--color-brand-500)_22%,transparent)] motion-safe:hover:scale-[1.12] motion-safe:hover:translate-y-0 dark:hover:bg-brand-500/25 dark:hover:text-foreground dark:hover:ring-brand-500 dark:hover:shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-brand-500)_50%,transparent),0_0_20px_8px_color-mix(in_srgb,var(--color-brand-500)_55%,transparent),0_0_40px_14px_color-mix(in_srgb,var(--color-brand-500)_28%,transparent)]",
+        "data-[selected-single=true]:hover:bg-primary data-[selected-single=true]:hover:text-primary-foreground data-[selected-single=true]:hover:ring-brand-100 data-[selected-single=true]:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.55),0_0_22px_8px_color-mix(in_srgb,var(--color-brand-500)_55%,transparent),0_0_40px_14px_color-mix(in_srgb,var(--color-brand-500)_30%,transparent)]",
         defaultClassNames.day,
         className
       )}

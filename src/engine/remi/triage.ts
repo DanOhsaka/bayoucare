@@ -50,7 +50,7 @@ export const REMI_ROUTED: Record<TriageTier, () => string> = {
   crisis(){ return `<b>Please reach out right now — you do not have to carry this alone.</b><br><br>` +
     `<b>988</b> — call or text. Free, 24/7, confidential. You can say anything.<br><br>` +
     `If you are in immediate danger, call <b>911</b>.<br><br>` +
-    `I've flagged this for your care team: <b>Keisha Brown</b> (social worker) and <b>Marie Thibodeaux, RN</b>. They will reach out.<br><br>` +
+    `I've also put this on your care team's <b>Needs attention</b> list for <b>Keisha Brown</b> (social worker) and <b>Marie Thibodeaux, RN</b> — they can see it now.<br><br>` +
     `I'm not going to try to talk you through this myself — a person should be with you for it.`; },
   urgent(){ return `<b>Call your care team now — don't wait for your next appointment.</b><br><br>` +
     `<b>Dr. Simone Peters</b> · Medical Oncologist, Ochsner Baton Rouge — oncology line, 24/7<br>` +

@@ -9,19 +9,19 @@
     ],
     "crits": [
       {
-        "txt": "Recruiting in Louisiana — Ochsner, New Orleans",
+        "txt": "Location: recruiting in Louisiana (Ochsner, New Orleans).",
         "ok": true
       },
       {
-        "txt": "Requires TNBC or HR-low+ (ER 1–10%) — you are ER+ (high)",
+        "txt": "Cancer type: this study needs triple-negative or very low hormone-positive. Yours is strongly hormone-positive, so this is not a match.",
         "ok": false
       },
       {
-        "txt": "Requires previously untreated early-stage disease — you are in cycle 1 of neoadjuvant AC",
+        "txt": "Timing: this study is for people who have not started treatment yet. You are already in chemo, so this is not a match.",
         "ok": false
       },
       {
-        "txt": "ECOG 0–1 performance status — confirm at screening",
+        "txt": "Daily activity level: the study needs you to be fairly active day to day — your team would confirm at a screening visit.",
         "ok": "warn"
       }
     ]
@@ -36,15 +36,15 @@
     ],
     "crits": [
       {
-        "txt": "Recruiting 30 minutes from Alexandria",
+        "txt": "Location: recruiting about 30 minutes from Alexandria.",
         "ok": true
       },
       {
-        "txt": "Requires triple-negative subtype — you are ER+/PR+",
+        "txt": "Cancer type: this study is for triple-negative breast cancer. Yours is hormone-positive, so this is not a match.",
         "ok": false
       },
       {
-        "txt": "Enrolls after surgery with residual disease — you haven't reached surgery yet",
+        "txt": "Timing: this study enrolls after surgery when some cancer remains. You have not had surgery yet, so this is not a match now.",
         "ok": false
       }
     ]
@@ -59,19 +59,19 @@
     ],
     "crits": [
       {
-        "txt": "HR+/HER2− subtype — matches your tumor exactly",
+        "txt": "Cancer type: hormone-positive and HER2-negative — this matches your record.",
         "ok": true
       },
       {
-        "txt": "Enrolls unresectable locally advanced or metastatic disease — you are early stage; revisit if disease ever advances",
+        "txt": "Stage: this study is for advanced or metastatic disease. You are earlier stage, so ask again only if your team says the cancer has advanced.",
         "ok": "warn"
       },
       {
-        "txt": "Prior lines 0–2 — you have 1 (neoadjuvant AC)",
+        "txt": "Prior treatment: you have had one line of chemo so far, which fits what this study allows.",
         "ok": true
       },
       {
-        "txt": "Recruiting at Mary Bird Perkins — Baton Rouge (2 hr drive; on the heat-index van route)",
+        "txt": "Location: recruiting at Mary Bird Perkins in Baton Rouge (about a 2-hour drive; BayouCare can help with rides).",
         "ok": true
       }
     ]
@@ -86,15 +86,15 @@
     ],
     "crits": [
       {
-        "txt": "Requires HER2+ disease — you are HER2−",
+        "txt": "Cancer type: this study needs HER2-positive disease. Yours is HER2-negative, so this is not a match.",
         "ok": false
       },
       {
-        "txt": "Requires residual disease after neoadjuvant + surgery",
+        "txt": "Timing: this study is for people with cancer still present after chemo and surgery. That is not your situation now.",
         "ok": false
       },
       {
-        "txt": "Status: active, not recruiting — enrollment closed",
+        "txt": "Enrollment: closed — this study is not taking new patients.",
         "ok": false
       }
     ]
@@ -109,19 +109,19 @@
     ],
     "crits": [
       {
-        "txt": "ER+/HER2− — matches",
+        "txt": "Cancer type: hormone-positive and HER2-negative — this matches your record.",
         "ok": true
       },
       {
-        "txt": "Requires premenopausal status — you are post-menopausal",
+        "txt": "Menopause: this study is for people who still have periods. You are post-menopausal, so this is not a match.",
         "ok": false
       },
       {
-        "txt": "Oncotype RS ≤ 25 — tumor not yet scored",
+        "txt": "Tumor score: the study uses an Oncotype score of 25 or lower. Your tumor has not been scored yet — ask your team.",
         "ok": "warn"
       },
       {
-        "txt": "Recruiting in Abbeville (Vermilion Parish)",
+        "txt": "Location: recruiting in Abbeville (Vermilion Parish).",
         "ok": true
       }
     ]

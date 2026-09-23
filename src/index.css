@@ -38,8 +38,9 @@
   --card: #ffffff;
   --soft: #f4f7f4;
   --line: #e4e0d6;
-  --ink: #1d2a24;
-  --ink-soft: #51635a;
+  /* Slightly heavier ink in light mode so body copy holds up on white cards. */
+  --ink: #121a16;
+  --ink-soft: #2f3f37;
   --chip-gray: #eeece4;
 
   /* Text on the dark green chrome. The legacy file hand-typed nine
@@ -114,9 +115,19 @@
   --cat-5: #e05a3c; /* consult */
 
   /* --- Elevation and shape ---------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgba(13, 42, 28, 0.05);
-  --shadow: 0 1px 2px rgba(13, 42, 28, 0.05), 0 10px 28px -14px rgba(13, 42, 28, 0.14);
-  --shadow-lg: 0 4px 14px rgba(13, 42, 28, 0.07), 0 22px 44px -18px rgba(13, 42, 28, 0.2);
+  --shadow-sm: 0 1px 2px rgba(13, 42, 28, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  --shadow: 0 1px 2px rgba(13, 42, 28, 0.06), 0 12px 32px -16px rgba(13, 42, 28, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  --shadow-lg: 0 6px 18px rgba(13, 42, 28, 0.1), 0 28px 52px -20px rgba(13, 42, 28, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --shadow-press: inset 0 2px 6px rgba(13, 42, 28, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  --gloss-shine: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0.08) 38%,
+    rgba(255, 255, 255, 0) 62%
+  );
+  --gloss-border: rgba(255, 255, 255, 0.55);
   --radius: 14px;
 
   /* --- Shadcn contract --------------------------------------------------
@@ -208,9 +219,19 @@
      which has no headroom above the 3:1 non-text floor. */
   --cat-1: #8b7cf0;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.28), 0 10px 28px -14px rgba(0, 0, 0, 0.42);
-  --shadow-lg: 0 4px 14px rgba(0, 0, 0, 0.32), 0 22px 44px -18px rgba(0, 0, 0, 0.48);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 36px -16px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-lg: 0 8px 22px rgba(0, 0, 0, 0.4), 0 28px 56px -18px rgba(0, 0, 0, 0.62),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-press: inset 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --gloss-shine: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  --gloss-border: rgba(255, 255, 255, 0.1);
 
   --destructive-foreground: #2a120c;
 }
@@ -334,7 +355,7 @@
   .typo-card-title {
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
-    font-weight: 600;
+    font-weight: 700;
     color: var(--card-foreground);
   }
 
@@ -350,18 +371,21 @@
   .typo-body {
     font-size: var(--text-sm);
     line-height: 1.55;
+    font-weight: 500;
     color: var(--card-foreground);
   }
 
   .typo-muted {
     font-size: var(--text-sm);
     line-height: 1.55;
+    font-weight: 500;
     color: var(--muted-foreground);
   }
 
   .typo-meta {
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
+    font-weight: 500;
     color: var(--muted-foreground);
   }
 
@@ -372,6 +396,133 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--muted-foreground);
+  }
+
+  /* Neo-gloss cards / panels: soft glass highlight over brand surfaces. */
+  .bc-surface-gloss {
+    position: relative;
+    isolation: isolate;
+    border-color: color-mix(in srgb, var(--border) 70%, var(--gloss-border));
+    background-image: var(--gloss-shine);
+    background-blend-mode: soft-light;
+    box-shadow: var(--shadow);
+  }
+
+  .bc-surface-gloss::before {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.04) 28%,
+      transparent 55%
+    );
+    opacity: 0.85;
+  }
+
+  :root[data-theme='dark'] .bc-surface-gloss::before {
+    opacity: 0.45;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.02) 30%,
+      transparent 55%
+    );
+  }
+
+  .bc-surface-gloss > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /*
+   * Dark chrome controls (header). Glass fill + specular edge + press squash.
+   * Shared by TopBar and MobileNav so the two copies cannot drift.
+   */
+  .bc-chrome-control {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 100%),
+      rgba(255, 255, 255, 0.1);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 1px 2px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition:
+      color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      background 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .bc-chrome-control::after {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.35) 48%,
+      transparent 62%
+    );
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .bc-chrome-control:hover {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.1) 100%),
+        rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .bc-chrome-control:hover::after {
+      opacity: 1;
+      animation: bc-chrome-sheen 0.7s ease-out;
+    }
+
+    .bc-chrome-control:active {
+      transform: translateY(1px) scale(0.96);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .bc-chrome-control:active::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
+  @keyframes bc-chrome-sheen {
+    from {
+      transform: translateX(-120%);
+    }
+    to {
+      transform: translateX(120%);
+    }
+  }
+
+  .bc-chrome-bar {
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 42%),
+      linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.12) inset,
+      0 8px 28px -12px rgba(0, 0, 0, 0.45);
+    backdrop-filter: saturate(1.15);
   }
 }
 
@@ -450,6 +601,24 @@
     font-family: var(--font-sans);
     font-size: var(--text-base);
     line-height: 1.55;
+  }
+
+  /* Light mode only — white cards wash out thin Inter; dark mode already has
+     enough contrast on green/ink surfaces. */
+  :root:not([data-theme='dark']) body {
+    font-weight: 500;
+  }
+
+  :root:not([data-theme='dark']) h1,
+  :root:not([data-theme='dark']) h2,
+  :root:not([data-theme='dark']) h3,
+  :root:not([data-theme='dark']) h4 {
+    font-weight: 700;
+  }
+
+  /* Descriptions that use text-muted-foreground across the app. */
+  :root:not([data-theme='dark']) .text-muted-foreground {
+    font-weight: 500;
   }
 
   h1,
@@ -562,6 +731,47 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
+    }
+  }
+
+  /*
+   * Horizontal feature rail: hide the native scrollbar so chevrons + edge
+   * fades are the only affordance. Used by `ScrollRail` on narrow My Care.
+   */
+  .bc-scroll-rail {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .bc-scroll-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Remi's live typing caret — sits at the end of the revealing HTML. */
+  .bc-remi-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.05em;
+    margin-left: 1px;
+    vertical-align: -0.12em;
+    background: var(--green-600);
+    animation: remi-caret 0.9s steps(1) infinite;
+  }
+
+  @keyframes remi-caret {
+    0%,
+    45% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bc-remi-caret {
+      animation: none;
+      opacity: 1;
     }
   }
 }

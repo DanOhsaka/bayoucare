@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils'
  * like its neighbours.
  */
 const CONTROL =
-  'flex h-11 flex-none items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-2 text-xs font-semibold text-on-dark transition-colors duration-200 ease-out hover:bg-white/20 lg:h-[34px]'
+  'bc-chrome-control flex h-11 flex-none items-center gap-2 rounded-md px-2 text-xs font-semibold text-on-dark lg:h-[34px]'
 
 /** New in this pass — see the handover note. English until the dictionary has them. */
 const NEW_KEYS: Record<string, string> = {

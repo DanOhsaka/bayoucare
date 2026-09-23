@@ -80,9 +80,9 @@ export function MyCare() {
    * calendar and the two-up grids below it are the ones that feel it first.
    */
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 md:grid md:grid-cols-[240px_1fr] md:items-start md:gap-6 lg:grid-cols-[260px_1fr]">
+    <div className="mx-auto w-full max-w-6xl px-3 py-4 sm:px-4 sm:py-6 md:grid md:grid-cols-[220px_minmax(0,1fr)] md:items-start md:gap-5 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-6">
       <PatientSidebar />
-      <div className="mt-4 min-w-0 md:mt-0">{renderScreen()}</div>
+      <div className="mt-3 min-w-0 md:mt-0">{renderScreen()}</div>
     </div>
   )
 }

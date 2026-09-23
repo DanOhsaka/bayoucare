@@ -5,20 +5,17 @@ import { buildRemiContext } from '@/engine/remi/context'
 import { remiSafeHtml } from '@/engine/remi/safeHtml'
 import { buildSystemPrompt } from '@/engine/remi/systemPrompt'
 import { REMI_FALLBACK } from '@/engine/remi/triage'
-import {
-  REMI_KEY_SLOT,
-  REMI_PROVIDERS,
-  remiProviderOf,
-  type ProviderId,
-} from '@/engine/remi/providers'
+import { charDelay, countVisibleChars, typeHtmlPrefix } from '@/engine/remi/reveal'
+import { REMI_KEY_SLOT, remiProviderOf, type ProviderId } from '@/engine/remi/providers'
 import { PATIENTS } from '@/data'
 import { interp, translate } from '@/lib/i18n'
 import { usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
+import { useVitals } from '@/store/vitals'
 
-/** The legacy pacing, kept stage-tunable. Set both to 0 to demo instantly. */
-const REMI_THINK_MIN = 700
-const THINK_SPREAD = 800
+/** Short beat of dots before letters start. Typing carries the rest. */
+const REMI_THINK_MIN = 420
+const THINK_SPREAD = 380
 
 export interface RemiChip {
   label: string
@@ -32,6 +29,8 @@ export interface RemiMessage {
   chips: RemiChip[]
   /** True while the dots are showing; the bubble settles in place. */
   pending?: boolean
+  /** True while letters are revealing into `html`. */
+  streaming?: boolean
 }
 
 interface RemiState {
@@ -39,7 +38,6 @@ interface RemiState {
   busy: boolean
   key: string
   provider: ProviderId
-  /** Last few turns, cloud path only. */
   history: Array<{ role: string; content: string }>
 
   greet: () => void
@@ -61,13 +59,6 @@ function readKey(): string {
 
 const T = (key: string) => translate(useUi.getState().lang, key)
 
-/**
- * The opening line, with the patient's first name substituted.
- *
- * Rendered RAW, not through remiSafeHtml: the greeting uses `<br><br>`, and the
- * sanitiser only restores `<b>` — escaping it would print literal `<br>` tags,
- * which is the exact bug the legacy file's own comment documents.
- */
 function greetingHtml(): string {
   const p = PATIENTS[usePatient.getState().pid]
   return interp(T('remi.greet'), { name: p.name.split(' ')[0] })
@@ -76,38 +67,99 @@ function greetingHtml(): string {
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms))
 const thinkMs = () => REMI_THINK_MIN + Math.round(Math.random() * THINK_SPREAD)
 
-/**
- * The optional cloud path. Every failure — no key, offline, non-2xx, timeout,
- * empty body — returns null and the caller keeps the on-device answer, so the
- * patient is never left with nothing.
- */
-async function askCloud(q: string, key: string, history: Array<{ role: string; content: string }>) {
-  const p = REMI_PROVIDERS[remiProviderOf(key)]
-  const ctl = new AbortController()
-  const timer = setTimeout(() => ctl.abort(), 15000)
+function prefersReducedMotion(): boolean {
   try {
-    const r = await fetch(p.url, {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  } catch {
+    return false
+  }
+}
+
+function lastVisibleChar(html: string): string {
+  for (let i = html.length - 1; i >= 0; i--) {
+    if (html[i] === '>') {
+      const open = html.lastIndexOf('<', i)
+      if (open !== -1) {
+        i = open
+        continue
+      }
+    }
+    if (html[i] === ';') {
+      const amp = html.lastIndexOf('&', i)
+      if (amp !== -1 && i - amp < 12) return ' '
+    }
+    return html[i]
+  }
+  return ' '
+}
+
+let greetGen = 0
+
+async function streamReveal(
+  set: (partial: Partial<RemiState> | ((s: RemiState) => Partial<RemiState>)) => void,
+  id: number,
+  fullHtml: string,
+  chips: RemiChip[],
+  gen?: number,
+) {
+  if (prefersReducedMotion()) {
+    set((s) => ({
+      messages: s.messages.map((m) =>
+        m.id === id ? { ...m, html: fullHtml, chips, pending: false, streaming: false } : m,
+      ),
+      busy: false,
+    }))
+    return
+  }
+
+  const total = countVisibleChars(fullHtml)
+  set((s) => ({
+    messages: s.messages.map((m) =>
+      m.id === id ? { ...m, html: '', chips, pending: false, streaming: true } : m,
+    ),
+  }))
+
+  for (let n = 1; n <= total; n++) {
+    if (gen !== undefined && gen !== greetGen) return
+    const prefix = typeHtmlPrefix(fullHtml, n)
+    set((s) => ({
+      messages: s.messages.map((m) =>
+        m.id === id
+          ? { ...m, html: prefix, chips, pending: false, streaming: n < total }
+          : m,
+      ),
+    }))
+    await delay(charDelay(lastVisibleChar(prefix)))
+  }
+
+  if (gen !== undefined && gen !== greetGen) return
+  set({ busy: false })
+}
+
+/**
+ * Ask DeepSeek through /api/remi (key stays on the server).
+ * Returns null on any failure so the caller can fall back to on-device answers.
+ */
+async function askDeepSeek(
+  q: string,
+  history: Array<{ role: string; content: string }>,
+): Promise<string | null> {
+  try {
+    const r = await fetch('/api/remi', {
       method: 'POST',
-      signal: ctl.signal,
-      headers: p.headers(key),
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        model: p.model,
-        max_tokens: 1024,
         system: buildSystemPrompt(buildRemiContext()),
         messages: history.concat([{ role: 'user', content: q }]),
       }),
     })
-    if (!r.ok) throw new Error('http ' + r.status)
-    const data = await r.json()
-    const out = (data.content || [])
-      .filter((c: { type: string }) => c.type === 'text')
-      .map((c: { text: string }) => c.text)
-      .join('')
-      .trim()
-    if (!out) throw new Error('empty')
-    return { text: remiSafeHtml(out), provider: remiProviderOf(key) }
-  } finally {
-    clearTimeout(timer)
+    if (!r.ok) return null
+    const data = (await r.json()) as { text?: string }
+    const text = String(data.text || '').trim()
+    return text ? remiSafeHtml(text) : null
+  } catch {
+    return null
   }
 }
 
@@ -118,107 +170,92 @@ export const useRemi = create<RemiState>((set, get) => ({
   provider: remiProviderOf(readKey()),
   history: [],
 
-  /** Replaced rather than appended, so it can never appear twice. */
   greet() {
-    set((s) =>
-      s.messages.length
-        ? s
-        : { messages: [{ id: uid(), role: 'remi', html: greetingHtml(), chips: [] }] },
-    )
+    if (get().messages.length || get().busy) return
+
+    const gen = ++greetGen
+    const pendingId = uid()
+    set({
+      busy: true,
+      messages: [{ id: pendingId, role: 'remi', html: '', chips: [], pending: true }],
+    })
+
+    void (async () => {
+      await delay(520 + Math.round(Math.random() * 280))
+      if (gen !== greetGen) return
+      await streamReveal(set, pendingId, greetingHtml(), [], gen)
+    })()
   },
 
   async send(raw) {
     const q = String(raw ?? '').trim()
     if (!q || get().busy) return
 
+    const gen = greetGen
     const userMsg: RemiMessage = { id: uid(), role: 'user', html: remiSafeHtml(q), chips: [] }
     set((s) => ({ messages: [...s.messages, userMsg], busy: true }))
 
-    // The pending bubble is placed BEFORE the engine runs. The engine is the one
-    // thing here that can throw synchronously, and if it did so first the
-    // patient's question would sit in the log with no reply bubble to settle
-    // into — an answer that never arrives, with nothing said about why.
     const pendingId = uid()
     set((s) => ({
       messages: [...s.messages, { id: pendingId, role: 'remi', html: '', chips: [], pending: true }],
     }))
 
-    const settle = (html: string, chips: RemiChip[]) =>
+    const dropIn = (html: string, chips: RemiChip[]) => {
+      if (gen !== greetGen) return
       set((s) => ({
-        messages: s.messages.map((m) => (m.id === pendingId ? { ...m, html, chips, pending: false } : m)),
+        messages: s.messages.map((m) =>
+          m.id === pendingId ? { ...m, html, chips, pending: false, streaming: false } : m,
+        ),
+        busy: false,
       }))
+    }
 
     try {
-      // Computed synchronously and BEFORE any await — the local engine is what
-      // decides the tier, and therefore whether this is routed at all.
-      const local = remiAnswer(q) ?? { text: REMI_FALLBACK, tier: 'unknown' as const, engine: 'local' as const }
-      const routed = local.tier === 'crisis' || local.tier === 'urgent' || local.tier === 'clinical'
-
-      const { key, history } = get()
-      let text = local.text
-      let degraded = false
+      const local =
+        remiAnswer(q) ?? { text: REMI_FALLBACK, tier: 'unknown' as const, engine: 'local' as const }
+      const routed =
+        local.tier === 'crisis' || local.tier === 'urgent' || local.tier === 'clinical'
 
       if (routed) {
-        /*
-         * A crisis, an emergency, or a clinical question is decided ON-DEVICE and
-         * answered on-device — it never reaches the model, connected or not.
-         *
-         * Those tiers also SKIP the thinking beat below. The pause is theatre, and
-         * making someone wait a beat and a half for a 988 number is not acceptable.
-         * Routed answers land the instant they are computed.
-         */
-        settle(local.text, [{ label: T('remi.chipLocal'), kind: 'neutral' }])
-      } else {
-        if (key) {
-          // The real round trip drives the indicator, with the thinking beat as a
-          // floor so a fast connection still feels like an answer being composed.
-          const [cloud] = await Promise.all([
-            askCloud(q, key, history).catch(() => {
-              degraded = true
-              return null
-            }),
-            delay(thinkMs()),
-          ])
-          if (cloud) text = cloud.text
-        } else {
-          await delay(thinkMs())
+        // Safety answers stay on-device and instant. Crisis language also
+        // lands on Care Team → Needs attention — same list as the fever replay.
+        if (local.tier === 'crisis') {
+          const pid = usePatient.getState().pid
+          useVitals.getState().raiseAlert({
+            name: PATIENTS[pid].name,
+            when: 'Just now',
+            reading: 'Crisis language in Remi chat',
+            msg: 'Patient disclosed crisis language to Remi. 988 was shown first. Care-team follow-up needed.',
+            followup: 'Keisha Brown (SW) · Marie Thibodeaux, RN — reach out today',
+            source: 'remi',
+            kind: 'crisis',
+            level: 'critical',
+          })
         }
+        dropIn(local.text, [])
+        return
+      }
 
-        const chips: RemiChip[] = [
-          {
-            label: key ? `${REMI_PROVIDERS[remiProviderOf(key)].label} ${T('remi.chipConnected')}` : T('remi.chipLocal'),
-            kind: 'success',
-          },
-        ]
-        if (degraded) chips.push({ label: T('remi.degraded'), kind: 'warning' })
-        settle(text, chips)
+      const { history } = get()
+      // DeepSeek phrases from the record; local intent is the fallback.
+      const [cloud] = await Promise.all([askDeepSeek(q, history), delay(thinkMs())])
+      if (gen !== greetGen) return
 
-        if (key && !degraded) {
-          set((s) => ({
-            history: s.history
-              .concat([
-                { role: 'user', content: q },
-                { role: 'assistant', content: text },
-              ])
-              .slice(-8),
-          }))
-        }
+      const text = cloud || local.text
+      await streamReveal(set, pendingId, text, [], gen)
+
+      if (cloud) {
+        set((s) => ({
+          history: s.history
+            .concat([
+              { role: 'user', content: q },
+              { role: 'assistant', content: text },
+            ])
+            .slice(-8),
+        }))
       }
     } catch {
-      /*
-       * The engine threw. Answer from the on-device fallback rather than leaving
-       * a typing bubble spinning forever.
-       *
-       * `busy` is cleared in the `finally` rather than here, and that is the
-       * point of this block: it used to be a bare `set({ busy: false })` at the
-       * end of the happy path, so ANY throw skipped it — leaving the composer
-       * and the send button disabled permanently, with no error shown and no
-       * way back. That is the single dead-end state this app is not allowed to
-       * have, and it sat directly on the demo's critical path.
-       */
-      settle(REMI_FALLBACK, [{ label: T('remi.chipLocal'), kind: 'neutral' }])
-    } finally {
-      set({ busy: false })
+      dropIn(REMI_FALLBACK, [])
     }
   },
 
@@ -226,7 +263,7 @@ export const useRemi = create<RemiState>((set, get) => ({
     try {
       localStorage.setItem(REMI_KEY_SLOT, k)
     } catch {
-      /* not fatal — the key just will not persist */
+      /* not fatal */
     }
     set({ key: k, provider: remiProviderOf(k) })
   },
@@ -241,26 +278,16 @@ export const useRemi = create<RemiState>((set, get) => ({
   },
 }))
 
-/**
- * Switching patient restarts the conversation.
- *
- * The greeting names the patient and every answer is grounded in their record,
- * so carrying a transcript across a switch would show one patient's chart under
- * another patient's name — the same class of bug the identity binding exists to
- * prevent. The legacy app re-greeted on every render for this reason.
- */
 usePatient.subscribe((state, prev) => {
   if (state.pid === prev.pid) return
+  greetGen++
   useRemi.setState({ messages: [], history: [], busy: false })
   useRemi.getState().greet()
 })
 
-/**
- * Switching language rebuilds Remi's greeting in the new dictionary.
- * Without this, the first bubble stayed English after Español was selected.
- */
 useUi.subscribe((state, prev) => {
   if (state.lang === prev.lang) return
+  greetGen++
   useRemi.setState({ messages: [], history: [], busy: false })
   useRemi.getState().greet()
 })

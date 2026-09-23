@@ -36,31 +36,33 @@ export function HomeScreen() {
   const appt = next ? describeAppointment(next, patient.calTypes) : null
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3 sm:gap-4">
       {/* ------------------------------------------------------------ greeting */}
-      <section className="min-w-0 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-lg font-semibold text-card-foreground">{ti('home.greet')}</h3>
-          <span className="inline-flex items-center rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
+      <section className="min-w-0 rounded-lg border border-border bg-card p-4 shadow-[var(--shadow)] sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
+          <h3 className="min-w-0 text-base font-semibold text-card-foreground sm:text-lg">
+            {ti('home.greet')}
+          </h3>
+          <span className="inline-flex shrink-0 items-center rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
             {patient.chip}
           </span>
         </div>
 
         <p className="mt-2 text-sm text-muted-foreground">{t('home.sub')}</p>
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <h4 className="text-base font-semibold text-card-foreground">{t('home.nextup')}</h4>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2 sm:flex sm:flex-wrap">
             <Link
               to="/my-care/calendar"
-              className="inline-flex h-11 items-center gap-2 rounded-md border border-brand-600 px-3.5 text-sm font-bold text-link transition-colors hover:bg-accent lg:h-9"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-brand-600 px-3.5 text-sm font-bold text-link transition-colors hover:bg-accent sm:w-auto lg:h-9"
             >
               <CalendarDays className="size-4" aria-hidden="true" />
               {t('side.calendar')}
             </Link>
             <Link
               to="/my-care/checkins"
-              className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-3.5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 lg:h-9"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-3.5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto lg:h-9"
             >
               <ClipboardList className="size-4" aria-hidden="true" />
               {t('home.checkinBtn')}
@@ -68,15 +70,19 @@ export function HomeScreen() {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:flex-wrap">
           {appt && next ? (
             <>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-bg px-3 py-1 text-xs font-bold text-warning-fg">
-                <span aria-hidden="true">{appt.icon}</span>
-                {fmtDay(next.date, lang)} {next.time} — {appt.label} ({appt.site})
+              <span className="inline-flex max-w-full items-start gap-1.5 rounded-full bg-warning-bg px-3 py-1.5 text-xs font-bold leading-snug text-warning-fg sm:items-center">
+                <span aria-hidden="true" className="mt-0.5 shrink-0 sm:mt-0">
+                  {appt.icon}
+                </span>
+                <span className="min-w-0 break-words">
+                  {fmtDay(next.date, lang)} {next.time} — {appt.label} ({appt.site})
+                </span>
               </span>
               {next.ride && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-success-bg px-3 py-1 text-xs font-bold text-success-fg">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-success-bg px-3 py-1.5 text-xs font-bold text-success-fg">
                   <span aria-hidden="true">🚗</span>
                   {t('home.rideReady')} — {RIDE_PROVIDER}
                 </span>
@@ -88,9 +94,9 @@ export function HomeScreen() {
         </div>
       </section>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
         {/* --------------------------------------------------------- care team */}
-        <section className="min-w-0 rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]">
+        <section className="min-w-0 rounded-lg border border-border bg-card p-4 shadow-[var(--shadow)] sm:p-6">
           <div className="mb-3.5 flex items-center justify-between gap-3">
             <h3 className="text-base font-semibold text-card-foreground">{t('home.teamHead')}</h3>
             <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-muted-foreground">
@@ -131,7 +137,7 @@ export function HomeScreen() {
                       ) : (
                         <>
                           <MessageCircle className="size-3.5" aria-hidden="true" />
-                          {t('home.message')}
+                          <span className="hidden min-[380px]:inline">{t('home.message')}</span>
                         </>
                       )}
                     </span>

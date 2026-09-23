@@ -23,9 +23,9 @@ function Card({
       data-slot="card"
       data-interactive={interactive || undefined}
       className={cn(
-        "flex flex-col gap-3 rounded-lg border border-border bg-card p-6 text-card-foreground shadow-[var(--shadow)] transition-[box-shadow,border-color,transform] duration-200 ease-out",
+        "flex flex-col gap-3 rounded-lg border border-border bg-card p-6 text-card-foreground bc-surface-gloss transition-[box-shadow,border-color,transform] duration-200 ease-out",
         interactive &&
-          "cursor-pointer motion-safe:hover:-translate-y-0.5 hover:border-brand-600/35 hover:shadow-[var(--shadow-lg)]",
+          "cursor-pointer motion-safe:hover:-translate-y-0.5 hover:border-brand-600/35 hover:shadow-[var(--shadow-lg)] motion-safe:active:translate-y-0 motion-safe:active:scale-[0.995]",
         className
       )}
       {...props}

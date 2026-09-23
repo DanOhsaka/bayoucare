@@ -30,7 +30,7 @@ export function AppShell() {
   }, [pathname])
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-background [background-image:radial-gradient(1200px_600px_at_50%_-10%,rgba(42,138,98,0.12),transparent_55%),linear-gradient(180deg,rgba(255,255,255,0.35),transparent_28%)] dark:[background-image:radial-gradient(1000px_500px_at_50%_-8%,rgba(61,154,111,0.14),transparent_50%),linear-gradient(180deg,rgba(255,255,255,0.03),transparent_30%)]">
       <TopBar />
       <main className="flex-1">
         {/*
@@ -42,8 +42,8 @@ export function AppShell() {
         </PageFade>
       </main>
       <RemiLauncher />
-      <footer className="border-t border-border px-6 py-5 text-center text-xs text-muted-foreground">
-        BayouCare · DevDays 2026 · Demo data only — not for clinical use
+      <footer className="border-t border-border px-3 py-4 text-center text-xs text-muted-foreground sm:px-6 sm:py-5">
+        BayouCare · DevDays 2026
       </footer>
     </div>
   )

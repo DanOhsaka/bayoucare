@@ -189,28 +189,48 @@ export function TeamScreen() {
         <CardContent>
           <div className="flex flex-col gap-3">
             {/*
-              Device-vitals alerts enter the SAME list as the forecasts, and they
-              arrive with no explicit sync: the 2am replay writes them to the vitals
-              store and this screen reads it. That is the cross-module moment.
+              Device-vitals, patient check-ins, and Remi crisis flags enter the
+              SAME list. Writers push via useVitals.raiseAlert (or the 2am
+              replay); this screen only reads — that is the closed loop.
             */}
-            {alerts.map((v, i) => (
-              <div key={i} className="rounded-lg border-2 border-danger bg-danger-bg p-4">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <b className="text-sm font-semibold text-card-foreground">{v.name}</b>{' '}
-                    <RiskPill level="critical" />
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      Objective vitals · temp patch · {v.when} · {v.reading}
+            {alerts.map((v, i) => {
+              const source = v.source ?? 'device'
+              const sourceLabel =
+                source === 'checkin'
+                  ? 'Patient check-in'
+                  : source === 'remi'
+                    ? 'Remi chat · crisis flag'
+                    : 'Objective vitals · temp patch'
+              const level = v.level === 'watch' ? 'watch' : 'critical'
+              return (
+                <div
+                  key={`${source}-${v.kind ?? i}-${i}`}
+                  className={cn(
+                    'rounded-lg border-2 p-4',
+                    level === 'critical' ? 'border-danger bg-danger-bg' : 'border-warning bg-warning-bg',
+                  )}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <b className="text-sm font-semibold text-card-foreground">{v.name}</b>{' '}
+                      <RiskPill level={level} />
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {sourceLabel} · {v.when} · {v.reading}
+                      </div>
                     </div>
+                    <Badge variant={level === 'critical' ? 'danger' : 'warning'}>
+                      {source === 'device' ? '⚡ auto-escalated' : '📋 on worklist'}
+                    </Badge>
                   </div>
-                  <Badge variant="danger">⚡ auto-escalated</Badge>
+                  <p className="mt-2 text-sm text-card-foreground">{v.msg}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {source === 'device'
+                      ? `⚡ Auto-escalation: on-call RN notified · caregiver SMS to Renee sent · ${v.followup}`
+                      : `Next step: ${v.followup}`}
+                  </p>
                 </div>
-                <p className="mt-2 text-sm text-card-foreground">{v.msg}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  ⚡ Auto-escalation: on-call RN notified · caregiver SMS to Renee sent · {v.followup}
-                </p>
-              </div>
-            ))}
+              )
+            })}
 
             {flagged.map((x) => {
               const top = x.cfs[0]
@@ -259,7 +279,7 @@ export function TeamScreen() {
           <p className="mt-3 text-xs text-muted-foreground">
             Risks from the BayouCare logistic risk model (synthetic demo data). Counterfactuals show the
             projected risk after one action — hit Apply to log it to the worklist and watch the board
-            re-run. Device-vitals alerts (Rank 6) enter the same list, auto-escalated.
+            re-run. Device vitals, patient check-ins, and Remi crisis flags enter this same list.
           </p>
         </CardContent>
       </Card>
@@ -479,7 +499,7 @@ export function TeamScreen() {
               application started.
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Clinician edits in 1 click — summary syncs to the EHR as a structured note.
+              Clinician edits in 1 click — draft summary for the visit note (not synced to an EHR in this build).
             </p>
           </CardContent>
         </Card>
@@ -502,8 +522,8 @@ export function TeamScreen() {
               ))}
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Pilot metrics — first 4 weeks, 8 patients. Scales to the full Ochsner oncology service
-              line.
+              Demo illustration of admin-time savings — synthetic figures for the worklist story, not a
+              measured pilot result.
             </p>
           </CardContent>
         </Card>

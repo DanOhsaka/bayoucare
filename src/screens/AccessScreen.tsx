@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { loadTrials, type TrialMatch, type TrialSource } from '@/engine/trials'
 import { PATIENTS, PHASE_FMT } from '@/data'
 import { usePatient } from '@/store/patient'
+import { useInterp } from '@/hooks/useInterp'
 import { useT } from '@/hooks/useT'
 
 const HELP_TYPES = [
@@ -109,16 +110,16 @@ const RESOURCES: Array<{ key: string; note?: string; rows: ResourceRow[] }> = [
     rows: [
       {
         ico: '👭',
-        title: 'Support group — Central LA',
-        detail: 'Meets 2nd & 4th Tuesday, 6 pm · Alexandria · childcare on site',
+        title: 'Support group, Central LA',
+        detail: '2nd and 4th Tuesday at 6 pm in Alexandria. Childcare is available.',
         label: 'RSVP',
         action: 'support-rsvp',
       },
       {
         ico: '🔬',
-        title: 'Clinical trials — TrialMatch',
-        detail: 'Real NCT trials, eligibility pre-checked with reasons · live below',
-        label: '↓',
+        title: 'Clinical trials near you',
+        detail: 'See which studies might fit your care. Details are below.',
+        label: 'View',
         action: 'trials-jump',
       },
     ],
@@ -136,79 +137,94 @@ function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-function TrialCard({ t }: { t: TrialMatch }) {
-  const tFn = useT()
-  const n = t.crits.length
-  const pass = t.crits.filter((c) => c.ok === true).length
+function statusLabel(
+  status: string,
+  t: (key: string) => string,
+): { label: string; variant: 'success' | 'warning' | 'neutral' } {
+  if (status === 'RECRUITING') return { label: t('trial.statusOpen'), variant: 'success' }
+  if (status === 'COMPLETED') return { label: t('trial.statusClosed'), variant: 'warning' }
+  if (status === 'ACTIVE_NOT_RECRUITING') return { label: t('trial.statusOngoing'), variant: 'warning' }
+  return { label: status.replace(/_/g, ' ').toLowerCase(), variant: 'neutral' }
+}
+
+function TrialCard({ trial }: { trial: TrialMatch }) {
+  const t = useT()
+  const ti = useInterp()
+  const n = trial.crits.length
+  const pass = trial.crits.filter((c) => c.ok === true).length
   const pct = Math.round((pass / n) * 100)
+  const status = statusLabel(trial.status, t)
 
   return (
     <Card className="p-4">
-      <CardHeader>
-        <b className="text-sm font-semibold text-card-foreground">{t.title}</b>
-        <Badge variant={t.status === 'RECRUITING' ? 'success' : 'warning'}>
-          {t.status.replace(/_/g, ' ').toLowerCase()}
-        </Badge>
+      <CardHeader className="items-start gap-2">
+        <div className="min-w-0 flex-1 space-y-1">
+          <p className="text-sm font-semibold leading-snug text-card-foreground">{trial.title}</p>
+          <p className="text-xs text-muted-foreground">
+            {ti('trial.studyId', { nct: trial.nct })}
+            {PHASE_FMT[trial.phase] ? ` · ${PHASE_FMT[trial.phase]}` : ''}
+          </p>
+        </div>
+        <Badge variant={status.variant}>{status.label}</Badge>
       </CardHeader>
 
-      <CardContent>
-        <p className="text-xs text-muted-foreground">
-          {t.nct} · {PHASE_FMT[t.phase] ?? t.phase} · {t.sites.join(' · ')}
-        </p>
-
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
-          {t.crits.map((c, i) => {
-            const kind = c.ok === true ? 'yes' : c.ok === false ? 'no' : 'warn'
-            return (
-              <Badge key={i} variant={CRIT_BADGE[kind]} className="whitespace-normal">
-                {CRIT_ICON[kind]} {c.txt}
-              </Badge>
-            )
-          })}
+      <CardContent className="space-y-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t('trial.where')}
+          </p>
+          <p className="mt-1 text-sm text-card-foreground">{trial.sites.join(' · ')}</p>
         </div>
 
-        <div className="mt-3">
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t('trial.compare')}
+          </p>
+          <ul className="flex flex-col gap-2">
+            {trial.crits.map((c, i) => {
+              const kind = c.ok === true ? 'yes' : c.ok === false ? 'no' : 'warn'
+              return (
+                <li key={i}>
+                  <Badge variant={CRIT_BADGE[kind]} className="w-full justify-start whitespace-normal text-left">
+                    <span className="mr-1.5 font-bold" aria-hidden="true">
+                      {CRIT_ICON[kind]}
+                    </span>
+                    {c.txt}
+                  </Badge>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+
+        <div>
           <ProgressTrack
             pct={pct}
             tone={pct >= 70 ? 'brand' : pct >= 40 ? 'warning' : 'danger'}
           />
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">
-              <b className="text-card-foreground">
-                {tFn('trial.elig')
-                  .replace('{p}', String(pct))
-                  .replace('{a}', String(pass))
-                  .replace('{b}', String(n))}
-              </b>
-            </span>
-            <span className="flex gap-1.5">
-              <Button
-                type="button"
-                size="sm"
-                className="font-bold"
-                onClick={() =>
-                  toast(
-                    "📨 Question sent to Dr. Peters's team — you'll hear back within 2 business days.",
-                  )
-                }
-              >
-                {tFn('trial.ask')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="font-bold"
-                onClick={() =>
-                  toast(
-                    '🔖 Saved — TrialMatch will re-check eligibility as treatment progresses (e.g., after surgery).',
-                  )
-                }
-              >
-                {tFn('trial.save')}
-              </Button>
-            </span>
-          </div>
+          <p className="mt-2 text-sm text-card-foreground">
+            {ti('trial.elig', { p: pct, a: pass, b: n })}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            className="font-bold"
+            onClick={() => toast(t('trial.askToast'))}
+          >
+            {t('trial.ask')}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="font-bold"
+            onClick={() => toast(t('trial.saveToast'))}
+          >
+            {t('trial.save')}
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -217,6 +233,7 @@ function TrialCard({ t }: { t: TrialMatch }) {
 
 export function AccessScreen() {
   const t = useT()
+  const ti = useInterp()
   const navigate = useNavigate()
   const pid = usePatient((s) => s.pid)
   const patient = PATIENTS[pid]
@@ -357,19 +374,25 @@ export function AccessScreen() {
             <p className="text-sm text-muted-foreground">{t('trial.notApplicable')}</p>
           ) : (
             <>
-              <p className="text-sm text-muted-foreground">{t('trial.sub')}</p>
-              <p className="mt-2.5 rounded-md border border-border bg-muted px-3 py-2 text-sm text-card-foreground">
-                🧩 Matching against:{' '}
-                <b>
-                  {patient.name}, {patient.age} · {patient.stage} {patient.dx.split(',')[0]} ·{' '}
-                  {patient.subtype} · {patient.city}, LA
-                </b>
-              </p>
+              <p className="text-sm text-muted-foreground">{ti('trial.sub')}</p>
+              <div className="mt-3 rounded-md border border-border bg-muted/60 px-3.5 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t('trial.profileLabel')}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-card-foreground">
+                  {patient.name}, {patient.age}
+                </p>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {patient.stage} {patient.dx.split(',')[0]}
+                  {patient.subtype ? ` · ${patient.subtype}` : ''}
+                  {patient.city ? ` · ${patient.city}, LA` : ''}
+                </p>
+              </div>
               <div className="mt-3 flex flex-col gap-3">
                 {trials.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t('trial.empty')}</p>
                 ) : (
-                  trials.map((tr) => <TrialCard key={tr.nct} t={tr} />)
+                  trials.map((tr) => <TrialCard key={tr.nct} trial={tr} />)
                 )}
               </div>
               <p className="mt-3 text-xs text-muted-foreground">{t('trial.foot')}</p>

@@ -1,12 +1,50 @@
-import { Bot, HeartHandshake, TrendingUp } from 'lucide-react'
+import { Bot, HeartHandshake, Lock, MessageCircle, Phone, TrendingUp } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 
+import { RichText } from '@/components/shared/RichText'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { REQUIRED_QUESTIONS, useCheckins } from '@/store/checkins'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
+
+const SCORE_META = [
+  { key: 'energy' as const, label: 'Energy' },
+  { key: 'nausea' as const, label: 'Nausea' },
+  { key: 'fever' as const, label: 'Fever' },
+  { key: 'pain' as const, label: 'Pain' },
+]
+
+function flagTone(kind: 'fever' | 'pain' | 'energy' | 'normal') {
+  if (kind === 'fever' || kind === 'pain') {
+    return {
+      badge: 'danger' as const,
+      box: 'border-danger/40 bg-danger-bg text-danger-fg',
+      label: 'Needs attention',
+    }
+  }
+  if (kind === 'energy') {
+    return {
+      badge: 'warning' as const,
+      box: 'border-warning/40 bg-warning-bg text-warning-fg',
+      label: 'Watch with nurse',
+    }
+  }
+  return {
+    badge: 'success' as const,
+    box: 'border-success/40 bg-success-bg text-success-fg',
+    label: 'Looking okay',
+  }
+}
+
+function moodTone(tier: number) {
+  if (tier >= 3) return { badge: 'danger' as const, box: 'border-danger/30 bg-danger-bg/60' }
+  if (tier >= 2) return { badge: 'warning' as const, box: 'border-warning/30 bg-warning-bg/60' }
+  if (tier >= 1) return { badge: 'info' as const, box: 'border-info/30 bg-info-bg/50' }
+  return { badge: 'success' as const, box: 'border-success/30 bg-success-bg/50' }
+}
 
 /**
  * The four scored questions and their option labels.
@@ -129,7 +167,7 @@ export function CheckinsScreen() {
       toast(result.reason ?? 'Could not save that check-in.')
       return
     }
-    toast(result.toast ?? '✅ Check-in saved.')
+    toast(result.toast ?? 'Check-in saved.')
   }
 
   return (
@@ -180,9 +218,13 @@ export function CheckinsScreen() {
                 </div>
               ))}
 
-              <p className="text-xs text-muted-foreground">
-                💬 Answers are private, shared only with your care team. If you're in crisis right now:
-                call or text <b className="text-card-foreground">988</b> — free, 24/7, confidential.
+              <p className="flex items-start gap-2 text-xs text-muted-foreground">
+                <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                <span>
+                  Answers are private, shared only with your care team. If you're in crisis right
+                  now: call or text <b className="text-card-foreground">988</b> — free, 24/7,
+                  confidential.
+                </span>
               </p>
             </div>
           </div>
@@ -235,38 +277,134 @@ export function CheckinsScreen() {
           </div>
 
           <p className="mt-2.5 text-sm text-muted-foreground">
-            {summary ? `Latest score ${summary.lead?.match(/Overall wellness ([\d.]+)\/5/)?.[1] ?? ''}/5` : t('checkin.trendNote')}
+            {summary?.overall != null
+              ? `Latest score ${summary.overall}/5`
+              : t('checkin.trendNote')}
           </p>
         </CardContent>
       </Card>
 
-      {summary?.ok && (
-        <Card className="border-brand-500">
+      {summary?.ok && summary.scores && summary.flag && (
+        <Card className="border-brand-500/70 shadow-[var(--shadow-sm)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bot className="size-4 text-muted-foreground" aria-hidden="true" />
-              🤖 What BayouCare sees
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Bot className="size-4 shrink-0 text-brand-600" aria-hidden="true" />
+              {t('checkin.aiHead')}
             </CardTitle>
             <Badge variant="warning">{t('checkin.aiChip')}</Badge>
           </CardHeader>
 
-          <CardContent>
-            <p className="text-sm text-card-foreground">
-              {summary.lead}
-              {summary.flag && (
-                <b
-                  className={cn(
-                    summary.flag.kind === 'fever' || summary.flag.kind === 'pain'
-                      ? 'text-danger-fg'
-                      : 'font-semibold',
-                  )}
-                >
-                  {summary.flag.text}
-                </b>
-              )}
-            </p>
+          <CardContent className="flex flex-col gap-4">
+            <div>
+              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+                <p className="typo-label">{t('checkin.aiScores')}</p>
+                {summary.checkinNumber != null && (
+                  <p className="text-xs text-muted-foreground">
+                    {t('checkin.aiNumber').replace('{n}', String(summary.checkinNumber))}
+                  </p>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {SCORE_META.map((s) => (
+                  <div
+                    key={s.key}
+                    className="rounded-lg border border-border bg-background px-3 py-2.5 text-center"
+                  >
+                    <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {s.label}
+                    </p>
+                    <p className="mt-0.5 text-lg font-bold tabular-nums text-card-foreground">
+                      {summary.scores![s.key]}
+                      <span className="text-sm font-normal text-muted-foreground">/5</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-            {summary.mood && <p className="mt-3 text-sm text-muted-foreground">{summary.mood}</p>}
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3.5 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-muted-foreground">{t('checkin.aiOverall')}</p>
+                <p className="text-2xl font-bold tabular-nums text-card-foreground">
+                  {summary.overall}
+                  <span className="text-base font-normal text-muted-foreground">/5</span>
+                </p>
+              </div>
+              <Badge variant={flagTone(summary.flag.kind).badge} className="whitespace-normal">
+                {flagTone(summary.flag.kind).label}
+              </Badge>
+            </div>
+
+            <div
+              className={cn(
+                'rounded-lg border px-3.5 py-3 text-sm leading-relaxed',
+                flagTone(summary.flag.kind).box,
+              )}
+              role="status"
+            >
+              {summary.flag.text}
+            </div>
+
+            {summary.mood != null && summary.moodTier != null && (
+              <div
+                className={cn(
+                  'flex flex-col gap-3 rounded-lg border px-3.5 py-3.5',
+                  moodTone(summary.moodTier).box,
+                )}
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <HeartHandshake className="size-4 shrink-0 text-card-foreground" aria-hidden="true" />
+                  <p className="text-sm font-semibold text-card-foreground">
+                    {t('checkin.aiMood').replace(
+                      '{n}',
+                      String(summary.moodTotal ?? 0),
+                    )}
+                  </p>
+                  <Badge variant={moodTone(summary.moodTier).badge}>
+                    {summary.moodTier >= 3
+                      ? t('checkin.aiMoodHigh')
+                      : summary.moodTier >= 2
+                        ? t('checkin.aiMoodMod')
+                        : summary.moodTier >= 1
+                          ? t('checkin.aiMoodLow')
+                          : t('checkin.aiMoodOk')}
+                  </Badge>
+                </div>
+
+                <p className="text-sm leading-relaxed text-card-foreground">
+                  <RichText html={summary.mood} />
+                </p>
+              </div>
+            )}
+
+            <div className="rounded-lg border border-border bg-background px-3.5 py-3">
+              <p className="mb-2.5 text-xs font-medium text-muted-foreground">
+                {t('checkin.aiHelp')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild size="sm" variant="outline" className="font-semibold">
+                  <a href="tel:988">
+                    <Phone className="size-3.5" aria-hidden="true" />
+                    {t('checkin.aiCall988')}
+                  </a>
+                </Button>
+                <Button asChild size="sm" variant="outline" className="font-semibold">
+                  <a
+                    href="https://namilouisiana.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t('checkin.aiNami')}
+                  </a>
+                </Button>
+                <Button asChild size="sm" className="font-semibold">
+                  <Link to="/my-care/messages">
+                    <MessageCircle className="size-3.5" aria-hidden="true" />
+                    {t('checkin.aiMessage')}
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}

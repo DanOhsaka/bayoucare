@@ -38,18 +38,18 @@ function toMatches(studies: CtStudy[]): TrialMatch[] {
     const locs = (p.contactsLocationsModule?.locations ?? []).filter((l) => l.state === 'Louisiana')
 
     const subtype = /TNBC|triple[- ]negative/i.test(title)
-      ? 'TNBC cohort — you are ER+/PR+'
+      ? 'Cancer type: this trial is for triple-negative. Yours is hormone-positive, so this is not a match.'
       : /HER2\+/.test(title) && !/HER2[- ]low/i.test(title)
-        ? 'HER2+ cohort — you are HER2−'
+        ? 'Cancer type: this trial needs HER2-positive. Yours is HER2-negative, so this is not a match.'
         : /HER2[- ]low/i.test(title)
-          ? 'HER2-low cohort — confirm your exact level'
+          ? 'Cancer type: this trial is for HER2-low. Ask your team to confirm your exact HER2 result.'
           : /HR\+|ER\+|ER-positive|hormone receptor/i.test(title)
-            ? 'HR+/ER+ — matches your subtype'
-            : 'Subtype — confirm against your pathology report'
+            ? 'Cancer type: hormone-positive (ER+/PR+). This lines up with your record.'
+            : 'Cancer type: confirm with your pathology report before anything else.'
 
     const stageTxt = /metastatic|unresectable|advanced/i.test(title)
-      ? 'Advanced/metastatic — you are early stage; revisit if disease advances'
-      : 'Early-stage friendly — matches your stage'
+      ? 'Stage: this trial is for advanced or metastatic disease. You are earlier stage, so ask again only if your care team says the cancer has advanced.'
+      : 'Stage: written for early-stage care, which matches where you are now.'
 
     const subtypeOk =
       !(/TNBC|triple[- ]negative/i.test(title) || (/HER2\+/.test(title) && !/HER2[- ]low/i.test(title)))
@@ -60,19 +60,22 @@ function toMatches(studies: CtStudy[]): TrialMatch[] {
       status,
       phase: (p.designModule?.phases ?? ['NA'])[0],
       sites: locs.length
-        ? locs.map((l) => (l.facility ?? 'Louisiana site') + (l.city ? ` — ${l.city}` : ''))
-        : ['Louisiana site'],
+        ? locs.map((l) => (l.facility ?? 'Louisiana site') + (l.city ? `, ${l.city}` : ''))
+        : ['A Louisiana clinic'],
       crits: [
         { txt: subtype, ok: subtypeOk },
         { txt: stageTxt, ok: /metastatic|unresectable|advanced/i.test(title) ? 'warn' : true },
         {
           txt:
             status === 'RECRUITING'
-              ? 'Recruiting — enrolling now'
-              : `Status: ${status.replace(/_/g, ' ').toLowerCase()} — enrollment closed`,
+              ? 'Enrollment: open now. People can still join.'
+              : `Enrollment: closed (${status.replace(/_/g, ' ').toLowerCase()}). This trial is not taking new patients.`,
           ok: status === 'RECRUITING',
         },
-        { txt: 'Louisiana recruitment site — reachable via BayouCare transport tools', ok: true },
+        {
+          txt: 'Location: has a Louisiana site. BayouCare can help with rides if you and your team decide to look into it.',
+          ok: true,
+        },
       ],
     }
   })
@@ -101,7 +104,7 @@ export async function loadTrials(): Promise<{ trials: TrialMatch[]; source: Tria
   const timer = setTimeout(() => ctrl.abort(), 4000)
   try {
     const url =
-      'https://clinicaltrials.gov/api/v2/studies?query.cond=breast%20cancer&query.locn=Louisiana&pageSize=6&fields=' +
+      'https://clinicaltrials.gov/api/v2/studies?query.cond=breast%20cancer&query.locn=Louisiana&filter.overallStatus=RECRUITING&pageSize=6&fields=' +
       FIELDS
     const r = await fetch(url, { signal: ctrl.signal })
     if (!r.ok) throw new Error('http ' + r.status)

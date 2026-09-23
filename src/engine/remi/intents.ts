@@ -131,7 +131,7 @@ export function createIntents(ctx: RemiContext) {
         return `No alerts on your record right now — your recent device readings and check-ins are in your normal range.<br><br>If anything changes, the <b>Vitals</b> tab shows what your nurse would see.`;
       return `<b>Alerts on your record:</b><br><br>` + vitalsAlerts.map(v =>
         `🚨 <b>${v.when}</b> — ${v.reading}: ${v.msg}<br>${v.followup}`).join('<br><br>') +
-        `<br><br>This already went to your care team. The <b>Vitals</b> tab has the full replay.`;
+        `<br><br>This is already on your care team's <b>Needs attention</b> list. The <b>Vitals</b> tab and Care Team view share the same alerts.`;
     }},
 
   { id:'rides', kw:[/\brides?\b/, /\btransport/, /\bget there\b/, /\bdrive\b/, /\bmileage\b/, /\blodging\b/, /\bget a ride\b/],
@@ -174,7 +174,7 @@ export function createIntents(ctx: RemiContext) {
 
   { id:'support', kw:[/\bsupport\b/, /\btalk to someone\b/, /\bcounsel/, /\bpeer\b/, /\btherapy\b/, /\bmental health\b/],
     build(){ return `👭 <b>Support group — Central LA</b><br>Meets the 2nd &amp; 4th Tuesday at 6 pm in Alexandria. Childcare is on site.<br><br>` +
-      `<b>NAMI Louisiana</b> (nami-louisiana.org) runs free peer support groups.<br><br>` +
+      `<b>NAMI Louisiana</b> (namilouisiana.org) runs free peer support groups.<br><br>` +
       `If you'd rather talk to someone on your own team first, <b>Keisha Brown</b> (social worker) is there for exactly this — <b>Access &amp; Help</b> → Request help.<br><br>` +
       `And if things feel heavy right now, <b>988</b> is free, 24/7, and confidential.`; }},
 
@@ -183,10 +183,10 @@ export function createIntents(ctx: RemiContext) {
       const scored = TRIALS.map(t => ({t, pass:t.crits.filter(c => c.ok === true).length, tot:t.crits.length}))
                            .sort((a, b) => (b.pass / b.tot) - (a.pass / a.tot));
       const best = scored[0];
-      if (!best) return `No trials are loaded right now.`;
-      return `🔬 <b>TrialMatch</b><br><br>Your profile was checked against <b>${TRIALS.length} trials</b> near Louisiana. The closest is <b>${best.t.nct}</b> — ${best.pass} of ${best.tot} criteria met:<br><br>` +
+      if (!best) return `No studies are loaded right now.`;
+      return `<b>Clinical trials near you</b><br><br>BayouCare compared <b>${TRIALS.length} studies</b> near Louisiana with your care. The closest fit is <b>${best.t.nct}</b> — ${best.pass} of ${best.tot} checks look good:<br><br>` +
         best.t.crits.map(c => `${c.ok === true ? '✅' : c.ok === 'warn' ? '⚠️' : '❌'} ${c.txt}`).join('<br>') +
-        `<br><br>Nothing matches every criterion yet, and eligibility is a call for your oncology team — not something I'd guess at. The full list is on <b>Access &amp; Help</b>.`;
+        `<br><br>This is a first look only. Joining a study is a decision with your oncology team. The full list is on <b>Access &amp; Help</b>.`;
     }},
 
   { id:'cando', kw:[/\bwhat can you do\b/, /\bhow can you help\b/, /\bwhat do you do\b/, /\byour features\b/],

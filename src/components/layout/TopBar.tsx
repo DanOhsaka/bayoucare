@@ -23,7 +23,7 @@ const PATIENT_IDS = Object.keys(PATIENTS) as PatientId[]
  * `lg` does not move and the sidebar's sticky offset stays correct.
  */
 const CONTROL =
-  'flex h-11 flex-none items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-2.5 text-xs font-semibold text-on-dark transition-colors duration-200 ease-out hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-0 lg:h-[34px]'
+  'bc-chrome-control flex h-11 flex-none items-center gap-2 rounded-md px-2.5 text-xs font-semibold text-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-0 lg:h-[34px]'
 
 /**
  * The application chrome.
@@ -69,7 +69,7 @@ export function TopBar() {
       <div
         role="group"
         aria-label="Mode"
-        className="flex h-11 flex-none items-center rounded-md bg-white/10 p-0.5 lg:h-[34px]"
+        className="bc-chrome-control flex h-11 flex-none items-center rounded-md p-0.5 lg:h-[34px]"
       >
         {(['patient', 'admin'] as const).map((m) => (
           <button
@@ -78,10 +78,10 @@ export function TopBar() {
             aria-pressed={mode === m}
             onClick={() => setMode(m)}
             className={cn(
-              // Same height as chrome controls (`h-11` / `lg:h-[34px]`), so the
-              // mode switch and patient picker share one baseline on both rows.
-              'h-full rounded-[5px] px-3 text-xs font-bold transition-colors duration-200 ease-out',
-              mode === m ? 'bg-white/90 text-brand-900' : 'text-on-dark-muted hover:text-on-dark',
+              'h-full rounded-[5px] px-3 text-xs font-bold transition-[color,background-color,transform,box-shadow] duration-200 ease-out motion-safe:active:scale-[0.96]',
+              mode === m
+                ? 'bg-white/95 text-brand-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_3px_rgba(0,0,0,0.2)]'
+                : 'text-on-dark-muted hover:bg-white/10 hover:text-on-dark',
             )}
           >
             {m === 'patient' ? 'Patient' : 'Admin'}
@@ -128,7 +128,7 @@ export function TopBar() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-40 flex flex-col gap-3 px-4 py-2.5 sm:px-5',
+        'bc-chrome-bar sticky top-0 z-40 flex flex-col gap-3 px-4 py-2.5 sm:px-5',
         mode === 'admin' ? 'bg-brand-800' : 'bg-brand-900',
       )}
     >
@@ -146,7 +146,7 @@ export function TopBar() {
           */}
           <BrandLogo
             size="sm"
-            className="rounded-md bg-white/95 px-1.5 py-0.5 shadow-[var(--shadow-sm)]"
+            className="rounded-md bg-white/95 px-1.5 py-0.5 shadow-[var(--shadow-sm)] [background-image:linear-gradient(180deg,rgba(255,255,255,1),rgba(255,255,255,0.88))]"
           />
         </div>
 
@@ -211,16 +211,14 @@ export function TopBar() {
               happening at the widths where hovering is not available. It returns
               to the designed 128px at `lg`, keeping the desktop pill's width.
           */}
-          <div className="hidden items-center gap-1.5 rounded-sm border border-white/25 bg-white/10 pl-2.5 pr-1 md:flex">
+          <div className="bc-chrome-control hidden items-center gap-1.5 rounded-md pl-2.5 pr-1 md:flex">
             <span className="max-w-[180px] truncate text-xs text-on-dark lg:max-w-[128px]" title={email}>
               {email}
             </span>
             <button
               type="button"
               onClick={() => void logout()}
-              // ~25px at py-1; `min-h-11` below `lg` for the same reason the
-              // chrome controls got it. `lg:min-h-0` restores the pill's height.
-              className="flex min-h-11 items-center gap-1.5 rounded-[5px] px-2 py-1 text-xs font-bold text-on-dark transition-colors duration-200 ease-out hover:bg-white/25 lg:min-h-0"
+              className="flex min-h-11 items-center gap-1.5 rounded-[5px] px-2 py-1 text-xs font-bold text-on-dark transition-[background-color,transform] duration-200 ease-out hover:bg-white/25 motion-safe:active:scale-[0.96] lg:min-h-0"
             >
               <LogOut className="size-3.5" aria-hidden="true" />
               {t('login.signOut')}

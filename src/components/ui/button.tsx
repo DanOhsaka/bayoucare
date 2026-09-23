@@ -12,20 +12,20 @@ const buttonVariants = cva(
   // `h-auto` alone hands the height back to the padding, and a two-line label
   // at `text-xs` measures 33px, which is under the touch floor — the two
   // utilities answer different questions and both are needed.
-  "inline-flex max-w-full shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-200 ease-out outline-hidden focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 motion-safe:active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "relative isolate inline-flex max-w-full shrink-0 items-center justify-center gap-2 overflow-hidden rounded-md text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-200 ease-out outline-hidden focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 motion-safe:hover:-translate-y-px motion-safe:active:translate-y-px motion-safe:active:scale-[0.96] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-[var(--shadow-sm)] hover:bg-primary/90 hover:shadow-[var(--shadow)]",
+          "border border-white/15 bg-primary text-primary-foreground shadow-[var(--shadow)] [background-image:linear-gradient(180deg,rgba(255,255,255,0.22),transparent_55%)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] motion-safe:active:shadow-[var(--shadow-press)]",
         destructive:
-          "bg-destructive text-white shadow-[var(--shadow-sm)] hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+          "border border-white/10 bg-destructive text-white shadow-[var(--shadow-sm)] [background-image:linear-gradient(180deg,rgba(255,255,255,0.18),transparent_55%)] hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 motion-safe:active:shadow-[var(--shadow-press)]",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground hover:shadow-[var(--shadow-sm)] dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border border-border bg-background/80 shadow-[var(--shadow-sm)] backdrop-blur-sm [background-image:linear-gradient(180deg,rgba(255,255,255,0.35),transparent_50%)] hover:bg-accent hover:text-accent-foreground hover:shadow-[var(--shadow)] dark:border-input dark:bg-input/30 dark:hover:bg-input/50 dark:[background-image:linear-gradient(180deg,rgba(255,255,255,0.08),transparent_50%)] motion-safe:active:shadow-[var(--shadow-press)]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground shadow-[var(--shadow-sm)] [background-image:linear-gradient(180deg,rgba(255,255,255,0.3),transparent_55%)] hover:bg-secondary/80 motion-safe:active:shadow-[var(--shadow-press)]",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 motion-safe:active:scale-[0.97]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       /*

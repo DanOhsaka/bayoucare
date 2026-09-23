@@ -20,12 +20,19 @@ function tempCFromReading(reading: string): number | null {
   return m ? Number(m[1]) : null
 }
 
+export type CareAlertSource = 'device' | 'checkin' | 'remi'
+
 export interface VitalsAlert {
   name: string
   when: string
   reading: string
   msg: string
   followup: string
+  /** Where the alert came from — TeamScreen labels the row from this. */
+  source?: CareAlertSource
+  /** Dedup key within a source (e.g. fever vs pain vs crisis). */
+  kind?: string
+  level?: 'critical' | 'watch'
 }
 
 interface VitalsState {
@@ -46,6 +53,11 @@ interface VitalsState {
   startReplay: () => void
   advanceReplay: () => void
   stopReplay: () => void
+  /**
+   * Push a worklist alert (check-in, Remi crisis, or anything else that must
+   * land on Care Team → Needs attention). Same list the 2am replay writes.
+   */
+  raiseAlert: (alert: VitalsAlert) => void
   resetForPatient: (pid: PatientId) => void
 }
 
@@ -132,6 +144,9 @@ export const useVitals = create<VitalsState>((set, get) => ({
           reading: '38.6°C (101.5°F)',
           msg: T('vitals.alertMsg'),
           followup: T('vitals.alertFollow'),
+          source: 'device',
+          kind: 'fever-patch',
+          level: 'critical',
         },
       ]
       set({
@@ -152,6 +167,28 @@ export const useVitals = create<VitalsState>((set, get) => ({
 
   stopReplay() {
     set({ replaying: false })
+  },
+
+  raiseAlert(alert) {
+    const incoming: VitalsAlert = {
+      source: 'device',
+      level: 'critical',
+      ...alert,
+    }
+    const { alerts } = get()
+    // One open row per source+kind+name keeps a second fever check-in from
+    // stacking duplicates during a demo.
+    const next = alerts.filter(
+      (a) =>
+        !(
+          a.name === incoming.name &&
+          (a.source ?? 'device') === (incoming.source ?? 'device') &&
+          (a.kind ?? '') === (incoming.kind ?? '')
+        ),
+    )
+    next.push(incoming)
+    set({ alerts: next })
+    remiLive.vitalsAlerts = next as unknown as Array<Record<string, unknown>>
   },
 
   resetForPatient(pid) {

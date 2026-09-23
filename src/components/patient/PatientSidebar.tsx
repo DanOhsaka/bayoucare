@@ -1,11 +1,10 @@
-import { NavLink } from 'react-router-dom'
+import { useLocation, NavLink } from 'react-router-dom'
 import {
   Activity,
   Calendar,
   Car,
   Compass,
   House,
-  Leaf,
   Map,
   MessageCircle,
   ShieldCheck,
@@ -14,12 +13,13 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import { usePatient } from '@/store/patient'
-import { PATIENTS } from '@/data'
-import { unreadTotal, useCareChat } from '@/store/careChat'
+import { ScrollRail } from '@/components/shared/ScrollRail'
 import { UnreadCount } from '@/components/shared/UnreadCount'
+import { PATIENTS } from '@/data'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
+import { unreadTotal, useCareChat } from '@/store/careChat'
+import { usePatient } from '@/store/patient'
 
 export interface PatientScreen {
   key: string
@@ -39,11 +39,53 @@ export const PATIENT_SCREENS: PatientScreen[] = [
   { key: 'vitals', icon: Activity, labelKey: 'side.vitals' },
   { key: 'access', icon: Car, labelKey: 'side.access' },
   { key: 'messages', icon: MessageCircle, labelKey: 'side.messages' },
-  { key: 'remi', icon: Leaf, labelKey: 'side.remi' },
 ]
 
-export function PatientSidebar() {
+function linkClass(isActive: boolean, rail: boolean) {
+  return cn(
+    'flex items-center gap-2 rounded-md text-sm font-semibold transition-[color,background-color,transform] duration-200 ease-out motion-safe:active:scale-[0.99]',
+    rail
+      ? 'snap-start flex-none px-3 py-2.5'
+      : 'w-full gap-2.5 px-3 py-3 lg:py-2',
+    isActive
+      ? 'bg-brand-700 text-on-dark shadow-[var(--shadow-sm)]'
+      : 'text-foreground hover:bg-accent hover:text-accent-foreground',
+  )
+}
+
+function ScreenLink({
+  screen,
+  unread,
+  rail,
+}: {
+  screen: PatientScreen
+  unread: number
+  rail?: boolean
+}) {
   const t = useT()
+  const Icon = screen.icon
+  const showUnread = screen.key === 'messages' && unread > 0
+
+  return (
+    <NavLink
+      to={`/my-care/${screen.key}`}
+      className={({ isActive }) => linkClass(isActive, !!rail)}
+    >
+      {({ isActive }) => (
+        <>
+          <Icon className="size-4 flex-none" aria-hidden="true" />
+          <span className="min-w-0 whitespace-nowrap">{t(screen.labelKey)}</span>
+          {showUnread && (
+            <UnreadCount count={unread} tone={isActive ? 'onDark' : 'danger'} />
+          )}
+        </>
+      )}
+    </NavLink>
+  )
+}
+
+export function PatientSidebar() {
+  const location = useLocation()
   const pid = usePatient((s) => s.pid)
   const patient = PATIENTS[pid]
   const unreadMap = useCareChat((s) => s.unread)
@@ -55,67 +97,43 @@ export function PatientSidebar() {
    * The sidebar becomes a column at `md`, not `lg` — it is the other half of
    * the pairing in `MyCare`, and neither half is correct alone.
    *
-   * Between 768 and 1023 this was a horizontal strip: sections scrolling
-   * sideways inside a card, above a screen that had a whole tablet's width to
-   * show them in as a list. It read as an afterthought and it hid several
-   * behind an unpainted scroll affordance, on the one form factor with room
-   * for them at once.
-   *
-   * The offset is restated at `lg` because the header changes height at that
-   * breakpoint: below `lg` the tab row is on its own line and the controls are
-   * 44px, from `lg` they are inline and 34px. Both numbers are measured, not
-   * derived — see the report; a hardcoded offset that drifts from the real
-   * header height leaves a band of live content above the pinned sidebar.
+   * Below `md` the eleven sections ride a ScrollRail (chevrons + edge fades)
+   * instead of a native overflow scrollbar. The sticky offsets at `md`/`lg`
+   * track the measured header heights — see the layout report.
    */
   return (
-    <aside className="md:sticky md:top-[112px] md:self-start lg:top-[60px]">
-      <div className="rounded-lg border border-border bg-card p-4 shadow-[var(--shadow)]">
-        {/* Identity. The record this is bound to is the same one every other
-            patient screen reads — there is no second source of truth. */}
+    <aside className="min-w-0 md:sticky md:top-[112px] md:self-start lg:top-[60px]">
+      <div className="rounded-lg border border-border bg-card p-3 shadow-[var(--shadow)] sm:p-4">
         <div className="flex items-center gap-3">
           <div className="flex size-10 flex-none items-center justify-center rounded-full bg-brand-700 text-base font-bold text-on-dark">
             {firstName.charAt(0)}
           </div>
           <div className="min-w-0">
-            <b className="block text-sm font-semibold text-card-foreground">
+            <b className="block truncate text-sm font-semibold text-card-foreground">
               {firstName}, {patient.age}
             </b>
-            <span className="block text-xs leading-snug text-muted-foreground">{patient.short}</span>
+            <span className="block text-xs leading-snug text-muted-foreground">
+              {patient.short}
+            </span>
           </div>
+        </div>
+
+        {/* Narrow: scroll rail. Tablet+ : vertical list. */}
+        <div className="mt-3 md:hidden">
+          <ScrollRail aria-label="My Care sections" activeKey={location.pathname}>
+            {PATIENT_SCREENS.map((s) => (
+              <ScreenLink key={s.key} screen={s} unread={messagesUnread} rail />
+            ))}
+          </ScrollRail>
         </div>
 
         <nav
           aria-label="My Care sections"
-          className="mt-4 flex gap-1 overflow-x-auto md:flex-col md:overflow-visible"
+          className="mt-4 hidden max-h-[min(70dvh,calc(100dvh-10rem))] flex-col gap-1 overflow-y-auto overscroll-contain md:flex"
         >
-          {PATIENT_SCREENS.map((s) => {
-            const Icon = s.icon
-            const showUnread = s.key === 'messages' && messagesUnread > 0
-            return (
-              <NavLink
-                key={s.key}
-                to={`/my-care/${s.key}`}
-                className={({ isActive }) =>
-                  cn(
-                    'flex flex-none items-center gap-2.5 rounded-md px-3 py-3 text-sm font-semibold transition-[color,background-color,transform] duration-200 ease-out md:w-full lg:py-2 motion-safe:active:scale-[0.99]',
-                    isActive
-                      ? 'bg-brand-700 text-on-dark shadow-[var(--shadow-sm)]'
-                      : 'text-foreground hover:bg-accent hover:text-accent-foreground',
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon className="size-4 flex-none" aria-hidden="true" />
-                    <span className="min-w-0 flex-1 whitespace-nowrap">{t(s.labelKey)}</span>
-                    {showUnread && (
-                      <UnreadCount count={messagesUnread} tone={isActive ? 'onDark' : 'danger'} />
-                    )}
-                  </>
-                )}
-              </NavLink>
-            )
-          })}
+          {PATIENT_SCREENS.map((s) => (
+            <ScreenLink key={s.key} screen={s} unread={messagesUnread} />
+          ))}
         </nav>
       </div>
     </aside>

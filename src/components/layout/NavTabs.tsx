@@ -48,10 +48,10 @@ export function NavTabs() {
             to={item.to}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'whitespace-nowrap rounded-sm px-2.5 py-3 text-sm font-semibold transition-[color,background-color,box-shadow] duration-200 ease-out lg:py-2',
+              'whitespace-nowrap rounded-md px-2.5 py-3 text-sm font-semibold transition-[color,background-color,box-shadow,transform] duration-200 ease-out motion-safe:active:scale-[0.96] lg:py-2',
               active
-                ? 'bg-white/20 text-on-dark shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]'
-                : 'text-on-dark-muted hover:bg-white/10 hover:text-on-dark',
+                ? 'bg-white/22 text-on-dark shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_1px_3px_rgba(0,0,0,0.18)]'
+                : 'text-on-dark-muted hover:bg-white/12 hover:text-on-dark',
             )}
           >
             {t(item.key)}

@@ -1,5 +1,13 @@
 import { usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
+import { useVitals } from '@/store/vitals'
+import { useCheckins } from '@/store/checkins'
+import { useTeam } from '@/store/team'
+import { useClinic } from '@/store/clinic'
+import { useAppointments } from '@/store/appointments'
+import { useFamily } from '@/store/family'
+import { useRemi } from '@/store/remi'
+import { useCareChat } from '@/store/careChat'
 
 /**
  * Return every store to its initial state.
@@ -18,6 +26,21 @@ import { useUi } from '@/store/ui'
  * pre-existing and out of scope for a UI port.
  */
 export function resetStores() {
-  usePatient.setState({ pid: 'darlene' }, false)
+  const pid = 'darlene' as const
+
+  usePatient.setState({ pid }, false)
   useUi.setState({ mode: 'patient' }, false)
+
+  useVitals.getState().resetForPatient(pid)
+  useCheckins.getState().resetForPatient(pid)
+  useTeam.getState().reset()
+  useClinic.getState().reset()
+  // Wipe every patient's working copies — a clinician may have touched several.
+  useAppointments.setState({ plans: {} })
+  useFamily.setState({ overrides: {} })
+  useCareChat.getState().reset()
+
+  // Keep the Remi key; clear the conversation so the next account does not
+  // inherit crisis flags or chat history from the previous one.
+  useRemi.setState({ messages: [], history: [], busy: false })
 }

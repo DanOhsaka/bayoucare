@@ -27,6 +27,7 @@ interface CareChatState {
   send: (pid: PatientId, member: CareTeamMember, text: string) => void
   markRead: (key: string) => void
   setViewing: (key: string | null) => void
+  reset: () => void
 }
 
 let seq = 0
@@ -210,5 +211,9 @@ export const useCareChat = create<CareChatState>((set, get) => ({
         })
       }
     }, 900)
+  },
+
+  reset() {
+    set({ threads: {}, typing: {}, unread: {}, viewingKey: null })
   },
 }))

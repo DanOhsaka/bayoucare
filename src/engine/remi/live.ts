@@ -9,12 +9,9 @@ export interface SweepRow {
 }
 
 /**
- * Alerts raised by the 2am replay, which Remi reads when asked how the patient
- * has been doing.
- *
- * Mutable on purpose and living outside React: the writer is an interval and the
- * reader is a pure function (see the generated intent table, which expects the
- * bare identifier). It becomes a store when the vitals screen is ported.
+ * Alerts raised by the 2am replay, patient check-ins, and Remi crisis routing.
+ * Remi reads this when asked how the patient has been doing; Care Team reads
+ * the same list from the vitals store.
  */
 export const remiLive = {
   vitalsAlerts: [] as Array<Record<string, unknown>>,

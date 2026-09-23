@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 import { RichText } from '@/components/shared/RichText'
 import { Stagger, StaggerItem } from '@/components/shared/Motion'
@@ -6,7 +7,14 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { useT } from '@/hooks/useT'
+import { useSession } from '@/store/session'
 import { useUi } from '@/store/ui'
+
+/** Published demo account — same credentials printed on the login card. */
+const CLINICIAN_DEMO = {
+  email: 'clinician@bayoucare.demo',
+  password: 'clinician2026',
+} as const
 
 /** view id → route, for the `data-goto` buttons. */
 const ROUTES: Record<string, string> = {
@@ -100,12 +108,12 @@ const BARRIERS = [
   ['Managing side effects', 'Daily Check-ins — automatic escalation'],
   ['Accessing supportive services', 'Resource Finder — aid, groups, trials, social work'],
   ['Transportation & financial barriers', 'Access Hub — rides, mileage, lodging, low-bandwidth telehealth'],
-  ['Rural & underserved communities', 'Built Louisiana-first — offline-first, SMS fallback, EN+ES'],
+  ['Rural & underserved communities', 'Built Louisiana-first — four languages, ride/mileage tools, low-bandwidth telehealth'],
 ]
 
 const WINS = [
-  ['📱', 'Built for low bandwidth', 'Offline-first + SMS fallback for rural patients.'],
-  ['🗣️', 'Plain language, English + Spanish', '~8th-grade health literacy, by design.'],
+  ['📱', 'Built for low bandwidth', 'Lean load, low-bandwidth telehealth mode, and SMS-style caregiver alerts in the demo.'],
+  ['🗣️', 'Four languages on the patient journey', 'English, Spanish, Haitian Creole, and Vietnamese — not a separate translation page.'],
   ['🤝', 'Family-inclusive', 'Helpers pick up rides, tasks, and messages — without a second login.'],
 ]
 
@@ -129,11 +137,41 @@ export function OverviewScreen() {
   const t = useT()
   const navigate = useNavigate()
   const setMode = useUi((s) => s.setMode)
+  const role = useSession((s) => s.role)
+  const login = useSession((s) => s.login)
+  const busy = useSession((s) => s.busy)
+  const isClinician = role === 'clinician'
 
   /** The legacy `gotoView`: switch mode first, then go there. */
   function go(view: string) {
-    setMode(MODE[view] ?? 'patient')
+    const nextMode = MODE[view] ?? 'patient'
+    // Patients cannot enter admin mode — routes are also gated, but this
+    // keeps the Overview shortcuts honest.
+    if (nextMode === 'admin' && !isClinician) return
+    setMode(nextMode)
     navigate(ROUTES[view] ?? '/overview')
+  }
+
+  /**
+   * Hero "See the clinician view" must always do something.
+   *
+   * Role-gated admin routes made a silent no-op for patient sessions — the
+   * button looked broken. For the demo, switch into the published clinician
+   * account (same as the login card), then open Care Team.
+   */
+  async function openClinicianView() {
+    if (isClinician) {
+      go('team')
+      return
+    }
+    toast.message('Switching to the clinician demo account…')
+    await login(CLINICIAN_DEMO.email, CLINICIAN_DEMO.password)
+    if (useSession.getState().role !== 'clinician') {
+      toast.error('Could not open the clinician view. Sign in as clinician@bayoucare.demo.')
+      return
+    }
+    setMode('admin')
+    navigate('/care-team')
   }
 
   return (
@@ -165,7 +203,8 @@ export function OverviewScreen() {
           <Button
             type="button"
             variant="ghost"
-            onClick={() => go('team')}
+            disabled={busy}
+            onClick={() => void openClinicianView()}
             className="h-11 border border-white/30 bg-white/10 px-5 font-bold text-on-dark hover:bg-white/20 hover:text-on-dark dark:hover:bg-white/20"
           >
             {t('hero.cta2')}
@@ -195,7 +234,7 @@ export function OverviewScreen() {
                   {c.tagLabel}
                 </Badge>
                 <CardTitle className="mt-3">{c.h}</CardTitle>
-                <p className="mt-2 text-sm text-muted-foreground">{c.p}</p>
+                <p className="mt-2 text-sm font-medium text-muted-foreground">{c.p}</p>
               </CardContent>
             </Card>
           </StaggerItem>
@@ -226,8 +265,8 @@ export function OverviewScreen() {
                     {ico}
                   </span>
                   <div>
-                    <h4 className="text-sm font-semibold text-card-foreground">{h}</h4>
-                    <p className="mt-1 text-sm text-muted-foreground">{p}</p>
+                    <h4 className="text-sm font-bold text-card-foreground">{h}</h4>
+                    <p className="mt-1 text-sm font-medium text-muted-foreground">{p}</p>
                   </div>
                 </div>
               </CardContent>
@@ -347,8 +386,8 @@ export function OverviewScreen() {
             ))}
           </div>
           <p className="mt-2.5 text-xs text-muted-foreground">
-            Impact figures are modeled targets for the DevDays pilot — to be validated with Ochsner
-            partner clinics during the 12-week build.
+            Impact figures are modeled targets for a possible pilot — not measured outcomes from a live
+            Ochsner deployment.
           </p>
 
           <div className="mt-7 flex flex-wrap gap-2">
@@ -361,13 +400,17 @@ export function OverviewScreen() {
             >
               ▶ Try the patient demo
             </Button>
-            {[
-              ['team', 'Forecast & counterfactuals'],
-              ['survivorship', '📋 Survivorship plans'],
-              ['population', '🗺️ Parish heat index'],
-              ['clinicops', '🏥 Clinic ops — the provider side'],
-              ['roadmap', 'Roadmap & pilot plan'],
-            ].map(([view, label]) => (
+            {(
+              isClinician
+                ? ([
+                    ['team', 'Forecast & counterfactuals'],
+                    ['survivorship', '📋 Survivorship plans'],
+                    ['population', '🗺️ Parish heat index'],
+                    ['clinicops', '🏥 Clinic ops — the provider side'],
+                    ['roadmap', 'Roadmap & pilot plan'],
+                  ] as const)
+                : []
+            ).map(([view, label]) => (
               <Button
                 key={view}
                 type="button"
