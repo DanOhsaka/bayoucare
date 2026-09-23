@@ -1,5 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
+import { LayoutGroup, motion, MotionConfig, useReducedMotion } from 'motion/react'
+
 import { NAV_ITEMS, isNavItemActive } from '@/components/layout/navItems'
+import { SPRING_THUMB } from '@/lib/ease'
 import { useT } from '@/hooks/useT'
 import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
@@ -8,56 +11,51 @@ import { cn } from '@/lib/utils'
  * Top-level navigation, from `md` up. Below `md` `MobileNav` renders the same
  * items as a dialog instead — this row is `hidden` there rather than scrolled.
  *
- * Tabs are filtered by the current mode rather than hidden with CSS. The legacy
- * app kept all eight mounted and hid the other mode's with a specificity trick;
- * here the mode simply decides what is listed, which is the same user-visible
- * result without the CSS argument.
- *
- * Three widths, each doing something different on purpose:
- *
- *  - **Below `md`** — not rendered; `MobileNav` owns the nav.
- *  - **`md` to `lg`** — its own full-width row under the chrome. The five admin
- *    tabs are ~470px and the rest of the header is ~660px, so a single row needs
- *    ~1141px: at 768px the old `flex-1` row was measured at 49px of client width
- *    and showed *none* of them, silently, behind a scrollbar most platforms never
- *    paint. On its own row all five fit from 768px up. The bar stays `order-last`
- *    and full width, so the brand, mode switch and controls keep row one to
- *    themselves — the shape the header already took at 320px.
- *  - **`lg` up** — unchanged from before this pass: inline, `flex-1`, scrollable.
- *    From 1024px there is room for the three patient tabs inline, and leaving the
- *    desktop header byte-identical is the point — see the note in the report
- *    about the admin set still clipping between 1024px and ~1181px.
+ * Active pill uses the same spring as the theme switch so tab changes feel like
+ * the light/dark thumb sliding.
  */
 export function NavTabs() {
   const t = useT()
   const mode = useUi((s) => s.mode)
   const pathname = useLocation().pathname
+  const reduce = useReducedMotion()
 
   const visible = NAV_ITEMS.filter((i) => i.mode === mode)
 
   return (
-    <nav
-      aria-label="Main"
-      className="order-last hidden w-full flex-none items-center gap-1 md:flex lg:order-none lg:w-auto lg:min-w-0 lg:flex-1 lg:overflow-x-auto"
-    >
-      {visible.map((item) => {
-        const active = isNavItemActive(item, pathname)
-        return (
-          <Link
-            key={item.view}
-            to={item.to}
-            aria-current={active ? 'page' : undefined}
-            className={cn(
-              'whitespace-nowrap rounded-md px-2.5 py-3 text-sm font-semibold transition-[color,background-color,box-shadow,transform] duration-200 ease-out motion-safe:active:scale-[0.96] lg:py-2',
-              active
-                ? 'bg-white/22 text-on-dark shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_1px_3px_rgba(0,0,0,0.18)]'
-                : 'text-on-dark-muted hover:bg-white/12 hover:text-on-dark',
-            )}
-          >
-            {t(item.key)}
-          </Link>
-        )
-      })}
-    </nav>
+    <MotionConfig transition={reduce ? { duration: 0 } : SPRING_THUMB}>
+      <LayoutGroup id={`nav-tabs-${mode}`}>
+        <nav
+          aria-label="Main"
+          className="order-last hidden w-full min-w-0 flex-none items-center gap-1 overflow-x-auto bc-nav-scroll md:flex lg:order-none lg:w-auto lg:flex-1"
+        >
+          {visible.map((item) => {
+            const active = isNavItemActive(item, pathname)
+            return (
+              <Link
+                key={item.view}
+                to={item.to}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'relative whitespace-nowrap rounded-full px-3 py-2.5 text-sm font-medium transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:active:scale-[0.96] lg:py-1.5',
+                  active
+                    ? 'text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground',
+                )}
+              >
+                {active ? (
+                  <motion.span
+                    layoutId={`nav-tabs-pill-${mode}`}
+                    className="absolute inset-0 z-0 rounded-full bg-primary shadow-[var(--shadow-sm)]"
+                    transition={reduce ? { duration: 0 } : SPRING_THUMB}
+                  />
+                ) : null}
+                <span className="relative z-10">{t(item.key)}</span>
+              </Link>
+            )
+          })}
+        </nav>
+      </LayoutGroup>
+    </MotionConfig>
   )
 }

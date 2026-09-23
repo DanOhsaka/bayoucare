@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import { ShieldCheck } from 'lucide-react'
+import {
+  Bus,
+  Flame,
+  Microscope,
+  Ribbon,
+  ScanLine,
+  ShieldCheck,
+  Wind,
+  type LucideIcon,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Field, INPUT_CLASS, PersonaButton, SELECT_CLASS, Stat } from '@/components/shared/Field'
@@ -69,7 +78,10 @@ function LungCalculator() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>🫁 Lung (LDCT)</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Wind className="size-4 text-primary" aria-hidden="true" strokeWidth={1.75} />
+          Lung (LDCT)
+        </CardTitle>
         <Badge variant="neutral" className={CHIP_CAPS}>
           USPSTF 2021
         </Badge>
@@ -153,7 +165,7 @@ function LungCalculator() {
 
             {v.status === 'current' && v.packs >= 20 && (
               <div className="mt-2.5 flex flex-wrap items-center gap-2 rounded-md border border-warning/40 bg-warning-bg p-3 text-warning-fg">
-                <span>🔥</span>
+                <Flame className="size-4 shrink-0" aria-hidden="true" strokeWidth={1.75} />
                 <b>Quit-to-Screen bundle:</b>
                 <span className="text-sm">
                   LA Quitline referral (1-800-QUIT-NOW) + NRT guidance wired to your LDCT order.
@@ -162,7 +174,7 @@ function LungCalculator() {
                   type="button"
                   size="sm"
                   className="font-bold"
-                  onClick={() => toast('✅ Referral sent to LA Quitline + your care team.')}
+                  onClick={() => toast(' Referral sent to LA Quitline + your care team.')}
                 >
                   Refer me
                 </Button>
@@ -194,7 +206,10 @@ function BreastCalculator() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>🎀 Breast</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Ribbon className="size-4 text-primary" aria-hidden="true" strokeWidth={1.75} />
+          Breast
+        </CardTitle>
         <Badge variant="neutral" className={CHIP_CAPS}>
           ACS 2023 · family-history based
         </Badge>
@@ -286,7 +301,10 @@ function ColoCalculator() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>🧫 Colorectal</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Microscope className="size-4 text-primary" aria-hidden="true" strokeWidth={1.75} />
+          Colorectal
+        </CardTitle>
         <Badge variant="neutral" className={CHIP_CAPS}>
           USPSTF 2021
         </Badge>
@@ -327,7 +345,10 @@ function ColoCalculator() {
         {result && (
           <ResultBlock>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <b>🧫 Colorectal</b>
+              <b className="inline-flex items-center gap-1.5">
+                <Microscope className="size-3.5" aria-hidden="true" strokeWidth={1.75} />
+                Colorectal
+              </b>
               <Badge variant={result.high ? TIER_BADGE.mod : TIER_BADGE.low}>
                 {result.high ? 'HIGHER RISK' : 'AVERAGE RISK'}
               </Badge>
@@ -351,10 +372,17 @@ function ColoCalculator() {
 
 /* ------------------------------------------------------- community + family */
 
-const COMMUNITY_EVENTS = [
+const COMMUNITY_EVENTS: Array<{
+  id: string
+  icon: LucideIcon
+  title: string
+  where: string
+  when: string
+  note: string
+}> = [
   {
     id: 'mammo-van',
-    ico: '🚐',
+    icon: Bus,
     title: 'Free mammogram van',
     where: 'Alexandria Farmers Market',
     when: 'Sat, Sep 12 · 9 am–3 pm',
@@ -362,7 +390,7 @@ const COMMUNITY_EVENTS = [
   },
   {
     id: 'colo-day',
-    ico: '🩻',
+    icon: ScanLine,
     title: 'Free colorectal screening',
     where: 'Rapides Parish Health Unit',
     when: 'Fri, Sep 19 · 8 am–1 pm',
@@ -370,13 +398,13 @@ const COMMUNITY_EVENTS = [
   },
   {
     id: 'lung-drive',
-    ico: '🫁',
+    icon: Wind,
     title: 'Lung CT screening day',
     where: 'Natchitoches',
     when: 'Fri, Oct 3',
     note: 'For people 50+ with a smoking history',
   },
-] as const
+]
 
 function CommunityEventsCard() {
   const t = useT()
@@ -401,16 +429,17 @@ function CommunityEventsCard() {
         <ul className="flex flex-col gap-2">
           {COMMUNITY_EVENTS.map((ev) => {
             const isSaved = Boolean(saved[ev.id])
+            const Icon = ev.icon
             return (
               <li
                 key={ev.id}
                 className="flex items-start gap-3 rounded-md border border-border p-2.5"
               >
                 <span
-                  className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
+                  className="flex size-10 flex-none items-center justify-center rounded-full bg-primary/10 text-primary"
                   aria-hidden="true"
                 >
-                  {ev.ico}
+                  <Icon className="size-4" strokeWidth={1.75} />
                 </span>
                 <div className="min-w-0 flex-1">
                   <b className="block text-sm font-semibold text-card-foreground">{ev.title}</b>

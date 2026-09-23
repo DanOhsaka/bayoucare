@@ -14,13 +14,13 @@
   [
     "2:14 am",
     "38.6°C (101.5°F)",
-    "⚠️ THRESHOLD CROSSED — ≥100.4°F",
+    "THRESHOLD CROSSED — ≥100.4°F",
     "crit"
   ],
   [
     "2:14 am",
     "Auto-escalation fired",
-    "🚨 On-call RN notified · caregiver SMS to Renee sent",
+    "On-call RN notified · caregiver SMS to Renee sent",
     "act"
   ],
   [

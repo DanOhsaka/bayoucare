@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Car } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Field, SELECT_CLASS } from '@/components/shared/Field'
@@ -222,7 +223,7 @@ export function BookingDialog({ open, onOpenChange, editing, initialOff, initial
               onClick={() => setRide((r) => !r)}
               aria-pressed={ride}
             >
-              <span aria-hidden="true">🚗</span>
+              <Car className="size-4" aria-hidden="true" strokeWidth={1.75} />
               {ride ? t('cal.rideRequested') : t('cal.rideRequest')}
             </Button>
             <p className="text-xs text-muted-foreground">{t('cal.ride')}</p>

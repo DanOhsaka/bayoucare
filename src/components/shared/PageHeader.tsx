@@ -8,6 +8,9 @@ import { cn } from '@/lib/utils'
  * Hierarchy: the `h1` is the only page title on the screen; supporting copy is
  * muted; actions (pickers, primary CTAs) sit in the action slot so they read as
  * the thing to do next — not as another heading.
+ *
+ * Layout uses CSS grid (`minmax(0,1fr)` + auto) so a wide action cannot crush
+ * the title/subtitle into a one-word column the way flex-1 + min-w-0 can.
  */
 export function PageHeader({
   title,
@@ -23,15 +26,20 @@ export function PageHeader({
   className?: string
 }) {
   return (
-    <header className={cn('flex flex-col gap-3', className)}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-1.5">
-          <h1 className="typo-page-title">{title}</h1>
-          {subtitle ? <p className="typo-muted max-w-3xl">{subtitle}</p> : null}
+    <header className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
+      <div
+        className={cn(
+          'grid w-full min-w-0 grid-cols-1 gap-3',
+          action && 'md:grid-cols-[minmax(0,1fr)_auto] md:items-start',
+        )}
+      >
+        <div className="min-w-0 space-y-1.5">
+          <h1 className="typo-page-title text-balance">{title}</h1>
+          {subtitle ? <p className="typo-muted max-w-3xl text-pretty">{subtitle}</p> : null}
           {meta ? <div className="typo-meta">{meta}</div> : null}
         </div>
         {action ? (
-          <div className="flex w-full min-w-0 max-w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-none">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:max-w-md md:justify-end">
             {action}
           </div>
         ) : null}

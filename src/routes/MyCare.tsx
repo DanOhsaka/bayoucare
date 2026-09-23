@@ -16,21 +16,15 @@ import { isScreen } from '@/components/layout/navItems'
 
 /**
  * The patient app: a sidebar of sections beside the active one.
- *
- * The URL selects the section, so a refresh keeps your place and the back
- * button walks between them — neither of which the legacy class-toggling did.
- * Every listed section is built; there is no longer a fall-through placeholder.
- *
- * Note: the legacy app kept every screen mounted at once and hid the inactive
- * ones with CSS, because some of them run timers whose output other screens
- * consume (the 2am vitals replay feeds the Morning Sweep). Rendering one screen
- * at a time is fine only as long as those timers live in stores or at the app
- * root rather than inside a screen component — which is where they are.
  */
 export function MyCare() {
   const { screen } = useParams()
 
-  const active = isScreen(screen) ? screen : 'home'
+  if (!isScreen(screen)) {
+    return <Navigate to="/my-care/home" replace />
+  }
+
+  const active = screen
 
   function renderScreen() {
     switch (active) {
@@ -56,10 +50,6 @@ export function MyCare() {
         return <AccessScreen />
       case 'messages':
         return <CareChatScreen />
-      /*
-       * Unreachable for known screens: `active` comes from `isScreen()`. It
-       * redirects rather than rendering an unfinished placeholder.
-       */
       default:
         return <Navigate to="/my-care/home" replace />
     }
@@ -80,7 +70,7 @@ export function MyCare() {
    * calendar and the two-up grids below it are the ones that feel it first.
    */
   return (
-    <div className="mx-auto w-full max-w-6xl px-3 py-4 sm:px-4 sm:py-6 md:grid md:grid-cols-[220px_minmax(0,1fr)] md:items-start md:gap-5 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-6">
+    <div className="mx-auto w-full max-w-6xl px-3 py-4 sm:px-4 sm:py-6 md:grid md:grid-cols-[minmax(0,200px)_minmax(0,1fr)] md:items-start md:gap-4 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-6">
       <PatientSidebar />
       <div className="mt-3 min-w-0 md:mt-0">{renderScreen()}</div>
     </div>

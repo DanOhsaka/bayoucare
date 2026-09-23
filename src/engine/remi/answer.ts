@@ -21,7 +21,7 @@
 
 import { createIntents } from '@/engine/remi/intents'
 import { buildRemiContext } from '@/engine/remi/context'
-import { REMI_FALLBACK, REMI_ROUTED, REMI_TRIAGE, type TriageTier } from '@/engine/remi/triage'
+import { REMI_ROUTED, REMI_TRIAGE, type TriageTier } from '@/engine/remi/triage'
 
 export interface RemiAnswer {
   text: string
@@ -51,5 +51,7 @@ export function remiAnswer(text: string): RemiAnswer | null {
     const out = best.build(raw);
     if (out) return {text:out, tier:'record', intent:best.id, engine:'local'};
   }
-  return {text:REMI_FALLBACK, tier:'unknown', engine:'local'};
+  // No record match — let the cloud path phrase a natural reply. Callers that
+  // need an offline string can fall back to REMI_FALLBACK themselves.
+  return null;
 }

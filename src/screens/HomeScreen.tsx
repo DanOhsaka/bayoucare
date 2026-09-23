@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { CalendarDays, ClipboardList, MessageCircle, Pill, Receipt, Stethoscope } from 'lucide-react'
+import { CalendarDays, Car, ClipboardList, MessageCircle, Pill, Receipt, Stethoscope } from 'lucide-react'
 
 import { FamilyHelpPanel } from '@/components/patient/FamilyHelpPanel'
 import { PATIENTS, type CareTeamMember } from '@/data'
@@ -39,16 +39,16 @@ export function HomeScreen() {
     <div className="flex flex-col gap-3 sm:gap-4">
       {/* ------------------------------------------------------------ greeting */}
       <section className="min-w-0 rounded-lg border border-border bg-card p-4 shadow-[var(--shadow)] sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
-          <h3 className="min-w-0 text-base font-semibold text-card-foreground sm:text-lg">
+        <div className="grid w-full min-w-0 grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-3">
+          <h3 className="min-w-0 text-balance text-base font-semibold text-card-foreground sm:text-lg">
             {ti('home.greet')}
           </h3>
-          <span className="inline-flex shrink-0 items-center rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
+          <span className="inline-flex w-fit shrink-0 items-center rounded-full bg-success-bg px-2.5 py-1 text-xs font-bold text-success-fg">
             {patient.chip}
           </span>
         </div>
 
-        <p className="mt-2 text-sm text-muted-foreground">{t('home.sub')}</p>
+        <p className="mt-2 text-pretty text-sm text-muted-foreground">{t('home.sub')}</p>
 
         <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <h4 className="text-base font-semibold text-card-foreground">{t('home.nextup')}</h4>
@@ -71,24 +71,31 @@ export function HomeScreen() {
         </div>
 
         <div className="mt-4 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:flex-wrap">
-          {appt && next ? (
-            <>
-              <span className="inline-flex max-w-full items-start gap-1.5 rounded-full bg-warning-bg px-3 py-1.5 text-xs font-bold leading-snug text-warning-fg sm:items-center">
-                <span aria-hidden="true" className="mt-0.5 shrink-0 sm:mt-0">
-                  {appt.icon}
+            {appt && next ? (
+              <>
+                <span className="inline-flex max-w-full items-start gap-1.5 rounded-full bg-warning-bg px-3 py-1.5 text-xs font-bold leading-snug text-warning-fg sm:items-center">
+                  {(() => {
+                    const Icon = appt.icon
+                    return (
+                      <Icon
+                        aria-hidden="true"
+                        className="mt-0.5 size-3.5 shrink-0 sm:mt-0"
+                        strokeWidth={2}
+                      />
+                    )
+                  })()}
+                  <span className="min-w-0 break-words">
+                    {fmtDay(next.date, lang)} {next.time} — {appt.label} ({appt.site})
+                  </span>
                 </span>
-                <span className="min-w-0 break-words">
-                  {fmtDay(next.date, lang)} {next.time} — {appt.label} ({appt.site})
-                </span>
-              </span>
-              {next.ride && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-success-bg px-3 py-1.5 text-xs font-bold text-success-fg">
-                  <span aria-hidden="true">🚗</span>
-                  {t('home.rideReady')} — {RIDE_PROVIDER}
-                </span>
-              )}
-            </>
-          ) : (
+                {next.ride && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-success-bg px-3 py-1.5 text-xs font-bold text-success-fg">
+                    <Car aria-hidden="true" className="size-3.5" strokeWidth={2} />
+                    {t('home.rideReady')} — {RIDE_PROVIDER}
+                  </span>
+                )}
+              </>
+            ) : (
             <span className="text-sm text-muted-foreground">{t('home.noneScheduled')}</span>
           )}
         </div>

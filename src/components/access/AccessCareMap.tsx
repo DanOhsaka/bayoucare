@@ -135,7 +135,7 @@ export function AccessCareMap({ patientId }: { patientId: PatientId }) {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           <Info className="size-3.5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
           <span>
             Home pin uses a <b className="font-semibold text-card-foreground">neighborhood</b>{' '}
@@ -190,7 +190,7 @@ export function AccessCareMap({ patientId }: { patientId: PatientId }) {
                     onSelect={selectClinic}
                     route={roadRoute}
                     routePending={routePending}
-                    className="h-[320px] border border-border shadow-[var(--shadow-sm)] lg:h-[440px]"
+                    className="h-[320px] border border-border shadow-[var(--shadow)] lg:h-[440px]"
                   />
                 </Suspense>
                 {selected ? (

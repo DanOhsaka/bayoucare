@@ -110,7 +110,7 @@ export function SlotBoardSection() {
       const { queue, i } = pass
       if (i >= queue.length) {
         setPass(null)
-        toast('✅ Rebooking pass complete — slots protected and reminders queued.')
+        toast('Rebooking pass complete — slots protected and reminders queued.')
         return
       }
       const x = queue[i]
@@ -138,7 +138,7 @@ export function SlotBoardSection() {
     if (pass) return
     const queue = plan.protect.slice(0, 6)
     if (!queue.length) {
-      toast('✅ Nothing flagged — no slot is above the 35% threshold.')
+      toast('Nothing flagged — no slot is above the 35% threshold.')
       return
     }
     setLog([])
@@ -151,10 +151,10 @@ export function SlotBoardSection() {
     applyRebooking([key])
     toast(
       k === 'protect'
-        ? '🪑 Chair protected — the room is held for a higher-need patient.'
+        ? 'Chair protected — the room is held for a higher-need patient.'
         : k === 'smsLadder'
-          ? '📲 SMS ladder queued — T-72h, T-24h, T-2h.'
-          : '🧮 Slot overbooked against expected no-show.',
+          ? 'SMS ladder queued — T-72h, T-24h, T-2h.'
+          : 'Slot overbooked against expected no-show.',
     )
   }
 
@@ -163,16 +163,16 @@ export function SlotBoardSection() {
       {/* ------------------------------------------------------------ intro */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">📅 No-show model + smart rebooking</CardTitle>
+          <CardTitle className="text-lg">No-show model + smart rebooking</CardTitle>
           <CardAction>
             <Badge variant="warning">Rank 13 · brief areas 2, 5</Badge>
           </CardAction>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            The next 14 days of slots, scored per appointment.{' '}
+           The next 14 days of slots, scored per appointment.{' '}
             <b className="text-card-foreground">
-              These probabilities read the same risk features as the care-team dashboard
+             These probabilities read the same risk features as the care-team dashboard
             </b>{' '}
             — apply "Arrange rides (NEMT)" there and watch them fall here.
           </p>
@@ -204,10 +204,10 @@ export function SlotBoardSection() {
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button type="button" size="xs" onClick={runPass} className="font-bold">
-              ▶ Run rebooking pass
+              Run rebooking pass
             </Button>
             <span className="text-xs text-muted-foreground">
-              Protects the six highest-risk slots and queues their reminder ladders.
+             Protects the six highest-risk slots and queues their reminder ladders.
             </span>
           </div>
         </CardContent>
@@ -312,7 +312,7 @@ export function SlotBoardSection() {
           <CardContent>
             {slotDay < 1 ? (
               <p className="text-sm text-muted-foreground">
-                Pick a day on the board to see what is driving that slot's risk.
+               Pick a day on the board to see what is driving that slot's risk.
               </p>
             ) : (
               <div className="flex flex-col gap-3">
@@ -373,7 +373,7 @@ function SlotDayCard({
         </div>
       ) : (
         <p className="mt-2 text-xs text-muted-foreground">
-          No risk drivers — this slot looks solid.
+         No risk drivers — this slot looks solid.
         </p>
       )}
 
@@ -386,7 +386,7 @@ function SlotDayCard({
             variant="outline"
             aria-pressed={taken(k)}
             title={SLOT_ACTIONS[k].desc}
-            onClick={() => onAction(s, k)}
+            onClick={() =>onAction(s, k)}
             className={cn(
               'font-bold',
               taken(k) && 'border-brand-600 bg-brand-50 text-link hover:bg-brand-50 hover:text-link',
@@ -420,7 +420,7 @@ function SlotDayCard({
             aria-hidden="true"
             className="flex size-9 flex-none items-center justify-center rounded-md bg-brand-50 text-base"
           >
-            🪑
+            
           </span>
           <div className="min-w-0">
             <b className="block text-sm text-card-foreground">{WAITLIST[0].name}</b>

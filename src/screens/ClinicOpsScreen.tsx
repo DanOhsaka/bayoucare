@@ -27,20 +27,20 @@ export function ClinicOpsScreen() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">
-              🏥 Clinic ops — the provider side of the same system
+              Clinic ops — the provider side of the same system
             </CardTitle>
             <CardAction>
               <Badge variant="success" className="text-left whitespace-normal">
-                Ranks 9–13 · brief area 5 · synthetic data
+               Ranks 9–13 · brief area 5 · synthetic data
               </Badge>
             </CardAction>
           </CardHeader>
           <p className="text-sm text-muted-foreground">
-            Five administrative workflows that decide whether a patient actually gets
+           Five administrative workflows that decide whether a patient actually gets
             treated — authorization, tumor board, referral, screening outreach, and the
             schedule itself.{' '}
             <b className="text-foreground">
-              Every module reads the same engine as the patient app:
+             Every module reads the same engine as the patient app:
             </b>{' '}
             the risk numbers here are Rank 1&apos;s logistic model and Rank 3&apos;s
             screening engines, not a parallel demo model. These are provider-facing

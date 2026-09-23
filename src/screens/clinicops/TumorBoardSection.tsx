@@ -35,19 +35,19 @@ export function TumorBoardSection() {
 
   function circulate() {
     circulateTb(tbId)
-    toast('📋 Board packet circulated to the 7 attendees — questions assigned.')
+    toast('Board packet circulated to the 7 attendees — questions assigned.')
   }
 
   return (
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">📋 Tumor-Board Prep</CardTitle>
+          <CardTitle className="text-lg">Tumor-Board Prep</CardTitle>
           <Badge variant="warning">Rank 10 · brief area 5</Badge>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Staging, molecular markers, treatment history and the open questions — assembled from the
+           Staging, molecular markers, treatment history and the open questions — assembled from the
             record before the board meets, with late-effects surveillance carried in from the
             survivorship engine.
           </p>
@@ -60,7 +60,7 @@ export function TumorBoardSection() {
                 size="xs"
                 variant={tbId === id ? 'default' : 'outline'}
                 aria-pressed={tbId === id}
-                onClick={() => setTbId(id)}
+                onClick={() =>setTbId(id)}
                 className="rounded-full px-2.5 font-bold"
               >
                 {t.name}
@@ -89,7 +89,7 @@ export function TumorBoardSection() {
                 onClick={circulate}
                 className="font-bold"
               >
-                {circulated ? 'Circulated ✓' : '📤 Circulate to board'}
+                {circulated ? 'Circulated ✓' : 'Circulate to board'}
               </Button>
             </CardAction>
           </CardHeader>

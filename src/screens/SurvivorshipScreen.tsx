@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ClipboardList, Printer, Radar, Send, Users } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { DataTable } from '@/components/motion/table'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { RichText } from '@/components/shared/RichText'
 import { Stagger, StaggerItem } from '@/components/shared/Motion'
@@ -130,7 +131,7 @@ export function SurvivorshipScreen() {
   const detailRow = radarSel ? rows.find((r) => r.cat === radarSel) : null
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6">
+    <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-6 px-4 py-6">
       <PageHeader
         title="Survivorship Care Plans"
         subtitle={
@@ -145,31 +146,31 @@ export function SurvivorshipScreen() {
             ~350,000 LA survivors · largest population the brief names
           </Badge>
         }
-        action={
-          <div className="flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
-            <span className="typo-label">Demo survivor</span>
-            <div className="flex max-w-full flex-wrap gap-2 sm:justify-end">
-              {SURVIVOR_IDS.map((id) => (
-                <Button
-                  key={id}
-                  type="button"
-                  size="xs"
-                  variant={survSel === id ? 'default' : 'outline'}
-                  aria-pressed={survSel === id}
-                  onClick={() => pick(id)}
-                  className="rounded-full px-2.5 font-bold"
-                >
-                  {CHIP_LABEL[id] ?? id}
-                </Button>
-              ))}
-            </div>
-          </div>
-        }
       />
 
-      <Stagger className="grid gap-4 md:grid-cols-2">
+      {/* Full-width picker — never share a row with the page title (flex crush). */}
+      <div className="flex w-full min-w-0 flex-col gap-2">
+        <span className="typo-label">Demo survivor</span>
+        <div className="flex flex-wrap gap-2">
+          {SURVIVOR_IDS.map((id) => (
+            <Button
+              key={id}
+              type="button"
+              size="xs"
+              variant={survSel === id ? 'default' : 'outline'}
+              aria-pressed={survSel === id}
+              onClick={() => pick(id)}
+              className="rounded-full px-2.5 font-bold"
+            >
+              {CHIP_LABEL[id] ?? id}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <Stagger className="grid w-full min-w-0 gap-4 md:grid-cols-2">
         {/* ------------------------------------------------------- summary */}
-        <StaggerItem>
+        <StaggerItem className="min-w-0">
         <Card className="min-w-0">
           <CardHeader>
             <CardTitle className="typo-card-title flex items-center gap-2">
@@ -188,26 +189,36 @@ export function SurvivorshipScreen() {
               {s.survivorSince}
             </p>
 
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr>
-                    <th className="typo-label border-b border-border px-3 py-2 text-left">
-                      Treatment summary (ASCO SCP Section 1)
-                    </th>
-                    <th className="typo-label border-b border-border px-3 py-2 text-left">Dates</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {s.treatments.map(([t, d], i) => (
-                    <tr key={i}>
-                      <td className="border-b border-border px-3 py-2.5 text-card-foreground">{t}</td>
-                      <td className="border-b border-border px-3 py-2.5 text-muted-foreground">{d}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              data={s.treatments.map(([treatment, dates], i) => ({
+                id: String(i),
+                treatment,
+                dates,
+              }))}
+              getRowId={(row) => row.id}
+              showCount={false}
+              height={280}
+              columns={[
+                {
+                  key: 'treatment',
+                  header: 'Treatment summary (ASCO SCP Section 1)',
+                  sortable: true,
+                  title: (row) => row.treatment,
+                  cell: (row) => (
+                    <span className="text-card-foreground">{row.treatment}</span>
+                  ),
+                },
+                {
+                  key: 'dates',
+                  header: 'Dates',
+                  sortable: true,
+                  title: (row) => row.dates,
+                  cell: (row) => (
+                    <span className="text-muted-foreground">{row.dates}</span>
+                  ),
+                },
+              ]}
+            />
 
             <p className="typo-meta">
               Auto-generated from the treatment record — no typing. Reviewed at the survivorship
@@ -218,7 +229,7 @@ export function SurvivorshipScreen() {
         </StaggerItem>
 
         {/* ---------------------------------------------------------- radar */}
-        <StaggerItem>
+        <StaggerItem className="min-w-0">
         <Card className="min-w-0">
           <CardHeader>
             <CardTitle className="typo-card-title flex items-center gap-2">
@@ -305,34 +316,41 @@ export function SurvivorshipScreen() {
             <Badge variant="success">ASCO SCP Section 2</Badge>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr>
-                    {['Test / visit', 'Frequency', 'Next due', 'Status'].map((h) => (
-                      <th key={h} className="typo-label border-b border-border px-3 py-2 text-left">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r, i) => {
+            <DataTable
+              data={rows}
+              getRowId={(r, i) => `${r.test}-${i}`}
+              height={360}
+              defaultSort={{ key: 'due', direction: 'asc' }}
+              columns={[
+                {
+                  key: 'test',
+                  header: 'Test / visit',
+                  sortable: true,
+                  title: (r) => r.test,
+                  cell: (r) => <span className="text-card-foreground">{r.test}</span>,
+                },
+                {
+                  key: 'freq',
+                  header: 'Frequency',
+                  cell: (r) => <span className="text-muted-foreground">{r.freq}</span>,
+                },
+                {
+                  key: 'due',
+                  header: 'Next due',
+                  sortable: true,
+                  cell: (r) => <span className="text-muted-foreground">{r.due}</span>,
+                },
+                {
+                  key: 'status',
+                  header: 'Status',
+                  sortable: true,
+                  cell: (r) => {
                     const c = statusChip(r)
-                    return (
-                      <tr key={i}>
-                        <td className="border-b border-border px-3 py-2.5 text-card-foreground">{r.test}</td>
-                        <td className="border-b border-border px-3 py-2.5 text-muted-foreground">{r.freq}</td>
-                        <td className="border-b border-border px-3 py-2.5 text-muted-foreground">{r.due}</td>
-                        <td className="border-b border-border px-3 py-2.5">
-                          <Badge variant={c.kind}>{c.label}</Badge>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
+                    return <Badge variant={c.kind}>{c.label}</Badge>
+                  },
+                },
+              ]}
+            />
           </CardContent>
         </Card>
 

@@ -24,10 +24,16 @@ interface UiState {
   mode: Mode
   lang: Lang
   theme: Theme
+  loginOpen: boolean
+  /** Prefill for the sign-in form when opened from the demo carousel. */
+  loginPrefill: { email: string; password: string } | null
   setMode: (m: Mode) => void
   setLang: (l: Lang) => void
   setTheme: (t: Theme) => void
   toggleTheme: () => void
+  setLoginOpen: (open: boolean) => void
+  openLoginWithCredentials: (email: string, password: string) => void
+  clearLoginPrefill: () => void
 }
 
 function readTheme(): Theme {
@@ -48,6 +54,8 @@ function readLang(): Lang {
 /** Mirror theme onto <html>, where the CSS tokens read it. */
 function applyTheme(t: Theme) {
   document.documentElement.dataset.theme = t
+  // beUI components also key off the `.dark` class (shadcn convention).
+  document.documentElement.classList.toggle('dark', t === 'dark')
   try {
     localStorage.setItem(THEME_KEY, t)
   } catch {
@@ -65,6 +73,8 @@ export const useUi = create<UiState>((set, get) => ({
   mode: 'patient',
   lang: initialLang,
   theme: readTheme(),
+  loginOpen: false,
+  loginPrefill: null,
 
   setMode: (mode) => set({ mode }),
 
@@ -88,4 +98,14 @@ export const useUi = create<UiState>((set, get) => ({
     applyTheme(next)
     set({ theme: next })
   },
+
+  setLoginOpen: (loginOpen) => {
+    if (!loginOpen) set({ loginOpen: false, loginPrefill: null })
+    else set({ loginOpen: true })
+  },
+
+  openLoginWithCredentials: (email, password) =>
+    set({ loginOpen: true, loginPrefill: { email, password } }),
+
+  clearLoginPrefill: () => set({ loginPrefill: null }),
 }))

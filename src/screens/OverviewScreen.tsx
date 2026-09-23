@@ -1,429 +1,357 @@
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
+import { useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import {
+  Activity,
+  CalendarDays,
+  ClipboardList,
+  HeartPulse,
+  Map,
+  MessageCircle,
+  Route,
+  Stethoscope,
+  Users,
+} from 'lucide-react'
 
-import { RichText } from '@/components/shared/RichText'
 import { Stagger, StaggerItem } from '@/components/shared/Motion'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
+import { PATIENTS } from '@/data'
+import { buildPlan, describeAppointment, fmtDay, nextAppointment } from '@/lib/calendar'
+import { factorsFor, stateOf } from '@/engine/team/risk'
+import { useInterp } from '@/hooks/useInterp'
 import { useT } from '@/hooks/useT'
+import { useCheckins } from '@/store/checkins'
+import { usePatient } from '@/store/patient'
 import { useSession } from '@/store/session'
+import { TEAM_PATIENTS, useTeam } from '@/store/team'
 import { useUi } from '@/store/ui'
+import { useVitals } from '@/store/vitals'
+import { cn } from '@/lib/utils'
 
-/** Published demo account — same credentials printed on the login card. */
-const CLINICIAN_DEMO = {
-  email: 'clinician@bayoucare.demo',
-  password: 'clinician2026',
-} as const
+const RIDE_PROVIDER = "Cora's Wheels"
 
-/** view id → route, for the `data-goto` buttons. */
-const ROUTES: Record<string, string> = {
-  app: '/my-care/home',
-  team: '/care-team',
-  survivorship: '/survivorship',
-  population: '/population',
-  clinicops: '/clinic-ops',
-  roadmap: '/roadmap',
+function greetingHour(): 'morning' | 'afternoon' | 'evening' {
+  const h = new Date().getHours()
+  if (h < 12) return 'morning'
+  if (h < 17) return 'afternoon'
+  return 'evening'
 }
 
-/** Which mode each destination lives in — the legacy `gotoView` did the same. */
-const MODE: Record<string, 'patient' | 'admin'> = {
-  app: 'patient',
-  team: 'admin',
-  survivorship: 'admin',
-  population: 'admin',
-  clinicops: 'admin',
-  roadmap: 'admin',
-}
-
-const STATS = [
-  { n: '29,980', small: '/yr', key: 'hero.s1' },
-  { n: '165.2', small: 'vs 146.0', key: 'hero.s2' },
-  { n: '64', small: 'parishes', key: 'hero.s3' },
-  { n: 'You', small: '+ your family', key: 'hero.s4' },
-]
-
-const WHY = [
-  {
-    tag: 'coral',
-    tagLabel: 'The problem',
-    h: 'We find cancer late',
-    p: 'Incidence and mortality both run above the national average — and rural patients navigate a fragmented system alone: a diagnosis with no roadmap, no support.',
-  },
-  {
-    tag: 'amber',
-    tagLabel: 'The gap',
-    h: "Navigation tools don't exist here",
-    p: 'National apps assume broadband and nearby specialists. In Louisiana, care can be hours away and families shoulder logistics alone.',
-  },
-  {
-    tag: 'green',
-    tagLabel: 'The opportunity',
-    h: 'Technology Louisiana trusts',
-    p: 'Plain language, phone-first, plans the miles, connects family and clinicians — built with Louisiana, not adapted from elsewhere.',
-  },
-] as const
-
-const JOURNEY = [
-  ['0 · Prevent', 'Screen & catch early'],
-  ['1 · Diagnosis', 'Understand the report'],
-  ['2 · Plan', 'Personalized roadmap'],
-  ['3 · Treatment', 'Check-ins & coordination'],
-  ['4 · Survivorship', 'SCP plan + late-effects radar'],
-  ['5 · Supportive care', 'Resources & community'],
-]
-
-const TOOLS = [
-  ['🧭', 'Understand — AI diagnosis explainer', 'Turns pathology reports into plain English, plus questions to ask your doctor.'],
-  ['🗺️', 'My Journey — a real roadmap', 'A living checklist of every step, shared with family.'],
-  ['📈', 'Check-ins — earlier intervention', 'Daily symptom check-ins that alert the care team before things escalate.'],
-  ['🚗', 'Access — care you can reach', 'Rides, telehealth, financial help, and resources — rural-first.'],
-  // Shared tasks ARE real (the Family help hub is a working checklist), so the
-  // line describes helpers with concrete jobs — not a second account or mode.
-  ['👨‍👩‍👧', 'Family help hub', 'Shared tasks, the next visit, and a way to message the care team — same record, clear jobs for helpers.'],
-  ['🗓️', 'Appointments & calendar', 'Every visit, infusion and scan in one place — with reminders and a ride when you need one.'],
-  ['🛡️', 'Screen & Prevent — catch it early', 'Screening reminders based on your own risk, not a generic schedule.'],
-  ['📊', 'ASCO-informed guidance', 'Guidelines and education built on the official data partner.'],
-]
-
-const RANKS = [
-  ['coral', 'Rank 1 · Predictive analytics · brief area 2', '🔮 Flags that prescribe, not just warn', 'Every flagged patient gets a 7-day risk forecast — and the one action that changes it.'],
-  ['coral', 'Rank 2 · Survivorship · brief area 1', '📋 Survivorship Care Plans, auto-generated', 'An ASCO-format care plan from the treatment record — plus a late-effects radar.'],
-  ['coral', 'Rank 3 · Prevention · brief area 4', '🎯 Risk-stratified screening', 'Lung, breast, and colorectal risk engines — with a Quit-to-Screen bundle wired to the LA Quitline.'],
-  ['coral', 'Rank 4 · Rural access · brief area 4', '🗺️ Parish heat index', 'All 64 parishes ranked by unmet need — vans and SMS go where the burden is.'],
-  ['amber', 'Rank 5 · Access · brief areas 1, 3', '🔬 TrialMatch — eligibility pre-checked', 'Real NCT trials, every criterion pre-checked against the patient profile.'],
-  ['amber', 'Rank 6 · Monitoring · brief area 2', '📡 Vitals bridge — the 2 am blind spot', "Device vitals feed the same escalation engine — the 2 am fever doesn't wait."],
-  ['amber', 'Rank 7 · Access · brief area 4', '🌐 Languages — Español live, Kreyòl + Tiếng Việt next', 'A working EN/ES toggle across the patient journey — Kreyòl + Tiếng Việt next.'],
-  ['amber', 'Rank 8 · Supportive care · brief areas 1, 3', '💜 Mood check — with real escalation', "A mood check wired to Louisiana's real support paths: NAMI Louisiana and 988."],
-  ['green', 'Rank 9 · Admin burden · brief area 5', '🧾 Prior-auth autopilot', 'A payer packet with the guideline citation and every necessity criterion — assembled from the chart.'],
-  ['green', 'Rank 10 · Admin burden · brief area 5', '📋 Tumor-board prep', 'Staging, markers and the open questions, assembled before the board meets.'],
-  ['green', 'Rank 11 · Rural access · brief areas 3, 5', '🔗 Referral Express', 'One referral from a rural PCP, labs and pathology riding along, status visible to both ends.'],
-  ['green', 'Rank 12 · Prevention · brief areas 4, 5', '🩺 PCP decision support feed', "Guideline alerts in the PCP's inbox — the same engine as the patient's calculator."],
-  ['green', 'Rank 13 · Access · brief areas 2, 5', '📅 No-show model + rebooking', 'Per-slot risk, protected chairs and an SMS ladder — reading the same features as the care team.'],
-] as const
-
-const BARRIERS = [
-  ['Delays in diagnosis', 'Screen & Prevent — risk-based reminders + community screening events'],
-  ['Complex treatment plans', 'My Journey + Understand — roadmap + plain-language reports'],
-  ['Managing side effects', 'Daily Check-ins — automatic escalation'],
-  ['Accessing supportive services', 'Resource Finder — aid, groups, trials, social work'],
-  ['Transportation & financial barriers', 'Access Hub — rides, mileage, lodging, low-bandwidth telehealth'],
-  ['Rural & underserved communities', 'Built Louisiana-first — four languages, ride/mileage tools, low-bandwidth telehealth'],
-]
-
-const WINS = [
-  ['📱', 'Built for low bandwidth', 'Lean load, low-bandwidth telehealth mode, and SMS-style caregiver alerts in the demo.'],
-  ['🗣️', 'Four languages on the patient journey', 'English, Spanish, Haitian Creole, and Vietnamese — not a separate translation page.'],
-  ['🤝', 'Family-inclusive', 'Helpers pick up rides, tasks, and messages — without a second login.'],
-]
-
-/** Tag tone → the tint `Badge` variant. */
-const TAG_BADGE: Record<string, 'danger' | 'warning' | 'success'> = {
-  coral: 'danger',
-  amber: 'warning',
-  green: 'success',
-}
-
-function SectionTitle({ title, sub }: { title: string; sub: string }) {
-  return (
-    <div className="mb-4 mt-8 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-      <span className="text-sm text-muted-foreground">{sub}</span>
-    </div>
-  )
-}
-
-export function OverviewScreen() {
+function PatientHome() {
   const t = useT()
+  const ti = useInterp()
   const navigate = useNavigate()
-  const setMode = useUi((s) => s.setMode)
-  const role = useSession((s) => s.role)
-  const login = useSession((s) => s.login)
-  const busy = useSession((s) => s.busy)
-  const isClinician = role === 'clinician'
+  const lang = useUi((s) => s.lang)
+  const pid = usePatient((s) => s.pid)
+  const patient = PATIENTS[pid]
+  const checkinCount = useCheckins((s) => s.checkinCount)
+  const summary = useCheckins((s) => s.summary)
 
-  /** The legacy `gotoView`: switch mode first, then go there. */
-  function go(view: string) {
-    const nextMode = MODE[view] ?? 'patient'
-    // Patients cannot enter admin mode — routes are also gated, but this
-    // keeps the Overview shortcuts honest.
-    if (nextMode === 'admin' && !isClinician) return
-    setMode(nextMode)
-    navigate(ROUTES[view] ?? '/overview')
-  }
+  const next = useMemo(() => nextAppointment(buildPlan(patient)), [patient])
+  const appt = next ? describeAppointment(next, patient.calTypes) : null
+  const todaysCheckinDone = checkinCount > 0 && summary != null
 
-  /**
-   * Hero "See the clinician view" must always do something.
-   *
-   * Role-gated admin routes made a silent no-op for patient sessions — the
-   * button looked broken. For the demo, switch into the published clinician
-   * account (same as the login card), then open Care Team.
-   */
-  async function openClinicianView() {
-    if (isClinician) {
-      go('team')
-      return
-    }
-    toast.message('Switching to the clinician demo account…')
-    await login(CLINICIAN_DEMO.email, CLINICIAN_DEMO.password)
-    if (useSession.getState().role !== 'clinician') {
-      toast.error('Could not open the clinician view. Sign in as clinician@bayoucare.demo.')
-      return
-    }
-    setMode('admin')
-    navigate('/care-team')
-  }
+  const shortcuts: Array<{
+    to: string
+    label: string
+    icon: typeof ClipboardList
+    primary?: boolean
+  }> = [
+    {
+      to: '/my-care/checkins',
+      label: todaysCheckinDone ? t('overview.checkinDone') : t('home.checkinBtn'),
+      icon: ClipboardList,
+      primary: !todaysCheckinDone,
+    },
+    { to: '/my-care/calendar', label: t('side.calendar'), icon: CalendarDays },
+    { to: '/my-care/remi', label: t('overview.askRemi'), icon: MessageCircle },
+    { to: '/my-care/family', label: t('side.family'), icon: Users },
+    { to: '/my-plan', label: t('nav.myplan'), icon: Route },
+    { to: '/my-care/home', label: t('overview.openCare'), icon: HeartPulse },
+  ]
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      {/* --------------------------------------------------------------- hero */}
-      <section className="rounded-xl bg-[linear-gradient(160deg,var(--green-900),var(--green-700))] px-6 py-10 text-on-dark sm:px-10">
-        <span className="text-xs font-bold uppercase tracking-[0.08em] text-on-dark-muted">
-          {t('hero.kicker')}
-        </span>
-        {/*
-          hero.h1 carries inline markup — a <br> and a highlighted span — so it is
-          the one place on this page rendered as HTML. It comes from the app's own
-          dictionary, not from input.
-        */}
-        <RichText
-          html={t('hero.h1')}
-          className="mt-3 block text-3xl font-bold leading-tight [&_.hi]:text-warning sm:text-4xl"
-        />
-        <p className="mt-4 max-w-2xl text-base text-on-dark-muted">{t('hero.lead')}</p>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button
-            type="button"
-            onClick={() => go('app')}
-            className="h-11 bg-warning px-5 font-bold text-on-warning hover:bg-warning/90"
-          >
-            ▶ {t('hero.cta1')}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            disabled={busy}
-            onClick={() => void openClinicianView()}
-            className="h-11 border border-white/30 bg-white/10 px-5 font-bold text-on-dark hover:bg-white/20 hover:text-on-dark dark:hover:bg-white/20"
-          >
-            {t('hero.cta2')}
-          </Button>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 py-4 sm:gap-5 sm:px-5 sm:py-6">
+      <section className="rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-sm)] sm:p-7">
+        <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+          <div className="min-w-0">
+            <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
+              {t(`overview.${greetingHour()}`)}
+            </p>
+            <h1 className="mt-1 text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              {ti('home.greet')}
+            </h1>
+            <p className="mt-2 max-w-xl text-pretty text-sm text-muted-foreground">{t('home.sub')}</p>
+          </div>
+          <span className="inline-flex w-fit shrink-0 items-center rounded-full bg-success-bg px-3 py-1 text-xs font-semibold text-success-fg">
+            {patient.chip}
+          </span>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {STATS.map((s) => (
-            <div key={s.key} className="rounded-lg bg-white/[0.07] p-4">
-              <div className="text-2xl font-bold">
-                {s.n} <small className="text-sm font-semibold text-on-dark-muted">{s.small}</small>
-              </div>
-              <div className="mt-1 text-xs leading-snug text-on-dark-muted">{t(s.key)}</div>
-            </div>
-          ))}
+        <div className="mt-6 rounded-2xl border border-border bg-muted/40 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold text-foreground">{t('home.nextup')}</h2>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => navigate('/my-care/calendar')}
+            >
+              {t('side.calendar')}
+            </Button>
+          </div>
+          <div className="mt-3 flex flex-col gap-2 min-[420px]:flex-row min-[420px]:flex-wrap">
+            {appt && next ? (
+              <>
+                <span className="inline-flex max-w-full items-start gap-1.5 rounded-full bg-warning-bg px-3 py-1.5 text-xs font-semibold leading-snug text-warning-fg">
+                  {(() => {
+                    const Icon = appt.icon
+                    return (
+                      <Icon
+                        aria-hidden="true"
+                        className="mt-0.5 size-3.5 shrink-0"
+                        strokeWidth={2}
+                      />
+                    )
+                  })()}
+                  <span className="min-w-0 break-words">
+                    {fmtDay(next.date, lang)} {next.time} — {appt.label} ({appt.site})
+                  </span>
+                </span>
+                {next.ride ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-success-bg px-3 py-1.5 text-xs font-semibold text-success-fg">
+                    {t('home.rideReady')} — {RIDE_PROVIDER}
+                  </span>
+                ) : null}
+              </>
+            ) : (
+              <span className="text-sm text-muted-foreground">{t('home.noneScheduled')}</span>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* ------------------------------------------------- why Louisiana needs it */}
-      <SectionTitle title="Why Louisiana needs this" sub="The numbers behind the brief" />
-      <Stagger className="grid gap-4 md:grid-cols-3">
-        {WHY.map((c) => (
-          <StaggerItem key={c.h}>
-            <Card>
-              <CardContent>
-                <Badge variant={TAG_BADGE[c.tag]} className="uppercase tracking-[0.05em]">
-                  {c.tagLabel}
-                </Badge>
-                <CardTitle className="mt-3">{c.h}</CardTitle>
-                <p className="mt-2 text-sm font-medium text-muted-foreground">{c.p}</p>
-              </CardContent>
-            </Card>
-          </StaggerItem>
-        ))}
-      </Stagger>
+      <section>
+        <h2 className="mb-3 text-sm font-semibold text-foreground">{t('overview.shortcuts')}</h2>
+        <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {shortcuts.map((s) => (
+            <StaggerItem key={s.to}>
+              <Link
+                to={s.to}
+                className={cn(
+                  'flex items-center gap-3 rounded-2xl border border-border p-4 transition-[transform,box-shadow,border-color] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:hover:-translate-y-0.5',
+                  s.primary
+                    ? 'border-transparent bg-primary text-primary-foreground shadow-[var(--shadow-sm)] hover:bg-primary/90'
+                    : 'bg-card text-card-foreground shadow-[var(--shadow-sm)] hover:border-border-strong hover:shadow-[var(--shadow)]',
+                )}
+              >
+                <s.icon className="size-5 shrink-0 opacity-90" aria-hidden="true" />
+                <span className="text-sm font-semibold">{s.label}</span>
+              </Link>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </section>
 
-      {/* ------------------------------------------------------------- journey */}
-      <SectionTitle title="The journey, guided end to end" sub="Six connected tools, one platform" />
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {JOURNEY.map(([n, l]) => (
-          <div key={n} className="rounded-lg border border-brand-600/30 bg-accent p-3.5">
-            <div className="text-xs font-bold text-link">{n}</div>
-            <div className="mt-0.5 text-sm font-semibold text-accent-foreground">{l}</div>
+      <Card>
+        <CardContent className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-card-foreground">{t('overview.journeyHead')}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {patient.dx} · {patient.stage}
+            </p>
           </div>
-        ))}
-      </div>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/my-plan">{t('overview.viewPlan')}</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
-      <Stagger className="mt-4 grid gap-4 md:grid-cols-2">
-        {TOOLS.map(([ico, h, p]) => (
-          <StaggerItem key={h}>
-            <Card>
-              <CardContent>
-                <div className="flex gap-3">
-                  <span
-                    className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
-                    aria-hidden="true"
-                  >
-                    {ico}
-                  </span>
-                  <div>
-                    <h4 className="text-sm font-bold text-card-foreground">{h}</h4>
-                    <p className="mt-1 text-sm font-medium text-muted-foreground">{p}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </StaggerItem>
-        ))}
-      </Stagger>
+function ClinicianHome() {
+  const t = useT()
+  const navigate = useNavigate()
+  const email = useSession((s) => s.email)
+  const setMode = useUi((s) => s.setMode)
+  const applied = useTeam((s) => s.applied)
+  const alerts = useVitals((s) => s.alerts)
 
-      <blockquote className="mt-8 rounded-lg border-l-4 border-brand-600 bg-card p-6 text-base italic text-card-foreground shadow-[var(--shadow)]">
-        "When my sister was diagnosed, we spent three weeks just figuring out what happened, what to do
-        first, and how to get her to appointments 100 miles away. Nobody handed us a map."
-        <span className="mt-3 block text-xs font-semibold not-italic text-muted-foreground">
-          — BayouCare field interview, Alexandria, LA (April 2026)
-        </span>
-      </blockquote>
+  const flagged = useMemo(() => {
+    return TEAM_PATIENTS.map((p) => {
+      const s = stateOf(factorsFor(p.f, applied[p.id] ?? new Set()))
+      return { p, state: s }
+    })
+      .filter((x) => x.state.level !== 'none')
+      .sort((a, b) => b.state.cur - a.state.cur)
+  }, [applied])
 
-      {/* -------------------------------------------------- for evaluators
-          Stays a `<details>`: the card styling here is incidental, and `Card`
-          renders a `div`, so wrapping would drop the disclosure semantics. */}
-      <details className="mt-8 rounded-lg border border-border bg-card p-4 shadow-[var(--shadow)]">
-        <summary className="cursor-pointer text-sm font-bold text-card-foreground">
-          For evaluators — challenge mapping, the 13 ranks &amp; the pilot plan
-        </summary>
+  const shortcuts = [
+    { to: '/care-team', label: t('overview.openTeam'), icon: Users, mode: 'admin' as const },
+    { to: '/clinic-ops', label: t('overview.openOps'), icon: Activity, mode: 'admin' as const },
+    { to: '/survivorship', label: t('overview.openSurv'), icon: Stethoscope, mode: 'admin' as const },
+    { to: '/population', label: t('overview.openPop'), icon: Map, mode: 'admin' as const },
+    { to: '/my-care/home', label: t('overview.patientDemo'), icon: HeartPulse, mode: 'patient' as const },
+  ]
 
-        <div className="mt-4">
-          <div className="rounded-lg bg-accent p-4">
-            <div className="text-sm font-semibold text-accent-foreground">
-              Official challenge — "Improve the cancer care journey for patients and caregivers, from
-              diagnosis through treatment, survivorship, and supportive care."
+  return (
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 py-4 sm:gap-5 sm:px-5 sm:py-6">
+      <section className="rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-sm)] sm:p-7">
+        <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          {t('overview.clinicianKicker')}
+        </p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          {t('overview.clinicianGreet')}
+        </h1>
+        <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+          {t('overview.clinicianSub')}
+          {email ? (
+            <>
+              {' '}
+              <span className="font-medium text-foreground">{email}</span>
+            </>
+          ) : null}
+        </p>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+            <div className="text-2xl font-semibold tabular-nums text-foreground">{alerts.length}</div>
+            <div className="mt-1 text-xs font-medium text-muted-foreground">
+              {t('overview.needsAttention')}
             </div>
-            <p className="mt-2 text-sm font-bold text-link">
-              📊 Official data partner: ASCO — guidelines, education, and quality measures.
-            </p>
-            <p className="mt-3 text-sm text-muted-foreground">
-              BayouCare addresses every potential solution area in the brief:
-            </p>
-            <ul className="mt-2 flex flex-col gap-1.5">
-              {[
-                ['AI patient navigation', 'plain-language diagnosis explainer + personalized next-step checklist'],
-                ['Predictive analytics & remote monitoring', 'symptom check-ins that flag at-risk patients early'],
-                ['Platform connecting patients, caregivers & care teams', 'one shared journey timeline'],
-                ['Rural & underserved access', 'telehealth, transportation assistance, resource finder'],
-                ['AI reducing admin burden', 'auto-generated visit summaries and risk flags for oncology teams'],
-              ].map(([b, rest]) => (
-                <li key={b} className="text-sm text-muted-foreground">
-                  <b className="text-card-foreground">{b}</b> — {rest}
-                </li>
-              ))}
-            </ul>
           </div>
-
-          <SectionTitle
-            title="The ranks — from draft to finals"
-            sub="Ranks 1–4 won the draft · 5–8 shipped for the semi-final · 9–13 carry the provider story"
-          />
-          <div className="grid gap-4 md:grid-cols-2">
-            {RANKS.map(([kind, tag, h, p]) => (
-              <Card key={h}>
-                <CardContent>
-                  <Badge variant={TAG_BADGE[kind]} className="uppercase tracking-[0.05em]">
-                    {tag}
-                  </Badge>
-                  <CardTitle className="mt-3">{h}</CardTitle>
-                  <p className="mt-1.5 text-sm text-muted-foreground">{p}</p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+            <div className="text-2xl font-semibold tabular-nums text-foreground">{flagged.length}</div>
+            <div className="mt-1 text-xs font-medium text-muted-foreground">
+              {t('overview.flagged')}
+            </div>
           </div>
+          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+            <div className="text-2xl font-semibold tabular-nums text-foreground">
+              {TEAM_PATIENTS.length}
+            </div>
+            <div className="mt-1 text-xs font-medium text-muted-foreground">{t('overview.ward')}</div>
+          </div>
+        </div>
+      </section>
 
-          <SectionTitle title="Every barrier in the brief, answered" sub="Challenge barrier → BayouCare feature" />
-          <Card>
-            <CardContent>
-              <ul className="flex flex-col gap-1.5">
-                {BARRIERS.map(([b, rest]) => (
-                  <li key={b} className="text-sm text-muted-foreground">
-                    <b className="text-card-foreground">{b}</b> → {rest}
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Card className="min-w-0">
+          <CardContent>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-card-foreground">
+                {t('overview.needsAttention')}
+              </h2>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setMode('admin')
+                  navigate('/care-team')
+                }}
+              >
+                {t('overview.openTeam')}
+              </Button>
+            </div>
+            {alerts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t('overview.noAlerts')}</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {alerts.slice(0, 4).map((a, i) => (
+                  <li
+                    key={`${a.name}-${a.when}-${i}`}
+                    className="rounded-xl border border-border bg-muted/30 px-3 py-2.5"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <span className="text-sm font-semibold text-foreground">{a.name}</span>
+                      <span className="text-xs text-muted-foreground">{a.when}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{a.msg}</p>
                   </li>
                 ))}
               </ul>
-            </CardContent>
-          </Card>
+            )}
+          </CardContent>
+        </Card>
 
-          <SectionTitle title="Why BayouCare wins" sub="Differential vs. generic health apps" />
-          <div className="grid gap-4 md:grid-cols-3">
-            {WINS.map(([ico, h, p]) => (
-              <Card key={h}>
-                <CardContent>
-                  <div className="flex gap-3">
-                    <span
-                      className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
-                      aria-hidden="true"
-                    >
-                      {ico}
-                    </span>
-                    <div>
-                      <h4 className="text-sm font-semibold text-card-foreground">{h}</h4>
-                      <p className="mt-1 text-sm text-muted-foreground">{p}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* The legacy laid these out with inline grid-template-columns, which
-              overrode its own media query and stayed 3-across on a phone. */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {[
-              ['-20%', 'treatment-start delay, via navigation + transport support'],
-              ['3.2×', 'more patients kept on surveillance schedules'],
-              ['2 hrs', 'admin time saved per patient per week'],
-            ].map(([n, d]) => (
-              <div key={n} className="rounded-lg border border-border bg-accent p-4">
-                <div className="text-2xl font-bold text-link">{n}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{d}</div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-2.5 text-xs text-muted-foreground">
-            Impact figures are modeled targets for a possible pilot — not measured outcomes from a live
-            Ochsner deployment.
-          </p>
-
-          <div className="mt-7 flex flex-wrap gap-2">
-            <Button
-              type="button"
-              onClick={() => go('app')}
-              // `h-11 lg:h-10` — the 40px this asked for is under the touch
-              // floor, and these are the demo's entry points.
-              className="h-11 bg-warning px-4 font-bold text-on-warning hover:bg-warning/90 lg:h-10"
-            >
-              ▶ Try the patient demo
-            </Button>
-            {(
-              isClinician
-                ? ([
-                    ['team', 'Forecast & counterfactuals'],
-                    ['survivorship', '📋 Survivorship plans'],
-                    ['population', '🗺️ Parish heat index'],
-                    ['clinicops', '🏥 Clinic ops — the provider side'],
-                    ['roadmap', 'Roadmap & pilot plan'],
-                  ] as const)
-                : []
-            ).map(([view, label]) => (
+        <Card className="min-w-0">
+          <CardContent>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-card-foreground">{t('overview.flagged')}</h2>
               <Button
-                key={view}
                 type="button"
+                size="sm"
                 variant="outline"
-                onClick={() => go(view)}
-                className="h-11 px-4 font-bold lg:h-10"
+                onClick={() => {
+                  setMode('admin')
+                  navigate('/care-team')
+                }}
               >
-                {label}
+                {t('nav.team')}
               </Button>
-            ))}
-          </div>
-        </div>
-      </details>
+            </div>
+            {flagged.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t('overview.noFlagged')}</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {flagged.slice(0, 5).map(({ p, state }) => (
+                  <li
+                    key={p.id}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2.5"
+                  >
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-semibold text-foreground">{p.name}</div>
+                      <div className="truncate text-xs text-muted-foreground">{p.checkin}</div>
+                    </div>
+                    <span
+                      className={cn(
+                        'shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold',
+                        state.level === 'critical'
+                          ? 'bg-danger-bg text-danger-fg'
+                          : 'bg-warning-bg text-warning-fg',
+                      )}
+                    >
+                      {state.cur}%
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-sm font-semibold text-foreground">{t('overview.shortcuts')}</h2>
+        <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {shortcuts.map((s) => (
+            <StaggerItem key={s.to}>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode(s.mode)
+                  navigate(s.to)
+                }}
+                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-[var(--shadow-sm)] transition-[transform,box-shadow,border-color] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-border-strong hover:shadow-[var(--shadow)] motion-safe:hover:-translate-y-0.5"
+              >
+                <s.icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                <span className="text-sm font-semibold text-card-foreground">{s.label}</span>
+              </button>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </section>
     </div>
   )
+}
+
+/**
+ * Signed-in Home — personal dashboard, not the public marketing page.
+ * Marketing lives on the logged-out Landing only.
+ */
+export function OverviewScreen() {
+  const role = useSession((s) => s.role)
+  return role === 'clinician' ? <ClinicianHome /> : <PatientHome />
 }

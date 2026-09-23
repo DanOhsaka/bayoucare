@@ -5,7 +5,7 @@
    legacy app. The inline boot script in index.html reads that attribute before
    first paint to avoid a theme flash, so the name is load-bearing — do not
    rename it to Shadcn's default `.dark` class. */
-@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *, .dark, .dark *));
 
 /* ==========================================================================
    BayouCare design tokens
@@ -20,138 +20,96 @@
 :root {
   color-scheme: light;
 
-  /* --- Brand ramp ------------------------------------------------------- */
-  --green-900: #0b3523;
-  --green-800: #0f4430;
-  --green-700: #145c40;
-  --green-600: #1b6e4d;
-  --green-500: #2a8a62;
-  --green-100: #dcefe4;
-  --green-50: #eff7f1;
-  --amber-500: #e8960c;
-  --amber-100: #fdf0d7;
+  /* --- Brand ramp (Louisiana green — beUI green-theme primary) --------- */
+  --green-900: #06281c;
+  --green-800: #0a3d2b;
+  --green-700: #0f6b4c;
+  --green-600: #149567;
+  --green-500: #1db87f;
+  --green-100: #d8f5e8;
+  --green-50: #eefbf4;
+  --amber-500: #e8a317;
+  --amber-100: #fdf3d9;
   --coral-500: #e05a3c;
   --coral-100: #fbe5dd;
 
-  /* --- Surfaces and text ------------------------------------------------ */
-  --cream: #faf7f1;
-  --card: #ffffff;
-  --soft: #f4f7f4;
-  --line: #e4e0d6;
-  /* Slightly heavier ink in light mode so body copy holds up on white cards. */
-  --ink: #121a16;
-  --ink-soft: #2f3f37;
-  --chip-gray: #eeece4;
+  /* --- Surfaces (beUI neutral base) ------------------------------------ */
+  --cream: oklch(98.5% 0.004 145);
+  --card: oklch(100% 0 0);
+  --soft: oklch(96.5% 0.006 145);
+  --line: oklch(15% 0 0 / 0.08);
+  --ink: oklch(16% 0.01 145);
+  --ink-soft: oklch(42% 0.02 145);
+  --chip-gray: oklch(95% 0.006 145);
 
-  /* Text on the dark green chrome. The legacy file hand-typed nine
-     near-identical cream/mint hexes about 28 times because this pair did not
-     exist as a token. */
-  --on-dark: #eaf5ee;
-  --on-dark-muted: #9fceb8;
+  --on-dark: #eaf8f0;
+  --on-dark-muted: #8fc9ad;
 
-  /* --- Status pairs -----------------------------------------------------
-     Foreground and background are declared TOGETHER, deliberately. The legacy
-     file picked them independently, which is exactly how `--green-700` ended up
-     sitting on `--green-50` in dark mode at a 1.71:1 contrast ratio — near
-     invisible. Declaring them as pairs makes that class of bug unrepresentable. */
-  --success: #2a8a62;
-  --success-bg: #dcefe4;
-  --success-fg: #145c40;
-
-  --warning: #e8960c;
-  --warning-bg: #fdf0d7;
+  --success: oklch(62% 0.14 155);
+  --success-bg: #d8f5e8;
+  --success-fg: #0a3d2b;
+  --warning: oklch(78% 0.16 75);
+  --warning-bg: #fdf3d9;
   --warning-fg: #7a4a00;
-
-  --danger: #e05a3c;
+  --danger: oklch(58% 0.2 25);
   --danger-bg: #fbe5dd;
   --danger-fg: #a03a22;
-
   --info: #0d9488;
   --info-bg: #d9f2ef;
   --info-fg: #0b5f57;
-
-  --neutral-bg: #eeece4;
-  --neutral-fg: #51635a;
-
-  /* Text on SOLID amber, i.e. `bg-warning`. Deliberately NOT `--warning-fg`:
-     that is a TINT foreground, valid only on `--warning-bg`, and measures
-     3.13:1 on the solid — swapping it in would ship a contrast regression.
-     `#3a2400` on `#e8960c` is 6.14:1, which is why the literal survived. */
+  --neutral-bg: oklch(95% 0.006 145);
+  --neutral-fg: oklch(42% 0.02 145);
   --on-warning: #3a2400;
-
-  /* Emphasis and link text. `--green-700` is a SURFACE value; in dark mode it
-     is darker than the card behind it (1.76:1), which is how the legacy app's
-     1.71:1 collapse came back in through the brand ramp. This is the
-     text-safe counterpart, re-pointed in the dark block below. */
-  --link: #145c40;
-
-  /* Status text on the dark green chrome. That chrome is dark in BOTH themes,
-     so these are mode-independent on purpose: `--success-fg` and friends invert
-     with the theme and would go near-black on dark green in light mode. */
+  --link: #0285f7;
   --on-dark-success: #7fd4ae;
   --on-dark-warning: #f0b85a;
   --on-dark-danger: #f09a82;
-
-  /* Text on SOLID coral, i.e. `bg-danger`. Same reasoning as `--on-warning`.
-     `--destructive-foreground` cannot serve here: it is Shadcn's contract for
-     text on a destructive CONTROL and is white in light mode, which measures
-     3.69:1 on this coral. `#2a120c` is 4.79:1 in both themes, so one value
-     covers both — which is why it needs no dark override below. */
   --on-danger: #2a120c;
+  --on-brand-tint: #06281c;
 
-  /* Text on the pale brand tints (`--brand-50`, `--brand-100`). Those tints are
-     pale in light mode and dark in dark mode, so the text has to invert with
-     them. `--brand-900` is dark in BOTH, which is how the two lowest quintiles
-     of the parish ramp came to sit at 1.05:1 in dark mode. */
-  --on-brand-tint: #0b3523;
+  --cat-1: #6c5ce7;
+  --cat-2: #0d9488;
+  --cat-3: #e8a317;
+  --cat-4: #1db87f;
+  --cat-5: #e05a3c;
 
-  /* --- Appointment categories ------------------------------------------
-     The legacy calendar used 2 raw hexes plus 3 tokens for these five, so
-     half the categorical palette sat outside the token layer entirely. */
-  --cat-1: #6c5ce7; /* infusion */
-  --cat-2: #0d9488; /* labs */
-  --cat-3: #e8960c; /* imaging */
-  --cat-4: #2a8a62; /* follow-up */
-  --cat-5: #e05a3c; /* consult */
+  /* beUI elevation — soft, not multi-layer gloss */
+  --shadow-sm: 0 1px 2px oklch(15% 0.02 145 / 0.05);
+  --shadow: 0 1px 2px oklch(15% 0.02 145 / 0.04), 0 12px 40px -20px oklch(15% 0.04 145 / 0.18);
+  --shadow-lg: 0 8px 30px -12px oklch(15% 0.04 145 / 0.28);
+  --shadow-press: inset 0 2px 6px oklch(15% 0.02 145 / 0.12);
+  --gloss-shine: none;
+  --gloss-border: oklch(15% 0 0 / 0.06);
+  --radius: 16px;
 
-  /* --- Elevation and shape ---------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgba(13, 42, 28, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.55);
-  --shadow: 0 1px 2px rgba(13, 42, 28, 0.06), 0 12px 32px -16px rgba(13, 42, 28, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
-  --shadow-lg: 0 6px 18px rgba(13, 42, 28, 0.1), 0 28px 52px -20px rgba(13, 42, 28, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  --shadow-press: inset 0 2px 6px rgba(13, 42, 28, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  --gloss-shine: linear-gradient(
-    165deg,
-    rgba(255, 255, 255, 0.42) 0%,
-    rgba(255, 255, 255, 0.08) 38%,
-    rgba(255, 255, 255, 0) 62%
-  );
-  --gloss-border: rgba(255, 255, 255, 0.55);
-  --radius: 14px;
+  /* beUI extensions */
+  --border-strong: oklch(15% 0 0 / 0.14);
+  --neon: oklch(78% 0.18 155);
+  --violet: oklch(68% 0.22 295);
+  --glass-bg: oklch(100% 0 0 / 0.62);
+  --glass-border: oklch(15% 0 0 / 0.08);
+  --glass-strong-bg: rgb(255 255 255 / 0.78);
+  --glass-thin-bg: rgb(255 255 255 / 0.5);
 
-  /* --- Shadcn contract --------------------------------------------------
-     Shadcn primitives style themselves entirely from these variables, so
-     mapping the brand onto them is what makes the components arrive wearing
-     BayouCare rather than a default grey. */
+  /* Shadcn / beUI semantic contract */
   --background: var(--cream);
   --foreground: var(--ink);
   --card-foreground: var(--ink);
   --popover: var(--card);
   --popover-foreground: var(--ink);
-  --primary: var(--green-700);
-  --primary-foreground: var(--on-dark);
+  --primary: #0285f7;
+  --primary-foreground: #ffffff;
   --secondary: var(--soft);
   --secondary-foreground: var(--ink);
   --muted: var(--chip-gray);
   --muted-foreground: var(--ink-soft);
-  --accent: var(--green-50);
-  --accent-foreground: var(--green-800);
-  --destructive: var(--coral-500);
+  --accent: color-mix(in oklab, #0285f7 10%, white);
+  --accent-foreground: #0369a1;
+  --destructive: var(--danger);
   --destructive-foreground: #ffffff;
   --border: var(--line);
   --input: var(--line);
-  --ring: var(--green-500);
+  --ring: color-mix(in oklab, #0285f7 45%, transparent);
 }
 
 /* ==========================================================================
@@ -162,78 +120,70 @@
    is the payoff for consolidating: the legacy file needed ~12 hand-written
    `html[data-theme="dark"] .chip.amber { color: … }` rules to do the same job.
    ========================================================================== */
-:root[data-theme='dark'] {
+:root[data-theme='dark'],
+.dark {
   color-scheme: dark;
 
-  --cream: #101713;
-  --card: #18221d;
-  --soft: #18231d;
-  --line: #2c3a32;
-  --ink: #e6efe9;
-  --ink-soft: #96a99d;
-  --chip-gray: #26332b;
+  --cream: #121212;
+  --card: #1a1a1a;
+  --soft: #1e1e1e;
+  --line: rgb(255 255 255 / 0.07);
+  --ink: oklch(96% 0.005 145);
+  --ink-soft: oklch(68% 0.02 145);
+  --chip-gray: #242424;
 
-  --green-900: #0a2c1f;
-  --green-800: #0e3a2a;
-  --green-700: #13513a;
-  --green-600: #3fa075;
-  --green-500: #3d9a6f;
-  --green-100: #22372c;
-  --green-50: #18251f;
+  --green-900: #041c14;
+  --green-800: #0a2f22;
+  --green-700: #0d5a40;
+  --green-600: #2dd4a0;
+  --green-500: #34d399;
+  --green-100: #143528;
+  --green-50: #10241c;
 
   --amber-100: #3a2c12;
   --coral-100: #3a2117;
 
-  /* Status pairs, re-declared together. These foregrounds are the mint, amber
-     and coral the legacy file already hand-mixed for this purpose — now paired
-     with their own backgrounds instead of inheriting light-mode ones.
-     `--success-fg` on `--success-bg` measures 9.2:1, against 1.71:1 before. */
-  --success: #3d9a6f;
-  --success-bg: #18251f;
-  --success-fg: #7fd4ae;
-
-  --warning: #e8960c;
+  --success: #34d399;
+  --success-bg: #10241c;
+  --success-fg: #6ee7b7;
+  --warning: #e8a317;
   --warning-bg: #3a2c12;
   --warning-fg: #f0b85a;
-
-  --danger: #e05a3c;
+  --danger: #f07158;
   --danger-bg: #3a2117;
   --danger-fg: #f09a82;
-
   --info: #2dd4bf;
   --info-bg: #12312e;
   --info-fg: #5eead4;
+  --neutral-bg: #242424;
+  --neutral-fg: oklch(68% 0.02 145);
 
-  --neutral-bg: #26332b;
-  --neutral-fg: #96a99d;
-
-  /* Shadcn contract, re-pointed for dark. `--accent-foreground` defaults to
-     `--green-800`, which in dark mode is DARKER than `--accent` (`--green-50`)
-     — the pair collapsed to 1.25:1, worse than the 1.71:1 the legacy file was
-     pulled up on. Mint on the dark accent surface measures 9.2:1. */
-  --accent-foreground: #7fd4ae;
-  --link: #7fd4ae;
-  --on-brand-tint: #eaf5ee;
-
-  /* Infusion violet is lifted in dark mode: #6c5ce7 on --card is only 3.35:1,
-     which has no headroom above the 3:1 non-text floor. */
+  --accent-foreground: #7dd3fc;
+  --link: #38bdf8;
+  --on-brand-tint: #eaf8f0;
+  --on-dark: #eaf8f0;
+  --on-dark-muted: #8fc9ad;
   --cat-1: #8b7cf0;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 36px -16px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --shadow-lg: 0 8px 22px rgba(0, 0, 0, 0.4), 0 28px 56px -18px rgba(0, 0, 0, 0.62),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --shadow-press: inset 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --gloss-shine: linear-gradient(
-    165deg,
-    rgba(255, 255, 255, 0.14) 0%,
-    rgba(255, 255, 255, 0.04) 40%,
-    rgba(255, 255, 255, 0) 65%
-  );
-  --gloss-border: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 16px 40px -18px rgb(0 0 0 / 0.55);
+  --shadow-lg: 0 12px 40px -16px rgb(0 0 0 / 0.65);
+  --shadow-press: inset 0 2px 8px rgb(0 0 0 / 0.5);
+  --gloss-shine: none;
+  --gloss-border: rgb(255 255 255 / 0.08);
+
+  --border-strong: rgb(255 255 255 / 0.12);
+  --neon: oklch(78% 0.18 155);
+  --glass-bg: rgb(26 26 26 / 0.6);
+  --glass-border: rgb(255 255 255 / 0.08);
+  --glass-strong-bg: rgb(26 26 26 / 0.72);
+  --glass-thin-bg: rgb(18 18 18 / 0.5);
 
   --destructive-foreground: #2a120c;
+  --primary: #0285f7;
+  --primary-foreground: #ffffff;
+  --accent: color-mix(in oklab, #0285f7 18%, #1a1a1a);
+  --ring: color-mix(in oklab, #0285f7 50%, transparent);
 }
 
 /* ==========================================================================
@@ -257,6 +207,10 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-neon: var(--neon);
+  --color-violet: var(--violet);
+  --color-glass-bg: var(--glass-bg);
   --color-input: var(--input);
   --color-ring: var(--ring);
 
@@ -326,7 +280,8 @@
   --text-3xl: 1.875rem;
   --text-3xl--line-height: 1.15;
 
-  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Sora Variable', Sora, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 /* ==========================================================================
@@ -398,40 +353,17 @@
     color: var(--muted-foreground);
   }
 
-  /* Neo-gloss cards / panels: soft glass highlight over brand surfaces. */
+  /* Surfaces — beUI glass rather than multi-layer gloss */
   .bc-surface-gloss {
     position: relative;
     isolation: isolate;
-    border-color: color-mix(in srgb, var(--border) 70%, var(--gloss-border));
-    background-image: var(--gloss-shine);
-    background-blend-mode: soft-light;
+    background: var(--card);
+    border: 1px solid var(--border);
     box-shadow: var(--shadow);
   }
 
   .bc-surface-gloss::before {
-    content: '';
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    border-radius: inherit;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.22) 0%,
-      rgba(255, 255, 255, 0.04) 28%,
-      transparent 55%
-    );
-    opacity: 0.85;
-  }
-
-  :root[data-theme='dark'] .bc-surface-gloss::before {
-    opacity: 0.45;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.02) 30%,
-      transparent 55%
-    );
+    content: none;
   }
 
   .bc-surface-gloss > * {
@@ -527,7 +459,7 @@
 }
 
 /* ==========================================================================
-   Access map markers (Leaflet DivIcon)
+   Access map markers (Leaflet DivIcon) — beUI pill markers + primary blue
    ========================================================================== */
 .bc-map-marker {
   background: transparent;
@@ -541,42 +473,79 @@
   width: 100%;
   height: 100%;
   border-radius: 999px;
-  border: 2px solid var(--card);
-  box-shadow: var(--shadow);
-  color: var(--on-dark);
-  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 2px solid color-mix(in oklab, var(--card) 88%, white);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.12) inset,
+    var(--shadow);
+  color: #ffffff;
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s ease;
 }
 
 .bc-marker-home {
-  background: var(--green-800);
+  background: var(--primary);
 }
 
 .bc-marker-clinic {
-  background: var(--green-600);
+  background: color-mix(in oklab, var(--primary) 72%, #0a0a0a);
 }
 
 .bc-marker-clinic.is-selected {
-  background: var(--green-500);
-  transform: scale(1.08);
-  box-shadow: var(--shadow-lg);
+  background: var(--primary);
+  transform: scale(1.1);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.16) inset,
+    0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent),
+    var(--shadow-lg);
 }
 
 .leaflet-container {
   font: inherit;
   color: var(--foreground);
   z-index: 0;
+  background: var(--muted);
+}
+
+.leaflet-control-zoom a {
+  border-radius: 999px !important;
+  border: 1px solid var(--border) !important;
+  background: var(--glass-bg) !important;
+  color: var(--foreground) !important;
+  backdrop-filter: blur(10px);
+  width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  margin-bottom: 6px !important;
+}
+
+.leaflet-control-zoom {
+  border: 0 !important;
+  box-shadow: none !important;
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: var(--radius-md);
+  border-radius: 1rem;
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--card-foreground);
+  padding: 2px 4px;
 }
 
 .leaflet-popup-tip {
   background: var(--card);
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--muted-foreground);
+  padding: 6px 8px 0 0;
 }
 
 .leaflet-control-attribution {
@@ -594,6 +563,8 @@
 
   html {
     scroll-behavior: smooth;
+    /* Device emulators + foldables: never let a wide child paint a sideways page. */
+    overflow-x: clip;
   }
 
   body {
@@ -601,6 +572,10 @@
     font-family: var(--font-sans);
     font-size: var(--text-base);
     line-height: 1.55;
+    overflow-x: clip;
+    /* Notch / home-indicator devices (Galaxy, iPhone, foldables). */
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
   }
 
   /* Light mode only — white cards wash out thin Inter; dark mode already has
@@ -746,6 +721,15 @@
     display: none;
   }
 
+  /* Same idea for top-level NavTabs when they scroll on mid-width desktops. */
+  .bc-nav-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .bc-nav-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Remi's live typing caret — sits at the end of the revealing HTML. */
   .bc-remi-caret {
     display: inline-block;
@@ -833,5 +817,49 @@
   table,
   tr {
     break-inside: avoid;
+  }
+}
+
+
+/* ==========================================================================
+   beUI surface utilities (from https://beui.dev/theme.css)
+   ========================================================================== */
+@theme {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-shimmer: shimmer 2.5s linear infinite;
+
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { scrollbar-width: none; }
+  .mask-radial-fade {
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+  }
+  .mask-b-fade {
+    mask-image: linear-gradient(to bottom, black 60%, transparent);
+  }
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      0 1px 0 0 rgb(255 255 255 / 0.06) inset,
+      0 24px 60px -24px rgb(0 0 0 / 0.35);
+  }
+  .glass-strong {
+    background: var(--glass-strong-bg);
+    backdrop-filter: blur(16px);
+  }
+  .glass-thin {
+    background: var(--glass-thin-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
   }
 }

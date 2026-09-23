@@ -11,6 +11,14 @@ export const LANG_LABELS: Record<Lang, string> = {
   vi: 'Tiếng Việt',
 }
 
+/** Compact codes for narrow chrome (phones / foldable covers). */
+export const LANG_SHORT: Record<Lang, string> = {
+  en: 'EN',
+  es: 'ES',
+  ht: 'HT',
+  vi: 'VI',
+}
+
 /** BCP 47 tags for `<html lang>` and `toLocaleDateString`. */
 export const LANG_HTML: Record<Lang, string> = {
   en: 'en',

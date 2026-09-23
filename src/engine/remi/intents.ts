@@ -54,7 +54,7 @@ export function createIntents(ctx: RemiContext) {
       if (!a) return `Nothing is on your calendar right now.`;
       return `Your next appointment is ${apptLine(a)}.<br><br>` +
         (a.ride
-          ? `🚗 A ride is already arranged — <b>Cora's Wheels</b>, pickup 7:45 am. Nothing for you to do.`
+          ? `A ride is already arranged — <b>Cora's Wheels</b>, pickup 7:45 am. Nothing for you to do.`
           : `No ride is booked for this one yet. You can ask for one on the <b>Access &amp; Help</b> tab, or tell Keisha (social worker).`) +
         `<br><br>Everything on your schedule is on the <b>Appointments</b> tab.`;
     }},
@@ -67,7 +67,7 @@ export function createIntents(ctx: RemiContext) {
         return `<b>${fmtDay(hit.date)}</b> — nothing scheduled. A good day to rest.`;
       return `<b>${fmtDay(hit.date)}:</b><br><br>` + hit.list.map(a => {
         const c = CAL_TYPES[a.type];
-        return `• ${c.ico} <b>${a.time}</b> — ${c.label}, ${c.where}${a.ride ? ' · 🚗 ride arranged' : ''}`;
+        return `• <b>${a.time}</b> — ${c.label}, ${c.where}${a.ride ? ' · ride arranged' : ''}`;
       }).join('<br>') + `<br><br>Full calendar is on the <b>Appointments</b> tab.`;
     }},
 
@@ -121,7 +121,7 @@ export function createIntents(ctx: RemiContext) {
   { id:'vitals', kw:[/\btemp/, /\bweight\b/, /\bweigh\b/, /\bvitals?\b/, /\bdevices?\b/, /\bscale\b/, /\bpatch\b/],
     build(){
       const me = SWEEP[0];
-      return `Latest from your devices:<br><br>🌡️ Temp <b>${me.temp}</b><br>⚖️ Weight <b>${me.w}</b> (${me.wd} over 7 days)<br><br>` +
+      return `Latest from your devices:<br><br>Temp <b>${me.temp}</b><br>Weight <b>${me.w}</b> (${me.wd} over 7 days)<br><br>` +
         `Your temp patch and scale stream into the same alert engine as your check-ins — a fever at 2 am doesn't wait until morning. See the <b>Vitals</b> tab.`;
     }},
 
@@ -130,14 +130,14 @@ export function createIntents(ctx: RemiContext) {
       if (!vitalsAlerts.length)
         return `No alerts on your record right now — your recent device readings and check-ins are in your normal range.<br><br>If anything changes, the <b>Vitals</b> tab shows what your nurse would see.`;
       return `<b>Alerts on your record:</b><br><br>` + vitalsAlerts.map(v =>
-        `🚨 <b>${v.when}</b> — ${v.reading}: ${v.msg}<br>${v.followup}`).join('<br><br>') +
+        `<b>${v.when}</b> — ${v.reading}: ${v.msg}<br>${v.followup}`).join('<br><br>') +
         `<br><br>This is already on your care team's <b>Needs attention</b> list. The <b>Vitals</b> tab and Care Team view share the same alerts.`;
     }},
 
   { id:'rides', kw:[/\brides?\b/, /\btransport/, /\bget there\b/, /\bdrive\b/, /\bmileage\b/, /\blodging\b/, /\bget a ride\b/],
     build(){
       const a = remiNext();
-      return `🚗 <b>Getting to your appointments</b><br><br>` +
+      return `<b>Getting to your appointments</b><br><br>` +
         (a && a.ride
           ? `<b>${fmtDay(a.date)}</b> is already covered — Cora's Wheels (non-emergency medical transport) is confirmed, pickup 7:45 am.<br><br>`
           : '') +
@@ -147,7 +147,7 @@ export function createIntents(ctx: RemiContext) {
     }},
 
   { id:'money', kw:[/\bcost/, /\bpay\b/, /\bafford\b/, /\bmoney\b/, /\bfinancial\b/, /\bcopay/, /\binsurance\b/, /\bmedicaid\b/, /\bbills?\b/],
-    build(){ return `💰 <b>Help paying for care</b><br><br>` +
+    build(){ return `<b>Help paying for care</b><br><br>` +
       `<b>Copay assistance</b> — 2 programs matched your treatment, averaging <b>$1,900/yr</b> in savings.<br><br>` +
       `<b>Medicaid navigation</b> — a step-by-step renewal guide with a caseworker chat line.<br><br>` +
       `<b>Mileage reimbursement</b> — about $0.655/mile through the Louisiana Cancer Fund.<br><br>` +
@@ -173,7 +173,7 @@ export function createIntents(ctx: RemiContext) {
       `If you're unsure about a specific visit, Marie Thibodeaux (your nurse navigator) can tell you exactly what to expect.`; }},
 
   { id:'support', kw:[/\bsupport\b/, /\btalk to someone\b/, /\bcounsel/, /\bpeer\b/, /\btherapy\b/, /\bmental health\b/],
-    build(){ return `👭 <b>Support group — Central LA</b><br>Meets the 2nd &amp; 4th Tuesday at 6 pm in Alexandria. Childcare is on site.<br><br>` +
+    build(){ return `<b>Support group — Central LA</b><br>Meets the 2nd &amp; 4th Tuesday at 6 pm in Alexandria. Childcare is on site.<br><br>` +
       `<b>NAMI Louisiana</b> (namilouisiana.org) runs free peer support groups.<br><br>` +
       `If you'd rather talk to someone on your own team first, <b>Keisha Brown</b> (social worker) is there for exactly this — <b>Access &amp; Help</b> → Request help.<br><br>` +
       `And if things feel heavy right now, <b>988</b> is free, 24/7, and confidential.`; }},
@@ -185,7 +185,7 @@ export function createIntents(ctx: RemiContext) {
       const best = scored[0];
       if (!best) return `No studies are loaded right now.`;
       return `<b>Clinical trials near you</b><br><br>BayouCare compared <b>${TRIALS.length} studies</b> near Louisiana with your care. The closest fit is <b>${best.t.nct}</b> — ${best.pass} of ${best.tot} checks look good:<br><br>` +
-        best.t.crits.map(c => `${c.ok === true ? '✅' : c.ok === 'warn' ? '⚠️' : '❌'} ${c.txt}`).join('<br>') +
+        best.t.crits.map(c => `${c.ok === true ? '' : c.ok === 'warn' ? '' : ''} ${c.txt}`).join('<br>') +
         `<br><br>This is a first look only. Joining a study is a decision with your oncology team. The full list is on <b>Access &amp; Help</b>.`;
     }},
 

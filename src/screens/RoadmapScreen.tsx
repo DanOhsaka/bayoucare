@@ -9,7 +9,7 @@ const PHASES = [
     h: 'Prototype & validation (now – Sept 25)',
     d: (
       <>
-        Ranks 1–4 shipped in the Aug 17 draft — <b>predictive flags with counterfactuals</b> (care
+       Ranks 1–4 shipped in the Aug 17 draft — <b>predictive flags with counterfactuals</b> (care
         team), <b>SCP generator + late-effects radar</b> (survivorship),{' '}
         <b>risk-stratified screening</b> (patient app), <b>parish heat index</b> (all 64 parishes) —
         and passed to the semi-finals. Ranks 5–8 shipped Aug 25 for the virtual semi-finals (Aug
@@ -33,7 +33,7 @@ const PHASES = [
     h: 'Clinical pilot (Q1 2027)',
     d: (
       <>
-        Deploy with 2 Ochsner oncology clinics; enroll 50 patients; measure treatment-start delay,
+       Deploy with 2 Ochsner oncology clinics; enroll 50 patients; measure treatment-start delay,
         check-in adherence, and clinician admin time vs. baseline — benchmarked against ASCO quality
         measures. SMS + low-bandwidth mode first.
       </>
@@ -46,7 +46,7 @@ const PHASES = [
     h: 'Scale across Louisiana (2027–28)',
     d: (
       <>
-        Partnerships with LSU Health, Federally Qualified Health Centers, and the Louisiana Cancer
+       Partnerships with LSU Health, Federally Qualified Health Centers, and the Louisiana Cancer
         Prevention &amp; Control Programs; survivorship + screening campaigns; reimbursement pathway
         via chronic care management codes.
       </>
@@ -120,14 +120,14 @@ export function RoadmapScreen() {
       <section className="mt-4 rounded-lg border border-brand-100 bg-accent p-6">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-base font-semibold text-accent-foreground">
-            📊 Data &amp; insights — official challenge partner: ASCO
+            Data &amp; insights — official challenge partner: ASCO
           </h3>
           <Badge variant="success" className="text-left whitespace-normal">
-            American Society of Clinical Oncology
+           American Society of Clinical Oncology
           </Badge>
         </div>
         <p className="text-sm text-accent-foreground">
-          ASCO is the challenge's official data source. BayouCare operationalizes it in three ways:{' '}
+         ASCO is the challenge's official data source. BayouCare operationalizes it in three ways:{' '}
           <b>1)</b> screening schedules follow ASCO &amp; ACS guidelines (Screen &amp; Prevent
           module) · <b>2)</b> patient education maps to ASCO's plain-language standards (Understand
           module) · <b>3)</b> pilot outcomes benchmark against ASCO quality measures —

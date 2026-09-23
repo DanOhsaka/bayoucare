@@ -1,5 +1,7 @@
+import { Lightbulb } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { DataTable } from '@/components/motion/table'
 import { ProgressTrack, riskTone } from '@/components/shared/ProgressTrack'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -61,7 +63,7 @@ function CounterfactualLine({
         prominent && 'mt-2.5',
       )}
     >
-      <span aria-hidden="true">💡</span>
+      <Lightbulb className="size-4 shrink-0 text-primary" aria-hidden="true" strokeWidth={1.75} />
       <b className="text-accent-foreground">{cf.label}</b>
       <span className="text-link">
         {current}% → {cf.to}%
@@ -219,13 +221,13 @@ export function TeamScreen() {
                       </div>
                     </div>
                     <Badge variant={level === 'critical' ? 'danger' : 'warning'}>
-                      {source === 'device' ? '⚡ auto-escalated' : '📋 on worklist'}
+                      {source === 'device' ? 'auto-escalated' : 'on worklist'}
                     </Badge>
                   </div>
                   <p className="mt-2 text-sm text-card-foreground">{v.msg}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {source === 'device'
-                      ? `⚡ Auto-escalation: on-call RN notified · caregiver SMS to Renee sent · ${v.followup}`
+                      ? ` Auto-escalation: on-call RN notified · caregiver SMS to Renee sent · ${v.followup}`
                       : `Next step: ${v.followup}`}
                   </p>
                 </div>
@@ -293,52 +295,66 @@ export function TeamScreen() {
         <CardContent>
           <p className="text-sm text-muted-foreground">{t('vitals.sweepHint')}</p>
 
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr>
-                  {['Patient', 'Temp now', '24h', 'Weight (30d)', 'Device flags'].map((h) => (
-                    <th
-                      key={h}
-                      className="border-b border-border px-3 py-2 text-left text-xs font-bold uppercase tracking-[0.04em] text-muted-foreground"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {sweep.map((row, i) => (
-                  <tr key={i}>
-                    <td className="border-b border-border px-3 py-2.5 font-semibold text-card-foreground">
+          <div className="mt-3">
+            <DataTable
+              data={sweep}
+              getRowId={(row, i) => String(row.name ?? i)}
+              height={320}
+              defaultSort={{ key: 'name', direction: 'asc' }}
+              columns={[
+                {
+                  key: 'name',
+                  header: 'Patient',
+                  sortable: true,
+                  title: (row) => String(row.name ?? ''),
+                  cell: (row) => (
+                    <span className="font-semibold text-card-foreground">
                       {String(row.name ?? '')}
-                    </td>
-                    <td className="border-b border-border px-3 py-2.5 text-card-foreground">
-                      {String(row.temp ?? '')}
-                    </td>
-                    <td className="border-b border-border px-3 py-2.5 text-muted-foreground">
-                      {String(row.tr ?? '')}
-                    </td>
-                    <td className="border-b border-border px-3 py-2.5 text-muted-foreground">
+                    </span>
+                  ),
+                },
+                {
+                  key: 'temp',
+                  header: 'Temp now',
+                  sortable: true,
+                  cell: (row) => String(row.temp ?? ''),
+                },
+                {
+                  key: 'tr',
+                  header: '24h',
+                  cell: (row) => (
+                    <span className="text-muted-foreground">{String(row.tr ?? '')}</span>
+                  ),
+                },
+                {
+                  key: 'w',
+                  header: 'Weight (30d)',
+                  cell: (row) => (
+                    <span className="text-muted-foreground">
                       {String(row.w ?? '')}
-                      {/* `&&` on an `unknown` field yields `unknown`, which is not a
-                          valid ReactNode — hence the explicit Boolean(). */}
                       {Boolean(row.wd) && row.wd !== '—' && (
-                        <span className="ml-1 text-muted-foreground">({String(row.wd)})</span>
+                        <span className="ml-1">({String(row.wd)})</span>
                       )}
-                    </td>
-                    <td
-                      className={cn(
-                        'border-b border-border px-3 py-2.5',
-                        row.flagCls === 'flag' ? 'font-bold text-danger-fg' : 'text-muted-foreground',
-                      )}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'flag',
+                  header: 'Device flags',
+                  cell: (row) => (
+                    <span
+                      className={
+                        row.flagCls === 'flag'
+                          ? 'font-bold text-danger-fg'
+                          : 'text-muted-foreground'
+                      }
                     >
                       {String(row.flag ?? '')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  ),
+                },
+              ]}
+            />
           </div>
 
           <p className="mt-3 text-xs text-muted-foreground">
@@ -351,7 +367,7 @@ export function TeamScreen() {
       {/* ------------------------------------------ counterfactual board */}
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>⚡ Counterfactual intervention board</CardTitle>
+          <CardTitle> Counterfactual intervention board</CardTitle>
           <Badge variant="warning">What moves the needle · demo model</Badge>
         </CardHeader>
 
@@ -370,10 +386,10 @@ export function TeamScreen() {
               className="h-auto min-h-11 py-2 text-left text-xs font-bold whitespace-normal lg:min-h-0"
               onClick={() => {
                 autoApply()
-                toast('⚡ Top counterfactual applied for every flagged patient — worklist updated.')
+                toast(' Top counterfactual applied for every flagged patient — worklist updated.')
               }}
             >
-              ⚡ Auto-apply top action for all flagged patients
+               Auto-apply top action for all flagged patients
             </Button>
             <span className="text-xs text-muted-foreground">
               One click runs the whole board — every flagged patient gets their best counterfactual
@@ -381,47 +397,70 @@ export function TeamScreen() {
             </span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr>
-                  {['Intervention', 'Helps', 'Avg risk drop', 'Projected impact'].map((h, i) => (
-                    <th
-                      key={h}
-                      className={cn(
-                        'border-b border-border px-3 py-2 text-xs font-bold uppercase tracking-[0.04em] text-muted-foreground',
-                        i === 3 ? 'text-right' : 'text-left',
-                      )}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {board.map((r) => (
-                  <tr key={r.k}>
-                    <td className="border-b border-border px-3 py-3">
-                      <b className="text-card-foreground">{r.label}</b>
-                      <div className="text-xs text-muted-foreground">{r.desc}</div>
-                    </td>
-                    <td className="border-b border-border px-3 py-3 text-muted-foreground">
-                      <span className="block text-xs">Helps</span>
-                      <b className="text-card-foreground">{r.n} patients</b>
-                    </td>
-                    <td className="border-b border-border px-3 py-3 text-muted-foreground">
-                      <span className="block text-xs">Avg drop</span>
-                      <b className="text-card-foreground">{r.n ? `${r.avg.toFixed(1)} pts` : '—'}</b>
-                    </td>
-                    <td className="border-b border-border px-3 py-3 text-right">
-                      <span className="block text-xs text-muted-foreground">Avoidable</span>
-                      <b className="text-card-foreground">≈ {r.ev.toFixed(1)} events / 30d</b>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            data={board}
+            getRowId={(r) => r.k}
+            height={420}
+            rowHeight={64}
+            defaultSort={{ key: 'ev', direction: 'desc' }}
+            columns={[
+              {
+                key: 'label',
+                header: 'Intervention',
+                sortable: true,
+                truncate: false,
+                title: (r) => `${r.label} — ${r.desc}`,
+                cell: (r) => (
+                  <>
+                    <b className="text-card-foreground">{r.label}</b>
+                    <div className="text-xs text-muted-foreground">{r.desc}</div>
+                  </>
+                ),
+              },
+              {
+                key: 'n',
+                header: 'Helps',
+                sortable: true,
+                truncate: false,
+                sortValue: (r) => r.n,
+                cell: (r) => (
+                  <>
+                    <span className="block text-xs text-muted-foreground">Helps</span>
+                    <b className="text-card-foreground">{r.n} patients</b>
+                  </>
+                ),
+              },
+              {
+                key: 'avg',
+                header: 'Avg risk drop',
+                sortable: true,
+                truncate: false,
+                sortValue: (r) => r.avg,
+                cell: (r) => (
+                  <>
+                    <span className="block text-xs text-muted-foreground">Avg drop</span>
+                    <b className="text-card-foreground">
+                      {r.n ? `${r.avg.toFixed(1)} pts` : '—'}
+                    </b>
+                  </>
+                ),
+              },
+              {
+                key: 'ev',
+                header: 'Projected impact',
+                sortable: true,
+                align: 'right',
+                truncate: false,
+                sortValue: (r) => r.ev,
+                cell: (r) => (
+                  <>
+                    <span className="block text-xs text-muted-foreground">Avoidable</span>
+                    <b className="text-card-foreground">≈ {r.ev.toFixed(1)} events / 30d</b>
+                  </>
+                ),
+              },
+            ]}
+          />
         </CardContent>
       </Card>
 
@@ -474,7 +513,7 @@ export function TeamScreen() {
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>🤖 Auto-drafted visit summary</CardTitle>
+            <CardTitle>Auto-drafted visit summary</CardTitle>
             <Badge variant="warning">Generated by BayouCare</Badge>
           </CardHeader>
           <CardContent>
@@ -506,7 +545,7 @@ export function TeamScreen() {
 
         <Card>
           <CardHeader>
-            <CardTitle>⚡ Admin time saved</CardTitle>
+            <CardTitle> Admin time saved</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-3">

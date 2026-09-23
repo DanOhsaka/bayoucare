@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
+import { DataTable } from '@/components/motion/table'
 import { ProgressTrack } from '@/components/shared/ProgressTrack'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -105,7 +106,7 @@ function MapLegend({ metric, mode }: { metric: MetricKey; mode: 'tiles' | 'geo' 
           ? 'Tile cartogram — each tile is one parish; positions approximate geography. Numbered badges = top-10 unmet-need rank.'
           : 'Geographic map — real Census parish boundaries; hover or focus a parish for its numbers.'}{' '}
         <b className="text-card-foreground">
-          Incidence &amp; late-stage: State Cancer Profiles / USCS. Screening coverage &amp;
+         Incidence &amp; late-stage: State Cancer Profiles / USCS. Screening coverage &amp;
           population: CDC PLACES 2025. {mode === 'tiles' ? 'Hatched tiles' : 'Muted parishes'} = late
           stage suppressed (&lt;16 cases).
         </b>
@@ -144,7 +145,7 @@ export function PopulationScreen() {
    * margins — the `w-[262px]` panel plus its 14px offset from the pointer.
    */
   const showTip = (name: string, x: number, y: number) =>
-    setTip({
+   setTip({
       name,
       x: Math.max(8, Math.min(x + 14, window.innerWidth - 275)),
       y: Math.max(8, Math.min(y + 14, window.innerHeight - 210)),
@@ -183,7 +184,7 @@ export function PopulationScreen() {
    * edge; the clamp then trims whatever the zoom pushed past the frame.
    */
   const zoomTo = (factor: number) =>
-    setView((v) => {
+   setView((v) => {
       const k = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, v.k * factor))
       return clampView({ k, x: v.x + (MAP.w / 2) * (v.k - k), y: v.y + (MAP.h / 2) * (v.k - k) })
     })
@@ -298,7 +299,7 @@ export function PopulationScreen() {
       if (tourStop == null) return
       if (tourStop >= stops.length) {
         setTourStop(null)
-        toast('✅ Van tour complete — 10 parishes routed by unmet need.')
+        toast('Van tour complete — 10 parishes routed by unmet need.')
         return
       }
       const p = stops[tourStop]
@@ -322,15 +323,15 @@ export function PopulationScreen() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">
-            🗺️ Parish heat index — where screening matters most
+            Parish heat index — where screening matters most
           </CardTitle>
           <Badge variant="success" className="text-left whitespace-normal">
-            All 64 parishes · State Cancer Profiles + CDC PLACES
+           All 64 parishes · State Cancer Profiles + CDC PLACES
           </Badge>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            All 64 parishes scored on incidence, late-stage share, coverage, and unmet need — so
+           All 64 parishes scored on incidence, late-stage share, coverage, and unmet need — so
             screening vans and SMS nudges go to the{' '}
             <b className="text-card-foreground">highest-burden parishes, not just the biggest cities</b>.
           </p>
@@ -348,7 +349,7 @@ export function PopulationScreen() {
                 size="xs"
                 variant={metric === k ? 'default' : 'outline'}
                 aria-pressed={metric === k}
-                onClick={() => setMetric(k)}
+                onClick={() =>setMetric(k)}
                 className="rounded-full px-2.5 font-bold"
               >
                 {METRICS[k].label}
@@ -366,20 +367,20 @@ export function PopulationScreen() {
                   size="xs"
                   variant={mode === 'tiles' ? 'default' : 'outline'}
                   aria-pressed={mode === 'tiles'}
-                  onClick={() => setMode('tiles')}
+                  onClick={() =>setMode('tiles')}
                   className="rounded-full px-2.5 font-bold"
                 >
-                  🗂 Tile cartogram
+                  Tile cartogram
                 </Button>
                 <Button
                   type="button"
                   size="xs"
                   variant={mode === 'geo' ? 'default' : 'outline'}
                   aria-pressed={mode === 'geo'}
-                  onClick={() => setMode('geo')}
+                  onClick={() =>setMode('geo')}
                   className="rounded-full px-2.5 font-bold"
                 >
-                  🗺️ Geographic map
+                  Geographic map
                 </Button>
               </div>
 
@@ -528,7 +529,7 @@ export function PopulationScreen() {
                       variant="outline"
                       aria-label="Zoom out"
                       disabled={view.k <= ZOOM_MIN}
-                      onClick={() => zoomTo(1 / ZOOM_STEP)}
+                      onClick={() =>zoomTo(1 / ZOOM_STEP)}
                       className="size-11 lg:size-8"
                     >
                       −
@@ -542,7 +543,7 @@ export function PopulationScreen() {
                       onClick={resetView}
                       className="h-11 lg:h-8"
                     >
-                      Reset
+                     Reset
                     </Button>
                     <span className="text-xs text-muted-foreground">
                       {view.k > ZOOM_MIN ? 'Drag the map to pan.' : 'Zoom in to pan.'}
@@ -729,34 +730,34 @@ export function PopulationScreen() {
                     type="button"
                     size="xs"
                     className="font-bold"
-                    onClick={() => {
+                    onClick={() =>{
                       if (!selected) return toast('Pick a parish on the map first.')
                       setVanHere(selected.n)
-                      toast(`🚐 Van routed to ${selected.n} — mobile screening unit arrives Saturday.`)
+                      toast(`Van routed to ${selected.n} — mobile screening unit arrives Saturday.`)
                     }}
                   >
-                    🚐 Route van here
+                    Route van here
                   </Button>
                   <Button
                     type="button"
                     size="xs"
                     variant="outline"
                     className="font-bold"
-                    onClick={() => {
+                    onClick={() =>{
                       if (!selected) return toast('Pick a parish on the map first.')
                       toast(
-                        `📲 ${selected.uns.toLocaleString()} un-screened adults queued for SMS nudges (event invites + LA Quitline) in ${selected.n}.`,
+                        ` ${selected.uns.toLocaleString()} un-screened adults queued for SMS nudges (event invites + LA Quitline) in ${selected.n}.`,
                       )
                     }}
                   >
-                    📲 SMS nudge cohort
+                    SMS nudge cohort
                   </Button>
                 </div>
 
                 <div className="mt-3 max-h-[140px] overflow-y-auto rounded-md bg-brand-900 p-3 font-mono text-xs leading-relaxed text-on-dark">
                   {tourLog.length === 0 ? (
                     <span className="text-on-dark-muted">
-                      Van tour log — deploy to the top-10 parishes to watch routing live.
+                     Van tour log — deploy to the top-10 parishes to watch routing live.
                     </span>
                   ) : (
                     tourLog.map((l, i) => <div key={i}>{l}</div>)
@@ -773,14 +774,14 @@ export function PopulationScreen() {
         <CardHeader>
           <CardTitle>Risk-stratified outreach queue</CardTitle>
           <Badge variant="warning" className="text-left whitespace-normal">
-            screening vans · SMS · CHW visits — top 8 parishes by unmet need
+           screening vans · SMS · CHW visits — top 8 parishes by unmet need
           </Badge>
           <CardAction>
             <Button
               type="button"
               size="xs"
               className="font-bold"
-              onClick={() => {
+              onClick={() =>{
                 if (tourStop != null) {
                   setTourStop(null)
                   toast('Van tour stopped.')
@@ -790,45 +791,76 @@ export function PopulationScreen() {
                 }
               }}
             >
-              {tourStop != null ? '⏹ Stop tour' : '🚐 Deploy van to top-10'}
+              {tourStop != null ? 'Stop tour' : 'Deploy van to top-10'}
             </Button>
           </CardAction>
         </CardHeader>
 
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <tbody>
-                {top8.map((p) => {
+          <DataTable
+            data={top8}
+            getRowId={(p) => p.n}
+            height={420}
+            rowHeight={64}
+            defaultSort={{ key: 'uns', direction: 'desc' }}
+            columns={[
+              {
+                key: 'n',
+                header: 'Parish',
+                sortable: true,
+                truncate: false,
+                title: (p) => `${p.rank}. ${p.n} Parish`,
+                cell: (p) => (
+                  <>
+                    <b className="text-card-foreground">
+                      {p.rank}. {p.n} Parish
+                    </b>
+                    <div className="text-xs text-muted-foreground">
+                      {p.late == null ? 'late-stage suppressed' : `${p.late}% late-stage`} ·{' '}
+                      {p.cov}% screened
+                    </div>
+                  </>
+                ),
+              },
+              {
+                key: 'uns',
+                header: 'Unscreened',
+                sortable: true,
+                truncate: false,
+                sortValue: (p) => p.uns,
+                cell: (p) => (
+                  <>
+                    <span className="block text-xs text-muted-foreground">Unscreened</span>
+                    <b className="text-card-foreground">{p.uns.toLocaleString()}</b>
+                  </>
+                ),
+              },
+              {
+                key: 'cov',
+                header: 'Coverage gap',
+                sortable: true,
+                truncate: false,
+                sortValue: (p) => 100 - p.cov,
+                cell: (p) => (
+                  <>
+                    <span className="block text-xs text-muted-foreground">Coverage gap</span>
+                    <b className="text-card-foreground">{(100 - p.cov).toFixed(0)}%</b>
+                  </>
+                ),
+              },
+              {
+                key: 'action',
+                header: 'Outreach',
+                align: 'right',
+                truncate: false,
+                title: (p) => outreachAction(p).label,
+                cell: (p) => {
                   const a = outreachAction(p)
-                  return (
-                    <tr key={p.n}>
-                      <td className="border-b border-border px-3 py-3">
-                        <b className="text-card-foreground">
-                          {p.rank}. {p.n} Parish
-                        </b>
-                        <div className="text-xs text-muted-foreground">
-                          {p.late == null ? 'late-stage suppressed' : `${p.late}% late-stage`} · {p.cov}%
-                          screened
-                        </div>
-                      </td>
-                      <td className="border-b border-border px-3 py-3 text-muted-foreground">
-                        <span className="block text-xs">Unscreened</span>
-                        <b className="text-card-foreground">{p.uns.toLocaleString()}</b>
-                      </td>
-                      <td className="border-b border-border px-3 py-3 text-muted-foreground">
-                        <span className="block text-xs">Coverage gap</span>
-                        <b className="text-card-foreground">{(100 - p.cov).toFixed(0)}%</b>
-                      </td>
-                      <td className="border-b border-border px-3 py-3 text-right">
-                        <Badge variant={a.tone}>{a.label}</Badge>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                  return <Badge variant={a.tone}>{a.label}</Badge>
+                },
+              },
+            ]}
+          />
         </CardContent>
       </Card>
 
@@ -901,7 +933,7 @@ function FollowQueue({ selected }: { selected: ParishRow | null }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>📞 14-day abnormal-result follow-up queue</CardTitle>
+        <CardTitle>14-day abnormal-result follow-up queue</CardTitle>
         <Badge variant="warning">Rank 4 extension · brief area 4</Badge>
       </CardHeader>
 
@@ -931,7 +963,7 @@ function FollowQueue({ selected }: { selected: ParishRow | null }) {
         </div>
 
         <p className="mt-3 text-xs text-muted-foreground">
-          Screening only helps if an abnormal result actually gets followed up. This queue comes from
+         Screening only helps if an abnormal result actually gets followed up. This queue comes from
           the same parish need model — pick any parish on the map or the tiles to re-scope it.
         </p>
       </CardContent>
@@ -946,9 +978,9 @@ function FitTracking({ selected }: { selected: ParishRow | null }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>🧫 FIT kit return tracking</CardTitle>
+        <CardTitle>FIT kit return tracking</CardTitle>
         <Badge variant="neutral">
-          mailed stool kits · {selected ? selected.n : 'top 8 parishes'}
+         mailed stool kits · {selected ? selected.n : 'top 8 parishes'}
         </Badge>
       </CardHeader>
 
@@ -972,7 +1004,7 @@ function FitTracking({ selected }: { selected: ParishRow | null }) {
         </div>
 
         <p className="mt-3 text-xs text-muted-foreground">
-          FIT kits need no appointment and no bowel prep — for a rural patient that is often the
+         FIT kits need no appointment and no bowel prep — for a rural patient that is often the
           difference between screened and not. The return rate drives the escalation in the queue
           beside it.
         </p>

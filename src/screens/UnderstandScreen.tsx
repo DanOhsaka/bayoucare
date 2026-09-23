@@ -1,3 +1,6 @@
+import { BookOpen, Check, Dna, MessageCircleQuestion } from 'lucide-react'
+
+import { BouncyAccordion } from '@/components/motion/bouncy-accordion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { usePatient } from '@/store/patient'
@@ -49,7 +52,7 @@ const SECTIONS = [
           'What does "survivorship" look like for me after treatment ends?',
         ].map((q) => (
           <li key={q} className="flex gap-2">
-            <span aria-hidden="true">✅</span>
+            <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" strokeWidth={2} />
             <b>{q}</b>
           </li>
         ))}
@@ -175,28 +178,32 @@ export function UnderstandScreen() {
         </CardContent>
       </Card>
 
-      <section className="flex flex-col gap-3">
-        {SECTIONS.map((s, i) => (
-          /* `p-0` because the card here IS the disclosure: the padding lives on
-             the summary and its panel, and `Card` must not add a second frame
-             inside the element that owns the open/closed state. */
-          <Card key={s.summary} className="p-0">
-            <details open={i === 0}>
-              <summary className="cursor-pointer px-5 py-4 text-sm font-bold text-card-foreground">
-                {t(s.summary)}
-              </summary>
-              <div className="mx-5 mb-5 rounded-md bg-accent px-4 py-3 text-sm leading-relaxed text-accent-foreground">
-                {s.body}
-              </div>
-            </details>
-          </Card>
-        ))}
+      <BouncyAccordion
+        defaultValue="understand.d1"
+        className="gap-0"
+        items={SECTIONS.map((s, i) => ({
+          id: s.summary,
+          title: t(s.summary),
+          icon:
+            i === 0 ? (
+              <BookOpen className="size-4" aria-hidden="true" strokeWidth={1.75} />
+            ) : i === 1 ? (
+              <Dna className="size-4" aria-hidden="true" strokeWidth={1.75} />
+            ) : (
+              <MessageCircleQuestion className="size-4" aria-hidden="true" strokeWidth={1.75} />
+            ),
+          description: (
+            <div className="rounded-xl bg-accent px-4 py-3 text-sm leading-relaxed text-accent-foreground">
+              {s.body}
+            </div>
+          ),
+        }))}
+      />
 
-        <p className="text-xs text-muted-foreground">
-          BayouCare simplifies reports for understanding and always shows what to confirm with your
-          care team. It never replaces clinical advice.
-        </p>
-      </section>
+      <p className="text-xs text-muted-foreground">
+        BayouCare simplifies reports for understanding and always shows what to confirm with your
+        care team. It never replaces clinical advice.
+      </p>
     </div>
   )
 }

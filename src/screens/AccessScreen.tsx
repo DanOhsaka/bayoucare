@@ -1,8 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  Bus,
+  FlaskConical,
+  Fuel,
+  Hotel,
+  Receipt,
+  Stethoscope,
+  Users,
+  Video,
+  type LucideIcon,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 import { AccessCareMap } from '@/components/access/AccessCareMap'
+import { BouncyAccordion } from '@/components/motion/bouncy-accordion'
 import { Field, SELECT_CLASS } from '@/components/shared/Field'
 import { ProgressTrack } from '@/components/shared/ProgressTrack'
 import { Badge } from '@/components/ui/badge'
@@ -35,7 +47,7 @@ type ResourceAction =
   | 'trials-jump'
 
 type ResourceRow = {
-  ico: string
+  icon: LucideIcon
   title: string
   detail: string
   label: string
@@ -48,7 +60,7 @@ const RESOURCES: Array<{ key: string; note?: string; rows: ResourceRow[] }> = [
     key: 'access.t1',
     rows: [
       {
-        ico: '🚌',
+        icon: Bus,
         title: "Ride to Thursday's appointment",
         detail:
           "Cora's Wheels (non-emergency medical transport) · confirmed · picks up 7:45 am",
@@ -56,7 +68,7 @@ const RESOURCES: Array<{ key: string; note?: string; rows: ResourceRow[] }> = [
         action: 'ride-details',
       },
       {
-        ico: '⛽',
+        icon: Fuel,
         title: 'Mileage reimbursement',
         detail:
           'You may qualify for ~$0.655/mile via Louisiana Cancer Fund program · 92 mi round trip',
@@ -64,7 +76,7 @@ const RESOURCES: Array<{ key: string; note?: string; rows: ResourceRow[] }> = [
         action: 'mileage-apply',
       },
       {
-        ico: '🏨',
+        icon: Hotel,
         title: 'Free lodging near Ochsner BR',
         detail: 'Hope Lodge-style partner room available if treatment day runs long',
         label: 'Check',
@@ -77,7 +89,7 @@ const RESOURCES: Array<{ key: string; note?: string; rows: ResourceRow[] }> = [
     note: 'No internet? BayouCare texts you a call-in number — audio-only visits work fine for most follow-ups.',
     rows: [
       {
-        ico: '📹',
+        icon: Video,
         title: 'Thursday 3:00 pm — Dr. Peters video visit',
         detail:
           'Renee is joining · link opens on any device · works on slow internet (low-bandwidth mode)',
@@ -90,14 +102,14 @@ const RESOURCES: Array<{ key: string; note?: string; rows: ResourceRow[] }> = [
     key: 'access.t3',
     rows: [
       {
-        ico: '🧾',
+        icon: Receipt,
         title: 'Copay assistance',
         detail: '2 programs found for your treatment · avg. savings $1,900/yr',
         label: 'View',
         action: 'copay-view',
       },
       {
-        ico: '🩺',
+        icon: Stethoscope,
         title: 'Medicaid navigation',
         detail: 'Step-by-step renewal guide with a caseworker chat line',
         label: 'Start',
@@ -109,14 +121,14 @@ const RESOURCES: Array<{ key: string; note?: string; rows: ResourceRow[] }> = [
     key: 'access.t4',
     rows: [
       {
-        ico: '👭',
+        icon: Users,
         title: 'Support group, Central LA',
         detail: '2nd and 4th Tuesday at 6 pm in Alexandria. Childcare is available.',
         label: 'RSVP',
         action: 'support-rsvp',
       },
       {
-        ico: '🔬',
+        icon: FlaskConical,
         title: 'Clinical trials near you',
         detail: 'See which studies might fit your care. Details are below.',
         label: 'View',
@@ -131,7 +143,6 @@ const CRIT_BADGE: Record<string, 'success' | 'danger' | 'warning'> = {
   no: 'danger',
   warn: 'warning',
 }
-const CRIT_ICON: Record<string, string> = { yes: '✓', no: '✗', warn: '⚠' }
 
 function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -186,9 +197,6 @@ function TrialCard({ trial }: { trial: TrialMatch }) {
               return (
                 <li key={i}>
                   <Badge variant={CRIT_BADGE[kind]} className="w-full justify-start whitespace-normal text-left">
-                    <span className="mr-1.5 font-bold" aria-hidden="true">
-                      {CRIT_ICON[kind]}
-                    </span>
                     {c.txt}
                   </Badge>
                 </li>
@@ -329,33 +337,32 @@ export function AccessScreen() {
             <CardHeader>
               <CardTitle>{t(r.key)}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <ul className="flex flex-col gap-2.5">
-                {r.rows.map((row) => (
-                  <li key={row.title} className="flex items-center gap-3">
-                    <span
-                      className="flex size-10 flex-none items-center justify-center rounded-md bg-accent text-lg"
-                      aria-hidden="true"
-                    >
-                      {row.ico}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <b className="block text-sm font-semibold text-card-foreground">{row.title}</b>
-                      <p className="text-xs text-muted-foreground">{row.detail}</p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="xs"
-                      onClick={() => onResourceAction(row.action)}
-                      className="font-bold text-link hover:text-link"
-                    >
-                      {row.label}
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-              {r.note && <p className="mt-2 text-xs text-muted-foreground">{r.note}</p>}
+            <CardContent className="space-y-3">
+              <BouncyAccordion
+                defaultValue={r.rows[0]?.title ?? null}
+                items={r.rows.map((row) => {
+                  const Icon = row.icon
+                  return {
+                    id: row.title,
+                    title: row.title,
+                    icon: <Icon className="size-4" aria-hidden="true" strokeWidth={1.75} />,
+                    description: (
+                      <div className="flex flex-col gap-3">
+                        <p className="text-sm leading-relaxed text-muted-foreground">{row.detail}</p>
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="w-fit font-semibold"
+                          onClick={() => onResourceAction(row.action)}
+                        >
+                          {row.label}
+                        </Button>
+                      </div>
+                    ),
+                  }
+                })}
+              />
+              {r.note ? <p className="text-xs text-muted-foreground">{r.note}</p> : null}
             </CardContent>
           </Card>
         ))}
@@ -441,7 +448,7 @@ export function AccessScreen() {
             className="mt-4 font-bold"
             onClick={() =>
               toast(
-                `📨 Request sent to Keisha (social worker): "${helpType}" (${helpWhen.toLowerCase()}) — she'll reply within 1 business day.`,
+                `Request sent to Keisha (social worker): "${helpType}" (${helpWhen.toLowerCase()}) — she'll reply within 1 business day.`,
               )
             }
           >

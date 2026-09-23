@@ -15,23 +15,23 @@ export function RemiScreen() {
   const busy = useRemi((s) => s.busy)
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Leaf className="size-[18px] text-brand-600" aria-hidden="true" />
-            {t('remi.head')}
+    <div className="flex min-w-0 flex-col gap-3 sm:gap-4">
+      <Card className="min-w-0 overflow-hidden">
+        <CardHeader className="items-start gap-2">
+          <CardTitle className="flex min-w-0 max-w-full items-start gap-2 text-base leading-snug sm:text-lg">
+            <Leaf className="mt-0.5 size-[18px] flex-none text-brand-600" aria-hidden="true" />
+            <span className="min-w-0 break-words">{t('remi.head')}</span>
           </CardTitle>
-          <Badge variant="success">
-            <i className="block size-1.5 rounded-full bg-current" aria-hidden="true" />
+          <Badge variant="success" className="max-w-full shrink-0 whitespace-normal text-left">
+            <i className="block size-1.5 flex-none rounded-full bg-current" aria-hidden="true" />
             {t('remi.chipLive')}
           </Badge>
         </CardHeader>
 
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{t('remi.sub')}</p>
+        <CardContent className="min-w-0">
+          <p className="text-sm font-medium leading-relaxed text-muted-foreground">{t('remi.sub')}</p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
             {PROMPT_KEYS.map((k) => (
               <Button
                 key={k}
@@ -40,7 +40,7 @@ export function RemiScreen() {
                 size="xs"
                 disabled={busy}
                 onClick={() => void send(t(k))}
-                className="rounded-full font-semibold"
+                className="h-auto max-w-full whitespace-normal rounded-full px-3 py-2 text-left font-semibold leading-snug"
               >
                 {t(k)}
               </Button>
@@ -49,8 +49,8 @@ export function RemiScreen() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent>
+      <Card className="min-w-0 overflow-hidden">
+        <CardContent className="min-w-0">
           <RemiChat />
         </CardContent>
       </Card>

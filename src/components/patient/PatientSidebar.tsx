@@ -1,4 +1,5 @@
 import { useLocation, NavLink } from 'react-router-dom'
+import { LayoutGroup, motion, MotionConfig, useReducedMotion } from 'motion/react'
 import {
   Activity,
   Calendar,
@@ -16,6 +17,7 @@ import {
 import { ScrollRail } from '@/components/shared/ScrollRail'
 import { UnreadCount } from '@/components/shared/UnreadCount'
 import { PATIENTS } from '@/data'
+import { SPRING_THUMB } from '@/lib/ease'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
 import { unreadTotal, useCareChat } from '@/store/careChat'
@@ -43,13 +45,13 @@ export const PATIENT_SCREENS: PatientScreen[] = [
 
 function linkClass(isActive: boolean, rail: boolean) {
   return cn(
-    'flex items-center gap-2 rounded-md text-sm font-semibold transition-[color,background-color,transform] duration-200 ease-out motion-safe:active:scale-[0.99]',
+    'relative isolate flex items-center gap-2 rounded-full text-sm font-semibold transition-colors duration-200 ease-out motion-safe:active:scale-[0.99]',
     rail
       ? 'snap-start flex-none px-3 py-2.5'
       : 'w-full gap-2.5 px-3 py-3 lg:py-2',
     isActive
-      ? 'bg-brand-700 text-on-dark shadow-[var(--shadow-sm)]'
-      : 'text-foreground hover:bg-accent hover:text-accent-foreground',
+      ? 'text-on-dark'
+      : 'text-foreground hover:bg-accent/70 hover:text-accent-foreground',
   )
 }
 
@@ -57,12 +59,15 @@ function ScreenLink({
   screen,
   unread,
   rail,
+  layoutId,
 }: {
   screen: PatientScreen
   unread: number
   rail?: boolean
+  layoutId: string
 }) {
   const t = useT()
+  const reduce = useReducedMotion()
   const Icon = screen.icon
   const showUnread = screen.key === 'messages' && unread > 0
 
@@ -73,10 +78,21 @@ function ScreenLink({
     >
       {({ isActive }) => (
         <>
-          <Icon className="size-4 flex-none" aria-hidden="true" />
-          <span className="min-w-0 whitespace-nowrap">{t(screen.labelKey)}</span>
+          {isActive ? (
+            <motion.span
+              layoutId={layoutId}
+              className="absolute inset-0 z-0 rounded-full bg-brand-700 shadow-[var(--shadow-sm)]"
+              transition={reduce ? { duration: 0 } : SPRING_THUMB}
+            />
+          ) : null}
+          <Icon className="relative z-[1] size-4 flex-none" aria-hidden="true" />
+          <span className="relative z-[1] min-w-0 whitespace-nowrap">{t(screen.labelKey)}</span>
           {showUnread && (
-            <UnreadCount count={unread} tone={isActive ? 'onDark' : 'danger'} />
+            <UnreadCount
+              count={unread}
+              tone={isActive ? 'onDark' : 'danger'}
+              className="relative z-[1]"
+            />
           )}
         </>
       )}
@@ -112,7 +128,7 @@ export function PatientSidebar() {
             <b className="block truncate text-sm font-semibold text-card-foreground">
               {firstName}, {patient.age}
             </b>
-            <span className="block text-xs leading-snug text-muted-foreground">
+            <span className="block line-clamp-2 text-xs leading-snug text-muted-foreground">
               {patient.short}
             </span>
           </div>
@@ -120,21 +136,40 @@ export function PatientSidebar() {
 
         {/* Narrow: scroll rail. Tablet+ : vertical list. */}
         <div className="mt-3 md:hidden">
-          <ScrollRail aria-label="My Care sections" activeKey={location.pathname}>
-            {PATIENT_SCREENS.map((s) => (
-              <ScreenLink key={s.key} screen={s} unread={messagesUnread} rail />
-            ))}
-          </ScrollRail>
+          <MotionConfig transition={SPRING_THUMB}>
+            <LayoutGroup id="patient-rail">
+              <ScrollRail aria-label="My Care sections" activeKey={location.pathname}>
+                {PATIENT_SCREENS.map((s) => (
+                  <ScreenLink
+                    key={s.key}
+                    screen={s}
+                    unread={messagesUnread}
+                    rail
+                    layoutId="patient-care-rail-pill"
+                  />
+                ))}
+              </ScrollRail>
+            </LayoutGroup>
+          </MotionConfig>
         </div>
 
-        <nav
-          aria-label="My Care sections"
-          className="mt-4 hidden max-h-[min(70dvh,calc(100dvh-10rem))] flex-col gap-1 overflow-y-auto overscroll-contain md:flex"
-        >
-          {PATIENT_SCREENS.map((s) => (
-            <ScreenLink key={s.key} screen={s} unread={messagesUnread} />
-          ))}
-        </nav>
+        <MotionConfig transition={SPRING_THUMB}>
+          <LayoutGroup id="patient-nav">
+            <nav
+              aria-label="My Care sections"
+              className="mt-4 hidden max-h-[min(70dvh,calc(100dvh-10rem))] flex-col gap-1 overflow-y-auto overscroll-contain md:flex"
+            >
+              {PATIENT_SCREENS.map((s) => (
+                <ScreenLink
+                  key={s.key}
+                  screen={s}
+                  unread={messagesUnread}
+                  layoutId="patient-care-nav-pill"
+                />
+              ))}
+            </nav>
+          </LayoutGroup>
+        </MotionConfig>
       </div>
     </aside>
   )

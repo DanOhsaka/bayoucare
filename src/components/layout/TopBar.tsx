@@ -1,10 +1,11 @@
-import { LogOut, Moon, Sun } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { toast } from 'sonner'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { NavTabs } from '@/components/layout/NavTabs'
 import { BrandLogo } from '@/components/shared/BrandLogo'
+import { ThemeModeControl } from '@/components/shared/ThemeModeControl'
 import { LANG_TOAST, PATIENTS, type PatientId } from '@/data'
-import { LANGS, LANG_LABELS, type Lang } from '@/lib/i18n'
+import { LANGS, LANG_LABELS, LANG_SHORT, type Lang } from '@/lib/i18n'
 import { useT } from '@/hooks/useT'
 import { usePatient } from '@/store/patient'
 import { useSession } from '@/store/session'
@@ -23,7 +24,7 @@ const PATIENT_IDS = Object.keys(PATIENTS) as PatientId[]
  * `lg` does not move and the sidebar's sticky offset stays correct.
  */
 const CONTROL =
-  'bc-chrome-control flex h-11 flex-none items-center gap-2 rounded-md px-2.5 text-xs font-semibold text-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-0 lg:h-[34px]'
+  'flex h-11 flex-none items-center gap-2 rounded-full border border-border bg-background/70 px-2.5 text-xs font-medium text-foreground backdrop-blur-md transition-colors hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:h-[34px]'
 
 /**
  * The application chrome.
@@ -48,8 +49,6 @@ export function TopBar() {
   const t = useT()
   const mode = useUi((s) => s.mode)
   const setMode = useUi((s) => s.setMode)
-  const theme = useUi((s) => s.theme)
-  const toggleTheme = useUi((s) => s.toggleTheme)
   const lang = useUi((s) => s.lang)
   const setLang = useUi((s) => s.setLang)
 
@@ -69,7 +68,7 @@ export function TopBar() {
       <div
         role="group"
         aria-label="Mode"
-        className="bc-chrome-control flex h-11 flex-none items-center rounded-md p-0.5 lg:h-[34px]"
+        className="flex h-11 flex-none items-center rounded-full border border-border bg-muted/50 p-0.5 lg:h-[34px]"
       >
         {(['patient', 'admin'] as const).map((m) => (
           <button
@@ -78,10 +77,10 @@ export function TopBar() {
             aria-pressed={mode === m}
             onClick={() => setMode(m)}
             className={cn(
-              'h-full rounded-[5px] px-3 text-xs font-bold transition-[color,background-color,transform,box-shadow] duration-200 ease-out motion-safe:active:scale-[0.96]',
+              'h-full rounded-full px-3 text-xs font-semibold transition-[color,background-color,transform,box-shadow] duration-200 ease-out motion-safe:active:scale-[0.96]',
               mode === m
-                ? 'bg-white/95 text-brand-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_3px_rgba(0,0,0,0.2)]'
-                : 'text-on-dark-muted hover:bg-white/10 hover:text-on-dark',
+                ? 'bg-primary text-primary-foreground shadow-[var(--shadow-sm)]'
+                : 'text-muted-foreground hover:bg-background/80 hover:text-foreground',
             )}
           >
             {m === 'patient' ? 'Patient' : 'Admin'}
@@ -128,8 +127,8 @@ export function TopBar() {
   return (
     <header
       className={cn(
-        'bc-chrome-bar sticky top-0 z-40 flex flex-col gap-3 px-4 py-2.5 sm:px-5',
-        mode === 'admin' ? 'bg-brand-800' : 'bg-brand-900',
+        'glass sticky top-0 z-40 flex flex-col gap-2.5 border-b border-border px-3 py-2 sm:gap-3 sm:px-5 sm:py-2.5',
+        'pt-[max(0.5rem,env(safe-area-inset-top))]',
       )}
     >
       {/*
@@ -138,15 +137,14 @@ export function TopBar() {
        * cluster is `flex-none` + `ml-auto` and never includes the patient
        * picker, so language / theme / sign-out stay beside the brand.
        */}
-      <div className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-2 lg:min-h-0">
-        <div className="flex flex-none items-center text-on-dark">
-          {/*
-            Logo lockup includes the wordmark; sit it on a light plate so the
-            cream artboard reads cleanly on the dark brand header.
-          */}
+      <div className="flex min-h-11 min-w-0 flex-wrap items-center gap-x-2 gap-y-2 sm:gap-x-3 lg:min-h-0">
+        <div className="flex min-w-0 flex-none items-center gap-1.5 sm:gap-2">
+          {/* Menu left of logo — drawer opens from the left. */}
+          <MobileNav />
           <BrandLogo
             size="sm"
-            className="rounded-md bg-white/95 px-1.5 py-0.5 shadow-[var(--shadow-sm)] [background-image:linear-gradient(180deg,rgba(255,255,255,1),rgba(255,255,255,0.88))]"
+            className="max-w-[7.25rem] rounded-lg bg-card px-1.5 py-0.5 shadow-[var(--shadow-sm)] sm:max-w-[9.5rem] md:max-w-none"
+            imgClassName="max-h-8 w-auto object-contain object-left sm:max-h-9"
           />
         </div>
 
@@ -159,12 +157,7 @@ export function TopBar() {
 
         <NavTabs />
 
-        <div className="ml-auto flex flex-none items-center gap-2.5">
-          {/* Below `md` this is the whole of the app's navigation; from `md` up it
-              hides itself and `NavTabs` takes over. First in the group so the
-              reading order is navigate → language → theme → sign out. */}
-          <MobileNav />
-
+        <div className="ml-auto flex min-w-0 flex-none items-center gap-1.5 sm:gap-2.5">
           <label className="sr-only" htmlFor="bc-lang">
             Language
           </label>
@@ -176,28 +169,17 @@ export function TopBar() {
               setLang(next)
               toast(LANG_TOAST[next] ?? LANG_TOAST.en)
             }}
-            className={cn(CONTROL, 'px-2.5')}
+            title={LANG_LABELS[lang]}
+            className={cn(CONTROL, 'max-w-[4.75rem] px-1.5 sm:max-w-none sm:px-2.5')}
           >
             {LANGS.map((l) => (
               <option key={l} value={l}>
-                {LANG_LABELS[l]}
+                {LANG_SHORT[l]} · {LANG_LABELS[l]}
               </option>
             ))}
           </select>
 
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className={cn(CONTROL, 'w-11 justify-center px-0 lg:w-[34px]')}
-            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-            title={theme === 'dark' ? 'Light' : 'Dark'}
-          >
-            {theme === 'dark' ? (
-              <Sun className="size-4" aria-hidden="true" />
-            ) : (
-              <Moon className="size-4" aria-hidden="true" />
-            )}
-          </button>
+          <ThemeModeControl />
 
           {/*
               The email pill is ~232px, which does not fit a phone beside anything
@@ -211,14 +193,14 @@ export function TopBar() {
               happening at the widths where hovering is not available. It returns
               to the designed 128px at `lg`, keeping the desktop pill's width.
           */}
-          <div className="bc-chrome-control hidden items-center gap-1.5 rounded-md pl-2.5 pr-1 md:flex">
-            <span className="max-w-[180px] truncate text-xs text-on-dark lg:max-w-[128px]" title={email}>
+          <div className="hidden items-center gap-1.5 rounded-full border border-border bg-background/70 pl-2.5 pr-1 backdrop-blur-md md:flex">
+            <span className="max-w-[180px] truncate text-xs text-muted-foreground lg:max-w-[128px]" title={email}>
               {email}
             </span>
             <button
               type="button"
               onClick={() => void logout()}
-              className="flex min-h-11 items-center gap-1.5 rounded-[5px] px-2 py-1 text-xs font-bold text-on-dark transition-[background-color,transform] duration-200 ease-out hover:bg-white/25 motion-safe:active:scale-[0.96] lg:min-h-0"
+              className="flex min-h-11 items-center gap-1.5 rounded-full px-2 py-1 text-xs font-semibold text-foreground transition-[background-color,transform] duration-200 ease-out hover:bg-muted motion-safe:active:scale-[0.96] lg:min-h-0"
             >
               <LogOut className="size-3.5" aria-hidden="true" />
               {t('login.signOut')}

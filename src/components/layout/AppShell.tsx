@@ -42,7 +42,7 @@ export function AppShell() {
         </PageFade>
       </main>
       <RemiLauncher />
-      <footer className="border-t border-border px-3 py-4 text-center text-xs text-muted-foreground sm:px-6 sm:py-5">
+      <footer className="border-t border-border px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-center text-xs text-muted-foreground sm:px-6 sm:py-5">
         BayouCare · DevDays 2026
       </footer>
     </div>

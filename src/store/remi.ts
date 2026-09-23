@@ -4,9 +4,13 @@ import { remiAnswer } from '@/engine/remi/answer'
 import { buildRemiContext } from '@/engine/remi/context'
 import { remiSafeHtml } from '@/engine/remi/safeHtml'
 import { buildSystemPrompt } from '@/engine/remi/systemPrompt'
-import { REMI_FALLBACK } from '@/engine/remi/triage'
 import { charDelay, countVisibleChars, typeHtmlPrefix } from '@/engine/remi/reveal'
-import { REMI_KEY_SLOT, remiProviderOf, type ProviderId } from '@/engine/remi/providers'
+import {
+  REMI_KEY_SLOT,
+  REMI_PROVIDERS,
+  remiProviderOf,
+  type ProviderId,
+} from '@/engine/remi/providers'
 import { PATIENTS } from '@/data'
 import { interp, translate } from '@/lib/i18n'
 import { usePatient } from '@/store/patient'
@@ -16,6 +20,11 @@ import { useVitals } from '@/store/vitals'
 /** Short beat of dots before letters start. Typing carries the rest. */
 const REMI_THINK_MIN = 420
 const THINK_SPREAD = 380
+
+/** Shown only when DeepSeek and the on-device record both miss. */
+const REMI_CLOUD_DOWN =
+  `Sorry — I couldn't reach my cloud brain just now.<br><br>` +
+  `Try again in a moment, or ask about something in your record: appointments, your plan, how you've been feeling, rides, or your care team.`
 
 export interface RemiChip {
   label: string
@@ -138,9 +147,9 @@ async function streamReveal(
 
 /**
  * Ask DeepSeek through /api/remi (key stays on the server).
- * Returns null on any failure so the caller can fall back to on-device answers.
+ * Returns null on any failure so the caller can try the browser path.
  */
-async function askDeepSeek(
+async function askDeepSeekProxy(
   q: string,
   history: Array<{ role: string; content: string }>,
 ): Promise<string | null> {
@@ -161,6 +170,57 @@ async function askDeepSeek(
   } catch {
     return null
   }
+}
+
+/**
+ * Direct browser call — DeepSeek allows CORS. Used when /api/remi is down
+ * (plain Vite without the plugin, offline proxy) but a pasted key exists.
+ */
+async function askDeepSeekDirect(
+  q: string,
+  history: Array<{ role: string; content: string }>,
+  key: string,
+): Promise<string | null> {
+  if (!key) return null
+  const provider = REMI_PROVIDERS[remiProviderOf(key)]
+  const ctl = new AbortController()
+  const timer = setTimeout(() => ctl.abort(), 20000)
+  try {
+    const r = await fetch(provider.url, {
+      method: 'POST',
+      signal: ctl.signal,
+      headers: provider.headers(key),
+      body: JSON.stringify({
+        model: provider.model,
+        max_tokens: 1024,
+        temperature: 1.3,
+        top_p: 0.95,
+        thinking: { type: 'disabled' },
+        system: buildSystemPrompt(buildRemiContext()),
+        messages: history.concat([{ role: 'user', content: q }]).slice(-8),
+      }),
+    })
+    if (!r.ok) return null
+    const data = (await r.json()) as { content?: Array<{ type?: string; text?: string }> }
+    const text = (data.content || [])
+      .filter((c) => c && c.type === 'text' && typeof c.text === 'string')
+      .map((c) => c.text)
+      .join('')
+      .trim()
+    return text ? remiSafeHtml(text) : null
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+async function askCloud(
+  q: string,
+  history: Array<{ role: string; content: string }>,
+  key: string,
+): Promise<string | null> {
+  return (await askDeepSeekProxy(q, history)) ?? (await askDeepSeekDirect(q, history, key))
 }
 
 export const useRemi = create<RemiState>((set, get) => ({
@@ -211,12 +271,12 @@ export const useRemi = create<RemiState>((set, get) => ({
     }
 
     try {
-      const local =
-        remiAnswer(q) ?? { text: REMI_FALLBACK, tier: 'unknown' as const, engine: 'local' as const }
+      const local = remiAnswer(q)
       const routed =
-        local.tier === 'crisis' || local.tier === 'urgent' || local.tier === 'clinical'
+        local != null &&
+        (local.tier === 'crisis' || local.tier === 'urgent' || local.tier === 'clinical')
 
-      if (routed) {
+      if (routed && local) {
         // Safety answers stay on-device and instant. Crisis language also
         // lands on Care Team → Needs attention — same list as the fever replay.
         if (local.tier === 'crisis') {
@@ -236,12 +296,15 @@ export const useRemi = create<RemiState>((set, get) => ({
         return
       }
 
-      const { history } = get()
-      // DeepSeek phrases from the record; local intent is the fallback.
-      const [cloud] = await Promise.all([askDeepSeek(q, history), delay(thinkMs())])
+      const { history, key } = get()
+      // DeepSeek phrases the reply; local record intents are fallback only.
+      const [cloud] = await Promise.all([askCloud(q, history, key), delay(thinkMs())])
       if (gen !== greetGen) return
 
-      const text = cloud || local.text
+      const text =
+        cloud ||
+        (local?.tier === 'record' ? local.text : null) ||
+        REMI_CLOUD_DOWN
       await streamReveal(set, pendingId, text, [], gen)
 
       if (cloud) {
@@ -255,7 +318,7 @@ export const useRemi = create<RemiState>((set, get) => ({
         }))
       }
     } catch {
-      dropIn(REMI_FALLBACK, [])
+      dropIn(REMI_CLOUD_DOWN, [])
     }
   },
 

@@ -72,7 +72,7 @@ export function CdsSection() {
     setMode('patient')
     navigate('/my-care/prevent')
     toast(
-      '🔍 Same engine, same numbers — switched you into Patient mode; this is the calculator your patient sees.',
+      ' Same engine, same numbers — switched you into Patient mode; this is the calculator your patient sees.',
     )
   }
 
@@ -80,14 +80,14 @@ export function CdsSection() {
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">🩺 PCP clinical decision support feed</CardTitle>
+          <CardTitle className="text-lg">PCP clinical decision support feed</CardTitle>
           <CardAction>
             <Badge variant="warning">Rank 12 · brief areas 4, 5</Badge>
           </CardAction>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Alert cards as they land in a rural PCP's inbox. Each is computed by the{' '}
+           Alert cards as they land in a rural PCP's inbox. Each is computed by the{' '}
             <b className="text-card-foreground">same engine as the patient-facing calculator</b> —
             hit <b className="text-card-foreground">Probe in patient app</b> to see the identical
             numbers on the patient side.
@@ -101,7 +101,7 @@ export function CdsSection() {
                 size="xs"
                 variant={cdsFilter === f.value ? 'default' : 'outline'}
                 aria-pressed={cdsFilter === f.value}
-                onClick={() => setCdsFilter(f.value)}
+                onClick={() =>setCdsFilter(f.value)}
                 className="rounded-full px-2.5 font-bold"
               >
                 {f.label}
@@ -178,7 +178,7 @@ function AlertCard({
         <div className="flex flex-wrap items-center gap-2">
           <b className="text-sm font-semibold text-card-foreground">{a.pt.name}</b>
           <span className="rounded-md border border-border bg-secondary px-1.5 py-px font-mono text-xs text-muted-foreground">
-            Flag/{a.key}
+           Flag/{a.key}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -204,12 +204,12 @@ function AlertCard({
           type="button"
           size="xs"
           className="font-bold"
-          onClick={() => {
+          onClick={() =>{
             onAct('accepted')
-            toast(`✅ Order placed — ${a.action} · logged to the worklist.`)
+            toast(`Order placed — ${a.action} · logged to the worklist.`)
           }}
         >
-          Accept &amp; order
+         Accept &amp; order
         </Button>
         <Button
           type="button"
@@ -218,33 +218,33 @@ function AlertCard({
           className="font-bold"
           onClick={onProbe}
         >
-          🔍 Probe in patient app
+          Probe in patient app
         </Button>
         <Button
           type="button"
           size="xs"
           variant="outline"
           className="font-bold"
-          onClick={() => {
+          onClick={() =>{
             // The legacy accepted the alert as part of sending it, then only
             // toasted — "send" does not follow the patient into their app.
             onAct('accepted')
-            toast(`📲 Sent to ${a.pt.name}’s patient app → Screen & Prevent.`)
+            toast(`Sent to ${a.pt.name}’s patient app → Screen & Prevent.`)
           }}
         >
-          Send to patient
+         Send to patient
         </Button>
         <Button
           type="button"
           size="xs"
           variant="outline"
           className="font-bold"
-          onClick={() => {
+          onClick={() =>{
             onAct('dismissed')
-            toast('🚫 Alert dismissed — reason logged for the quality report.')
+            toast('Alert dismissed — reason logged for the quality report.')
           }}
         >
-          Dismiss
+         Dismiss
         </Button>
       </div>
     </div>

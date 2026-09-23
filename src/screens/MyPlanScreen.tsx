@@ -258,18 +258,18 @@ export function MyPlanScreen() {
 
       {/* Identity */}
       <Card className="min-w-0 gap-4 p-4 sm:p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
           <div className="min-w-0 space-y-1">
-            <p className="text-lg font-semibold text-card-foreground">
+            <p className="text-balance text-lg font-semibold text-card-foreground">
               {s.name}
               <span className="font-normal text-muted-foreground"> · {s.age}</span>
             </p>
             <p className="text-sm font-medium text-card-foreground">{s.dx}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-pretty text-xs text-muted-foreground">
               Diagnosed {s.dxDate} · Completed {s.endDate} · Survivorship since {s.survivorSince}
             </p>
           </div>
-          <Badge variant="success" className="whitespace-normal">
+          <Badge variant="success" className="w-fit whitespace-normal">
             MRN {s.mrn} · {s.parish} Parish
           </Badge>
         </div>

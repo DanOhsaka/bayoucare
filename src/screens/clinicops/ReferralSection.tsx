@@ -69,25 +69,25 @@ export function ReferralSection() {
     if (!r) return
     const next = refNextStep(r, extra)
     if (!next) {
-      toast('✅ This referral is complete end-to-end — records are back with the PCP.')
+      toast('This referral is complete end-to-end — records are back with the PCP.')
       return
     }
     advanceRef(refId)
-    toast(`📨 ${next} — logged to the referral timeline.`)
+    toast(`${next} — logged to the referral timeline.`)
   }
 
   return (
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">🔗 Referral Express</CardTitle>
+          <CardTitle className="text-lg">Referral Express</CardTitle>
           <Badge variant="neutral" className="text-left whitespace-normal">
-            mock SMART-on-FHIR R4 surface · synthetic bundle · no PHI
+           mock SMART-on-FHIR R4 surface · synthetic bundle · no PHI
           </Badge>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            A rural PCP sends one referral; labs, pathology and consent ride along; both ends can see
+           A rural PCP sends one referral; labs, pathology and consent ride along; both ends can see
             the status. Triage urgency is{' '}
             <b className="text-card-foreground">the same logistic risk score</b> the care-team
             dashboard uses — not a separate model.
@@ -101,7 +101,7 @@ export function ReferralSection() {
             <CardTitle>Incoming referrals</CardTitle>
             <CardAction>
               <Button type="button" size="xs" onClick={advance} className="font-bold">
-                Advance one step
+               Advance one step
               </Button>
             </CardAction>
           </CardHeader>
@@ -116,7 +116,7 @@ export function ReferralSection() {
                   type="button"
                   variant="outline"
                   aria-pressed={sel}
-                  onClick={() => setRefId(r.id)}
+                  onClick={() =>setRefId(r.id)}
                   className={cn(
                     'h-auto w-full items-start justify-start gap-3 px-3 py-2 text-left font-normal whitespace-normal',
                     sel ? 'border-ring bg-accent' : 'bg-card',
@@ -126,7 +126,7 @@ export function ReferralSection() {
                     aria-hidden="true"
                     className="flex size-9 flex-none items-center justify-center rounded-md bg-background text-base"
                   >
-                    🔗
+                    
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-3">
@@ -161,7 +161,7 @@ export function ReferralSection() {
                   <b className="text-card-foreground">{selected.to}</b>
                   <Badge variant="neutral">{selected.coverage}</Badge>
                   <Badge variant={TRIAGE_BADGE[triage.level]}>
-                    triage {triage.score}% — Rank 1 model
+                   triage {triage.score}% — Rank 1 model
                   </Badge>
                 </div>
 
@@ -230,7 +230,7 @@ export function ReferralSection() {
               </>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Select a referral to see its timeline.
+               Select a referral to see its timeline.
               </p>
             )}
           </CardContent>
@@ -241,7 +241,7 @@ export function ReferralSection() {
         <CardHeader>
           <CardTitle>FHIR R4 bundle — posted to the receiving org</CardTitle>
           <Badge variant="neutral" className="text-left whitespace-normal">
-            resourceType / entry[] · truncated
+           resourceType / entry[] · truncated
           </Badge>
         </CardHeader>
         <CardContent>
@@ -251,7 +251,7 @@ export function ReferralSection() {
             </pre>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Select a referral to see the bundle that was posted.
+             Select a referral to see the bundle that was posted.
             </p>
           )}
         </CardContent>

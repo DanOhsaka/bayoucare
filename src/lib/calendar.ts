@@ -1,6 +1,28 @@
+import {
+  Droplets,
+  FlaskConical,
+  MessageCircle,
+  ScanLine,
+  Stethoscope,
+  type LucideIcon,
+} from 'lucide-react'
+
 import { CAL_ANCHOR, dayKey } from '@/lib/demoClock'
 import type { CalendarType, Patient, PlannedAppointment } from '@/data'
 import type { Lang } from '@/lib/i18n'
+
+const APPT_ICONS: Record<string, LucideIcon> = {
+  labs: FlaskConical,
+  infusion: Droplets,
+  imaging: ScanLine,
+  followup: Stethoscope,
+  consult: MessageCircle,
+}
+
+/** Lucide icon for a calendar appointment type (replaces emoji `ico` in patient data). */
+export function appointmentIcon(type: string): LucideIcon {
+  return APPT_ICONS[type] ?? Stethoscope
+}
 
 /**
  * The scheduled-appointment model.
@@ -143,7 +165,8 @@ export function monthLabel(d: Date, lang: Lang): string {
 export function describeAppointment(a: PlannedAppointment, types: Record<string, CalendarType>) {
   const t = types[a.type]
   return {
-    icon: t?.ico ?? '•',
+    type: a.type,
+    icon: appointmentIcon(a.type),
     label: t?.label ?? a.type,
     where: t?.where ?? '',
     /** Site name only — the legacy truncates at the separator for the Home chip. */

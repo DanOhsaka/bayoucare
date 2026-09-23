@@ -11,6 +11,7 @@ import { FAM_STATE, PATIENTS } from '@/data'
 import { buildPlan, describeAppointment, fmtDay, nextAppointment } from '@/lib/calendar'
 import { decodeEntities } from '@/lib/html'
 import { RichText } from '@/components/shared/RichText'
+import { Badge } from '@/components/ui/badge'
 import { isDone, useFamily } from '@/store/family'
 import { usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
@@ -58,9 +59,9 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
             <Users className="size-4 text-brand-600" aria-hidden="true" />
             {ti('fam.helping', { name: firstName })}
           </h3>
-          <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-muted-foreground">
+          <Badge variant={openTasks > 0 ? 'warning' : 'success'}>
             {openTasks > 0 ? t('fam.openCount', { n: openTasks }) : t('fam.allCaught')}
-          </span>
+          </Badge>
         </div>
 
         <RichText html={patient.family.sub} className="block text-sm text-muted-foreground" />

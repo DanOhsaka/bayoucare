@@ -342,6 +342,7 @@ export function CalendarScreen() {
             <ul className="flex flex-col gap-2">
               {dayList.map((a) => {
                 const d = describeAppointment(a, types)
+                const Icon = d.icon
                 const cancelled = a.status === 'cancelled'
                 const focused = focusRideId === a.id
                 return (
@@ -354,10 +355,10 @@ export function CalendarScreen() {
                     )}
                   >
                     <span
-                      className="flex size-9 flex-none items-center justify-center rounded-md bg-accent text-base"
+                      className="flex size-9 flex-none items-center justify-center rounded-full bg-primary/10 text-primary"
                       aria-hidden="true"
                     >
-                      {d.icon}
+                      <Icon className="size-4" strokeWidth={1.75} />
                     </span>
                     <div className="min-w-0 flex-1">
                       <b className="block text-sm font-semibold text-card-foreground">{d.label}</b>
@@ -368,9 +369,7 @@ export function CalendarScreen() {
                     <span className="flex-none text-sm font-bold text-card-foreground">{a.time}</span>
                     <Badge variant={STATUS_VARIANT[a.status]}>{t(STATUS_KEY[a.status])}</Badge>
                     {a.ride && (
-                      <Badge variant="success">
-                        <span aria-hidden="true">🚗</span> Ride
-                      </Badge>
+                      <Badge variant="success">Ride</Badge>
                     )}
 
                     <div className="flex flex-none flex-wrap gap-1">

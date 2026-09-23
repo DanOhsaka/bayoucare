@@ -71,7 +71,7 @@ export function StaggerItem({
   return (
     <motion.div
       variants={reduce ? reducedFade : staggerItem}
-      className={className}
+      className={cn('min-w-0', className)}
       {...props}
     >
       {children}

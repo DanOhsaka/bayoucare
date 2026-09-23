@@ -50,7 +50,7 @@
           "st": "open"
         },
         {
-          "t": "🛡️ Renee &amp; Andre — screening reminders set",
+          "t": "Renee &amp; Andre — screening reminders set",
           "s": "Mammograms at 40 · BRCA talk flagged for your visit",
           "st": "auto"
         }
@@ -95,31 +95,31 @@
     ],
     "calTypes": {
       "labs": {
-        "ico": "🔬",
+        "ico": "",
         "label": "Blood draw",
         "dur": 30,
         "where": "Rapides Regional · lab"
       },
       "infusion": {
-        "ico": "💧",
+        "ico": "",
         "label": "Infusion",
         "dur": 120,
         "where": "Rapides Regional · infusion suite"
       },
       "imaging": {
-        "ico": "🩻",
+        "ico": "",
         "label": "CT / imaging",
         "dur": 60,
         "where": "Rapides Regional · imaging"
       },
       "followup": {
-        "ico": "🩺",
+        "ico": "",
         "label": "Oncology follow-up",
         "dur": 30,
         "where": "Dr. Peters · exam room"
       },
       "consult": {
-        "ico": "💬",
+        "ico": "",
         "label": "Care consult",
         "dur": 45,
         "where": "Social work · financial aid"
@@ -257,7 +257,7 @@
           "st": "open"
         },
         {
-          "t": "🛡️ Al — annual wellness reminders set",
+          "t": "Al — annual wellness reminders set",
           "s": "Flu shot and BP check flagged for your visit",
           "st": "auto"
         }
@@ -302,31 +302,31 @@
     ],
     "calTypes": {
       "labs": {
-        "ico": "🔬",
+        "ico": "",
         "label": "Blood draw",
         "dur": 30,
         "where": "St. Martin Regional · lab"
       },
       "infusion": {
-        "ico": "💧",
+        "ico": "",
         "label": "Infusion",
         "dur": 150,
         "where": "St. Martin Regional · infusion suite"
       },
       "imaging": {
-        "ico": "🩻",
+        "ico": "",
         "label": "CT / imaging",
         "dur": 60,
         "where": "St. Martin Regional · imaging"
       },
       "followup": {
-        "ico": "🩺",
+        "ico": "",
         "label": "Oncology follow-up",
         "dur": 30,
         "where": "Dr. Iyer · exam room"
       },
       "consult": {
-        "ico": "💬",
+        "ico": "",
         "label": "Care consult",
         "dur": 45,
         "where": "Social work · financial aid"
@@ -439,7 +439,7 @@
           "st": "open"
         },
         {
-          "t": "🛡️ Diane &amp; Tanya — family history noted",
+          "t": "Diane &amp; Tanya — family history noted",
           "s": "First-degree relatives flagged for earlier screening",
           "st": "auto"
         }
@@ -484,31 +484,31 @@
     ],
     "calTypes": {
       "labs": {
-        "ico": "🔬",
+        "ico": "",
         "label": "Blood draw",
         "dur": 30,
         "where": "Rapides Regional · lab"
       },
       "infusion": {
-        "ico": "💧",
+        "ico": "",
         "label": "Infusion",
         "dur": 120,
         "where": "Rapides Regional · infusion suite"
       },
       "imaging": {
-        "ico": "🩻",
+        "ico": "",
         "label": "Imaging",
         "dur": 60,
         "where": "Rapides Regional · imaging"
       },
       "followup": {
-        "ico": "🩺",
+        "ico": "",
         "label": "Survivorship visit",
         "dur": 40,
         "where": "Dr. Peters · exam room"
       },
       "consult": {
-        "ico": "💬",
+        "ico": "",
         "label": "Care consult",
         "dur": 45,
         "where": "Social work · financial aid"
@@ -604,7 +604,7 @@
           "st": "open"
         },
         {
-          "t": "🛡️ Simone &amp; Dwayne — annual wellness reminders set",
+          "t": "Simone &amp; Dwayne — annual wellness reminders set",
           "s": "Lipids and BP check flagged for your visit",
           "st": "auto"
         }
@@ -649,31 +649,31 @@
     ],
     "calTypes": {
       "labs": {
-        "ico": "🔬",
+        "ico": "",
         "label": "Blood draw",
         "dur": 30,
         "where": "Ouachita Regional · lab"
       },
       "infusion": {
-        "ico": "💧",
+        "ico": "",
         "label": "Infusion",
         "dur": 120,
         "where": "Ouachita Regional · infusion suite"
       },
       "imaging": {
-        "ico": "🩻",
+        "ico": "",
         "label": "Imaging",
         "dur": 60,
         "where": "Ouachita Regional · imaging"
       },
       "followup": {
-        "ico": "🩺",
+        "ico": "",
         "label": "Survivorship visit",
         "dur": 40,
         "where": "Dr. Okonkwo · exam room"
       },
       "consult": {
-        "ico": "💬",
+        "ico": "",
         "label": "Care consult",
         "dur": 45,
         "where": "Social work · financial aid"

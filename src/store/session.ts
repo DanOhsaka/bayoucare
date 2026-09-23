@@ -12,6 +12,8 @@ interface SessionState {
   /** i18n key, not a sentence — the gate renders it in the active language. */
   errorKey: string | null
   busy: boolean
+  /** Session boot failure — API 5xx on /api/session. Not ordinary logged-out. */
+  bootFault: null | 'server'
   check: () => Promise<void>
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -19,8 +21,13 @@ interface SessionState {
 
 const isClinician = (role: unknown): boolean => role === 'clinician'
 
-/** Shared tail of both sign-in paths: bind the role, then the record. */
-async function enter(set: (p: Partial<SessionState>) => void, me: { email: string; role: string }) {
+/**
+ * Bind UI mode + patient record WITHOUT flipping `auth` to `in`.
+ *
+ * Login holds `auth: 'out'` until the signing-in stage has had time to play;
+ * cold session check commits immediately via `enter()`.
+ */
+async function prepareSession(me: { email: string; role: string }) {
   const clinician = isClinician(me.role)
   useUi.getState().setMode(clinician ? 'admin' : 'patient')
 
@@ -31,7 +38,16 @@ async function enter(set: (p: Partial<SessionState>) => void, me: { email: strin
     await usePatient.getState().loadFromServer()
   }
 
-  set({ auth: 'in', role: clinician ? 'clinician' : 'patient', email: me.email, errorKey: null })
+  return {
+    role: (clinician ? 'clinician' : 'patient') as Role,
+    email: me.email,
+  }
+}
+
+/** Shared tail of both sign-in paths: prepare, then commit auth. */
+async function enter(set: (p: Partial<SessionState>) => void, me: { email: string; role: string }) {
+  const prepared = await prepareSession(me)
+  set({ auth: 'in', role: prepared.role, email: prepared.email, errorKey: null })
 }
 
 export const useSession = create<SessionState>((set) => ({
@@ -40,6 +56,7 @@ export const useSession = create<SessionState>((set) => ({
   email: '',
   errorKey: null,
   busy: false,
+  bootFault: null,
 
   /**
    * GET /api/session on load.
@@ -50,23 +67,31 @@ export const useSession = create<SessionState>((set) => ({
    * at whoever is signing in.
    *
    * Fails closed on every path that is not an explicit 200.
+   * 5xx / network → bootFault (fault page). 401/403 → logged out, no fault.
    */
   async check() {
     try {
       const res = await fetch('/api/session', { cache: 'no-store' })
       if (res.ok) {
         await enter(set, (await res.json()) as { email: string; role: string })
+        set({ bootFault: null })
         return
       }
-      set({ auth: 'out' })
+      if (res.status >= 500) {
+        set({ auth: 'out', bootFault: 'server' })
+        return
+      }
+      set({ auth: 'out', bootFault: null })
     } catch {
-      // Unreachable server (including a file:// origin, where fetch throws).
-      set({ auth: 'out' })
+      // Unreachable API (vite without backend, file://, offline) → logged out,
+      // not the fault page. 5xx above is the server-fault path.
+      set({ auth: 'out', bootFault: null })
     }
   },
 
   async login(email, password) {
     set({ busy: true, errorKey: null })
+    const started = Date.now()
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
@@ -76,8 +101,18 @@ export const useSession = create<SessionState>((set) => ({
       })
 
       if (res.ok) {
-        await enter(set, (await res.json()) as { email: string; role: string })
-        set({ busy: false })
+        const me = (await res.json()) as { email: string; role: string }
+        const prepared = await prepareSession(me)
+        // Keep the signing-in stage up long enough to feel intentional on a warm API.
+        const hold = Math.max(0, 1100 - (Date.now() - started))
+        if (hold) await new Promise((r) => setTimeout(r, hold))
+        set({
+          auth: 'in',
+          role: prepared.role,
+          email: prepared.email,
+          errorKey: null,
+          busy: false,
+        })
         return
       }
 
@@ -108,6 +143,6 @@ export const useSession = create<SessionState>((set) => ({
     }
     const { resetStores } = await import('@/store/index')
     resetStores()
-    set({ auth: 'out', role: 'patient', email: '', errorKey: null, busy: false })
+    set({ auth: 'out', role: 'patient', email: '', errorKey: null, busy: false, bootFault: null })
   },
 }))

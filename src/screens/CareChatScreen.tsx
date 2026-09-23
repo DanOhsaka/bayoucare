@@ -1,9 +1,16 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { ChevronLeft, MessageCircle, Send } from 'lucide-react'
+import { ChevronLeft, MessageCircle, Send, Stethoscope, User } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import { MessageIn } from '@/components/shared/Motion'
-import { INPUT_CLASS } from '@/components/shared/Field'
+import {
+  Message,
+  MessageAvatar,
+  MessageBubble,
+  MessageBubbleContent,
+  MessageContent,
+  MessageFooter,
+  MessageHeader,
+} from '@/components/agents/message'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,33 +34,36 @@ function memberSubtitle(m: CareTeamMember): string {
 function Bubble({ msg, staffName }: { msg: CareChatMessage; staffName: string }) {
   const isPatient = msg.role === 'patient'
   return (
-    <MessageIn>
-      <div className={cn('flex items-start gap-2.5', isPatient && 'flex-row-reverse')}>
-        <div
-          className={cn(
-            'max-w-[min(85%,28rem)] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed shadow-[var(--shadow-sm)]',
-            isPatient
-              ? 'bg-brand-700 text-on-dark'
-              : 'border border-border bg-card text-card-foreground',
-          )}
-        >
-          {!isPatient && (
-            <span className="mb-1 block text-xs font-bold uppercase tracking-[0.05em] text-link">
-              {staffName}
-            </span>
-          )}
-          <p>{msg.text}</p>
-          <span
-            className={cn(
-              'mt-1 block text-[10px]',
-              isPatient ? 'text-on-dark/70' : 'text-muted-foreground',
-            )}
-          >
-            {msg.when}
+    <Message from={isPatient ? 'user' : 'assistant'} animateIn>
+      <MessageAvatar
+        className={
+          isPatient
+            ? 'bg-foreground text-background'
+            : 'border border-border bg-card text-muted-foreground'
+        }
+      >
+        {isPatient ? <User /> : <Stethoscope />}
+      </MessageAvatar>
+      <MessageContent>
+        <MessageHeader>
+          <span className="font-medium text-foreground/80">
+            {isPatient ? 'You' : staffName}
           </span>
-        </div>
-      </div>
-    </MessageIn>
+          <span>·</span>
+          <span>{msg.when}</span>
+        </MessageHeader>
+        <MessageBubble variant={isPatient ? 'solid' : 'soft'} animateIn>
+          <MessageBubbleContent>
+            <p>{msg.text}</p>
+          </MessageBubbleContent>
+        </MessageBubble>
+        {isPatient ? (
+          <MessageFooter>
+            <span>Delivered</span>
+          </MessageFooter>
+        ) : null}
+      </MessageContent>
+    </Message>
   )
 }
 
@@ -171,14 +181,14 @@ function ThreadView({
             value={draft}
             disabled={typing}
             onChange={(e) => setDraft(e.target.value)}
-            className={cn(INPUT_CLASS, 'h-11 min-w-0 flex-1')}
+            className="h-11 min-w-0 flex-1 rounded-full border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring disabled:opacity-60"
           />
           <Button
             type="submit"
             size="icon-lg"
             disabled={typing || !draft.trim()}
             aria-label={t('msg.send')}
-            className="size-11"
+            className="size-11 rounded-full"
           >
             <Send className="size-4" aria-hidden="true" strokeWidth={1.75} />
           </Button>

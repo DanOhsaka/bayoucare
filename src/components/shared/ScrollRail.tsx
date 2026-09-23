@@ -70,18 +70,34 @@ export function ScrollRail({
   }
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative isolate', className)}>
+      {/* Edge fades sit under the chevrons so titles dissolve before the arrow. */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-gradient-to-r from-card via-card/95 to-transparent transition-opacity',
+          canLeft ? 'opacity-100' : 'opacity-0',
+        )}
+      />
+      <div
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-l from-card via-card/95 to-transparent transition-opacity',
+          canRight ? 'opacity-100' : 'opacity-0',
+        )}
+      />
+
       <button
         type="button"
         aria-label="Scroll sections left"
         disabled={!canLeft}
         onClick={() => scrollByDir(-1)}
         className={cn(
-          'absolute left-0 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-[var(--shadow-sm)] transition-opacity',
+          'absolute left-0 top-1/2 z-30 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-[var(--shadow)] transition-opacity',
           canLeft ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       >
-        <ChevronLeft className="size-4" aria-hidden="true" />
+        <ChevronLeft className="size-4" aria-hidden="true" strokeWidth={2.25} />
       </button>
 
       <button
@@ -90,35 +106,20 @@ export function ScrollRail({
         disabled={!canRight}
         onClick={() => scrollByDir(1)}
         className={cn(
-          'absolute right-0 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-[var(--shadow-sm)] transition-opacity',
+          'absolute right-0 top-1/2 z-30 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-[var(--shadow)] transition-opacity',
           canRight ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       >
-        <ChevronRight className="size-4" aria-hidden="true" />
+        <ChevronRight className="size-4" aria-hidden="true" strokeWidth={2.25} />
       </button>
-
-      <div
-        aria-hidden="true"
-        className={cn(
-          'pointer-events-none absolute inset-y-0 left-0 z-[1] w-10 bg-gradient-to-r from-card to-transparent transition-opacity',
-          canLeft ? 'opacity-100' : 'opacity-0',
-        )}
-      />
-      <div
-        aria-hidden="true"
-        className={cn(
-          'pointer-events-none absolute inset-y-0 right-0 z-[1] w-10 bg-gradient-to-l from-card to-transparent transition-opacity',
-          canRight ? 'opacity-100' : 'opacity-0',
-        )}
-      />
 
       <div
         ref={scrollerRef}
         role="navigation"
         aria-label={ariaLabel}
         className={cn(
-          'bc-scroll-rail flex gap-1 overflow-x-auto overscroll-x-contain scroll-smooth px-8 py-0.5',
-          'snap-x snap-mandatory',
+          'bc-scroll-rail relative z-0 flex gap-1 overflow-x-auto overscroll-x-contain scroll-smooth px-9 py-0.5',
+          'snap-x snap-mandatory touch-pan-x',
           contentClassName,
         )}
       >

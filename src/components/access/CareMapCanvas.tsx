@@ -130,7 +130,7 @@ export function CareMapCanvas({
   const routePositions = route?.positions ?? null
 
   return (
-    <div className={cn('relative isolate min-h-[280px] overflow-hidden rounded-lg', className)}>
+    <div className={cn('relative isolate min-h-[280px] overflow-hidden rounded-3xl', className)}>
       <MapContainer
         key={`${home.lat},${home.lng},${theme}`}
         center={[home.lat, home.lng]}
@@ -188,9 +188,9 @@ export function CareMapCanvas({
           <Polyline
             positions={routePositions}
             pathOptions={{
-              color: theme === 'dark' ? 'var(--green-500)' : 'var(--green-600)',
+              color: '#0285f7',
               weight: 5,
-              opacity: routePending ? 0.35 : 0.92,
+              opacity: routePending ? 0.4 : 0.95,
               lineCap: 'round',
               lineJoin: 'round',
               dashArray: routePending ? '8 10' : undefined,
@@ -198,6 +198,15 @@ export function CareMapCanvas({
           />
         )}
       </MapContainer>
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-[500] flex justify-between gap-2 p-3">
+        <span className="rounded-full border border-border bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground shadow-[var(--shadow-sm)] backdrop-blur-md">
+          {theme === 'dark' ? 'Dark map' : 'Light map'}
+        </span>
+        <span className="rounded-full border border-border bg-background/80 px-3 py-1 text-[10px] font-medium text-muted-foreground shadow-[var(--shadow-sm)] backdrop-blur-md">
+          CARTO · OSRM
+        </span>
+      </div>
     </div>
   )
 }

@@ -84,7 +84,7 @@ export function PriorAuthSection() {
       if (i >= beats.length) {
         setRun(null)
         toast(
-          `✅ Authorization approved — ${authRail(id).ref}. Median turnaround here is 1–3 days; this took 2h 34m.`,
+          ` Authorization approved — ${authRail(id).ref}. Median turnaround here is 1–3 days; this took 2h 34m.`,
         )
         return
       }
@@ -126,12 +126,12 @@ export function PriorAuthSection() {
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">🧾 Prior-Auth Autopilot</CardTitle>
+          <CardTitle className="text-lg">Prior-Auth Autopilot</CardTitle>
           <Badge variant="warning">Rank 9 · brief area 5</Badge>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Payer packets assembled from the chart in seconds, with the guideline citation and every
+           Payer packets assembled from the chart in seconds, with the guideline citation and every
             medical-necessity criterion checked. Pick a patient:
           </p>
 
@@ -143,7 +143,7 @@ export function PriorAuthSection() {
                 size="xs"
                 variant={authId === id ? 'default' : 'outline'}
                 aria-pressed={authId === id}
-                onClick={() => setAuthId(id)}
+                onClick={() =>setAuthId(id)}
                 className="rounded-full px-2.5 font-bold"
               >
                 {a.name}
@@ -261,7 +261,7 @@ export function PriorAuthSection() {
                 aria-busy={run !== null}
                 className="font-bold"
               >
-                📨 Submit to payer
+                Submit to payer
               </Button>
             </CardAction>
           </CardHeader>
@@ -273,7 +273,7 @@ export function PriorAuthSection() {
               className="block whitespace-pre-line rounded-md border border-border bg-background p-4 text-sm leading-relaxed text-card-foreground"
             />
             <p className="mt-2 text-xs text-muted-foreground">
-              Synthetic chart, synthetic payer — nothing is transmitted anywhere. The transport
+             Synthetic chart, synthetic payer — nothing is transmitted anywhere. The transport
               criterion reads the Counterfactual actions applied on the Care Team tab, so a Rank 1
               action visibly strengthens this packet.
             </p>
