@@ -59,17 +59,22 @@ function Badge({
   className,
   variant = 'default',
   asChild = false,
+  animated = true,
   children,
   title,
   ...props
 }: React.ComponentProps<'span'> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
-  const animated = variant ? ANIMATED_STATUS[variant] : undefined
+  VariantProps<typeof badgeVariants> & {
+    asChild?: boolean
+    /** When false, skip beUI AnimatedBadge (no status icon / roll). */
+    animated?: boolean
+  }) {
+  const animatedStatus = variant ? ANIMATED_STATUS[variant] : undefined
 
-  if (animated && !asChild) {
+  if (animated && animatedStatus && !asChild) {
     return (
       <AnimatedBadge
-        status={animated}
+        status={animatedStatus}
         size="sm"
         title={typeof title === 'string' ? title : undefined}
         className={cn('max-w-full font-bold', className)}

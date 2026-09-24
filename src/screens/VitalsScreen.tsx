@@ -86,14 +86,23 @@ export function VitalsScreen() {
               <Activity className="size-4 text-muted-foreground" aria-hidden="true" />
               {t('vitals.patchHead')}
             </CardTitle>
-            <Badge variant={overThreshold ? 'danger' : 'success'}>
-              <i
+            <Badge
+              variant={overThreshold ? 'danger' : 'success'}
+              animated={false}
+              className="gap-1.5"
+            >
+              <span
                 className={cn(
-                  'block size-1.5 rounded-full',
-                  overThreshold ? 'bg-danger-fg' : 'animate-pulse bg-success-fg',
+                  'relative flex size-1.5 shrink-0',
+                  overThreshold ? 'text-danger-fg' : 'text-success-fg',
                 )}
                 aria-hidden="true"
-              />
+              >
+                {!overThreshold ? (
+                  <span className="absolute inset-0 animate-ping rounded-full bg-current opacity-50" />
+                ) : null}
+                <span className="relative size-1.5 rounded-full bg-current" />
+              </span>
               {overThreshold ? t('vitals.fever') : t('vitals.live')}
             </Badge>
           </CardHeader>
