@@ -25,12 +25,14 @@ export function PageFade({
   className,
   ...props
 }: { children: ReactNode; className?: string } & Omit<DivProps, 'children'>) {
+  const reduce = useReducedMotion()
   const variants = useEntranceVariants(false)
 
   return (
     <motion.div
       initial="hidden"
       animate="show"
+      exit={reduce ? undefined : 'hidden'}
       variants={variants}
       className={className}
       {...props}

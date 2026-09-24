@@ -117,9 +117,9 @@ export function TopBar() {
         <NavTabs />
 
         <div className="ml-auto flex min-w-0 flex-none items-center gap-1.5 sm:gap-2.5">
-          <LanguageSelect compact />
+          <LanguageSelect compact className="w-[11.5rem] shrink-0" />
 
-          <ThemeModeControl />
+          <ThemeModeControl className="shrink-0" />
 
           {/*
               The email pill is ~232px, which does not fit a phone beside anything

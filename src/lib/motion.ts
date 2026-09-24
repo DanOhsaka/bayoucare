@@ -41,11 +41,11 @@ export const fadeUp: Variants = {
 }
 
 export const fadeUpSm: Variants = {
-  hidden: { opacity: 0, y: 6 },
+  hidden: { opacity: 0, y: 10 },
   show: {
     opacity: 1,
     y: 0,
-    transition: transitionFast,
+    transition: transitionNormal,
   },
 }
 

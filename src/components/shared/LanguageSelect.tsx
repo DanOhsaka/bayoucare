@@ -40,7 +40,7 @@ export function LanguageSelect({
         toast(LANG_TOAST[l] ?? LANG_TOAST.en)
       }}
       className={cn(
-        compact ? 'w-[min(100%,11.5rem)] min-w-[6.75rem]' : 'w-full min-w-[10.5rem]',
+        compact ? 'w-[11.5rem] shrink-0' : 'w-full min-w-[10.5rem]',
         className,
       )}
     >

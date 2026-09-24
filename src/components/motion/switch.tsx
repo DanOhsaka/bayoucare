@@ -64,17 +64,20 @@ export function Switch({
           initial={false}
           data-state={checked ? "checked" : "unchecked"}
           className={cn(
-            "group peer inline-flex h-7 w-12 shrink-0 cursor-pointer items-center px-1 rounded-full outline-none transition-colors duration-200",
+            "group peer relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full outline-none transition-colors duration-200",
             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             "disabled:cursor-not-allowed disabled:opacity-60",
-            checked ? "justify-end bg-primary" : "justify-start bg-muted-foreground/60",
+            checked ? "bg-primary" : "bg-muted-foreground/60",
           )}
         >
           <motion.div
             ref={thumbRef}
-            layout
-            animate={{ scale: squish ? 0.9 : 1 }}
-            className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-md"
+            initial={false}
+            animate={{
+              x: checked ? 20 : 0,
+              scale: squish ? 0.9 : 1,
+            }}
+            className="pointer-events-none absolute left-1 top-1 block size-5 rounded-full bg-background shadow-md"
           >
             {/* Stretch toward the destination while active. */}
             <div

@@ -1,4 +1,5 @@
 import { Navigate, useParams } from 'react-router-dom'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 
 import { PatientSidebar } from '@/components/patient/PatientSidebar'
 import { HomeScreen } from '@/screens/HomeScreen'
@@ -13,12 +14,17 @@ import { CheckinsScreen } from '@/screens/CheckinsScreen'
 import { VitalsScreen } from '@/screens/VitalsScreen'
 import { AccessScreen } from '@/screens/AccessScreen'
 import { isScreen } from '@/components/layout/navItems'
+import { EASE_OUT } from '@/lib/ease'
 
 /**
  * The patient app: a sidebar of sections beside the active one.
+ *
+ * Content cross-fades on section change; the sidebar stays mounted so the
+ * header chrome (theme toggle, etc.) is never reflowed by a full-page remount.
  */
 export function MyCare() {
   const { screen } = useParams()
+  const reduce = useReducedMotion()
 
   if (!isScreen(screen)) {
     return <Navigate to="/my-care/home" replace />
@@ -72,7 +78,24 @@ export function MyCare() {
   return (
     <div className="mx-auto w-full min-w-0 max-w-6xl px-3 py-4 sm:px-4 sm:py-6 md:grid md:grid-cols-[minmax(0,200px)_minmax(0,1fr)] md:items-start md:gap-4 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-6">
       <PatientSidebar />
-      <div className="mt-3 min-w-0 md:mt-0">{renderScreen()}</div>
+      <div className="relative mt-3 min-w-0 md:mt-0">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={active}
+            initial={reduce ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduce ? undefined : { opacity: 0, y: -8 }}
+            transition={
+              reduce
+                ? { duration: 0 }
+                : { duration: 0.28, ease: EASE_OUT }
+            }
+            className="min-w-0"
+          >
+            {renderScreen()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   )
 }

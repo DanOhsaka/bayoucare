@@ -6,8 +6,14 @@ import { SPRING_THUMB } from '@/lib/ease'
 import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
 
+/** Thumb travel inside the 3.35rem track (padding 4px + 20px thumb). */
+const THUMB_X = { light: 0, dark: 22 } as const
+
 /**
- * Light ↔ dark theme switch — beUI blue track with sun + moon inside.
+ * Light ↔ dark theme switch.
+ *
+ * Thumb position is transform-only (no `layout`) so route / content reflows
+ * cannot nudge it — that was the header shift when switching My Care sections.
  */
 export function ThemeModeControl({ className }: { className?: string }) {
   const theme = useUi((s) => s.theme)
@@ -33,9 +39,9 @@ export function ThemeModeControl({ className }: { className?: string }) {
         initial={false}
         data-state={dark ? 'checked' : 'unchecked'}
         className={cn(
-          'group relative inline-flex h-7 w-[3.35rem] shrink-0 cursor-pointer items-center rounded-full px-1 outline-none transition-colors duration-200',
+          'group relative inline-flex h-7 w-[3.35rem] shrink-0 cursor-pointer items-center rounded-full outline-none transition-colors duration-200',
           'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-          dark ? 'justify-end bg-primary' : 'justify-start bg-muted-foreground/55',
+          dark ? 'bg-primary' : 'bg-muted-foreground/55',
           className,
         )}
       >
@@ -57,9 +63,12 @@ export function ThemeModeControl({ className }: { className?: string }) {
         />
 
         <motion.div
-          layout
-          animate={{ scale: squish ? 0.9 : 1 }}
-          className="pointer-events-none relative z-10 size-5 rounded-full bg-[#0a0a0a] shadow-md"
+          initial={false}
+          animate={{
+            x: dark ? THUMB_X.dark : THUMB_X.light,
+            scale: squish ? 0.9 : 1,
+          }}
+          className="pointer-events-none absolute left-1 top-1 z-10 size-5 rounded-full bg-[#0a0a0a] shadow-md"
         />
       </motion.button>
     </MotionConfig>
