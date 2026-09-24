@@ -1,4 +1,6 @@
+import { useLayoutEffect, useRef } from 'react'
 import { LogOut } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { NavTabs } from '@/components/layout/NavTabs'
 import { BrandLogo } from '@/components/shared/BrandLogo'
@@ -7,7 +9,7 @@ import { PatientSelect } from '@/components/shared/PatientSelect'
 import { ThemeModeControl } from '@/components/shared/ThemeModeControl'
 import { useT } from '@/hooks/useT'
 import { useSession } from '@/store/session'
-import { useUi } from '@/store/ui'
+import { useUi, type Mode } from '@/store/ui'
 import { cn } from '@/lib/utils'
 
 /*
@@ -29,7 +31,8 @@ const CONTROL =
  *
  *  - The **mode switch** is hidden from patient accounts. Without that, a
  *    patient account could click "Admin" and read the god-view, which would make
- *    signing in decoration rather than a gate.
+ *    signing in decoration rather than a gate. Switching mode also navigates to
+ *    that mode's home (`/overview` for Admin, `/my-care/home` for Patient).
  *  - The **patient picker** is keyed on ROLE, not mode, on purpose: a clinician
  *    who flips to Patient mode should still be able to choose whose patient app
  *    they are looking at. That is the best demo in the feature. A patient never
@@ -43,13 +46,43 @@ const CONTROL =
  */
 export function TopBar() {
   const t = useT()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
   const mode = useUi((s) => s.mode)
   const setMode = useUi((s) => s.setMode)
   const role = useSession((s) => s.role)
   const email = useSession((s) => s.email)
   const logout = useSession((s) => s.logout)
+  /** Mode to apply after the destination route has committed (avoids Home flash). */
+  const pendingModeRef = useRef<Mode | null>(null)
 
   const isClinician = role === 'clinician'
+
+  useLayoutEffect(() => {
+    const pending = pendingModeRef.current
+    if (!pending) return
+    const landed =
+      pending === 'admin' ? pathname === '/overview' : pathname.startsWith('/my-care')
+    if (!landed) return
+    pendingModeRef.current = null
+    if (mode !== pending) setMode(pending)
+  }, [pathname, mode, setMode])
+
+  function switchMode(next: Mode) {
+    if (next === mode && pendingModeRef.current == null) return
+    const to = next === 'admin' ? '/overview' : '/my-care/home'
+    const alreadyThere =
+      next === 'admin' ? pathname === '/overview' : pathname.startsWith('/my-care')
+    // Route first, then flip chrome in useLayoutEffect — never paint patient
+    // nav on /overview (that briefly marks "Home" before My Care).
+    if (alreadyThere) {
+      pendingModeRef.current = null
+      setMode(next)
+      return
+    }
+    pendingModeRef.current = next
+    navigate(to, { replace: true })
+  }
 
   function modeSwitch() {
     return (
@@ -63,7 +96,7 @@ export function TopBar() {
             key={m}
             type="button"
             aria-pressed={mode === m}
-            onClick={() => setMode(m)}
+            onClick={() => switchMode(m)}
             className={cn(
               'h-full rounded-full px-3 text-xs font-semibold transition-[color,background-color,transform,box-shadow] duration-200 ease-out motion-safe:active:scale-[0.96]',
               mode === m
