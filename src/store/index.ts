@@ -40,7 +40,7 @@ export function resetStores() {
   useClinic.getState().reset()
   // Wipe every patient's working copies — a clinician may have touched several.
   useAppointments.setState({ plans: {} })
-  useFamily.setState({ overrides: {} })
+  useFamily.setState({ overrides: {}, invites: [] })
   useCareChat.getState().reset()
 
   // Keep the Remi key; clear the conversation so the next account does not

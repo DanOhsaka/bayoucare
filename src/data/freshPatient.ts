@@ -76,7 +76,7 @@ export function createFreshPatient({
       },
     ],
     family: {
-      sub: `${first}, invite family when you are ready — they can help with rides and reminders.`,
+      sub: `Keep your family in the loop, ${first} — invite someone who can help with rides, appointments, and reminders.`,
       tasks: [],
     },
     surv: null,

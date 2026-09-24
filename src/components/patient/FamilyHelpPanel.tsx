@@ -11,8 +11,9 @@ import { FAM_STATE } from '@/data'
 import { buildPlan, describeAppointment, fmtDay, nextAppointment } from '@/lib/calendar'
 import { decodeEntities } from '@/lib/html'
 import { RichText } from '@/components/shared/RichText'
+import { InviteFamilyButton } from '@/components/patient/FamilyInviteDialog'
 import { Badge } from '@/components/ui/badge'
-import { isDone, useFamily } from '@/store/family'
+import { invitesForPatient, isDone, useFamily } from '@/store/family'
 import { useActivePatient, usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
 import { useVitals } from '@/store/vitals'
@@ -33,6 +34,7 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
   const pid = usePatient((s) => s.pid)
   const patient = useActivePatient()
   const overrides = useFamily((s) => s.overrides[pid])
+  const allInvites = useFamily((s) => s.invites)
   const setDone = useFamily((s) => s.setDone)
   const alerts = useVitals((s) => s.alerts)
 
@@ -41,6 +43,7 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
   const appt = next ? describeAppointment(next, patient.calTypes) : null
   const latestAlert = alerts[alerts.length - 1] ?? null
   const hasTasks = patient.family.tasks.length > 0
+  const invites = invitesForPatient(allInvites, pid)
 
   const openTasks = patient.family.tasks.filter((task, i) => {
     const state = FAM_STATE[task.st] ?? FAM_STATE.open
@@ -60,20 +63,22 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
             <Users className="size-4 text-brand-600" aria-hidden="true" />
             {ti('fam.helping', { name: firstName })}
           </h3>
-          <Badge variant={hasTasks && openTasks > 0 ? 'warning' : 'success'}>
-            {!hasTasks
-              ? 'No tasks yet'
-              : openTasks > 0
-                ? t('fam.openCount', { n: openTasks })
-                : t('fam.allCaught')}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={hasTasks && openTasks > 0 ? 'warning' : 'success'}>
+              {!hasTasks
+                ? 'No tasks yet'
+                : openTasks > 0
+                  ? t('fam.openCount', { n: openTasks })
+                  : t('fam.allCaught')}
+            </Badge>
+            {variant === 'card' ? <InviteFamilyButton size="xs" /> : null}
+          </div>
         </div>
 
         <RichText html={patient.family.sub} className="block text-sm text-muted-foreground" />
         <p className="mt-2 text-xs text-muted-foreground">{t('fam.sameRecord')}</p>
       </div>
 
-      {/* Next visit — the job caregivers most often need */}
       <div
         className={cn(
           'rounded-md border border-border p-3.5',
@@ -112,7 +117,6 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
         </div>
       </div>
 
-      {/* Alert peek — only when the vitals demo (or real alert) has one */}
       {latestAlert && (
         <div
           className={cn(
@@ -139,7 +143,6 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
         </div>
       )}
 
-      {/* Shared task checklist */}
       <div className={cn(variant === 'card' ? 'mt-4' : 'rounded-lg border border-border bg-card p-6 shadow-[var(--shadow)]')}>
         {variant === 'page' && (
           <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-card-foreground">
@@ -150,46 +153,92 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
         {variant === 'card' && (
           <h4 className="mb-2 text-sm font-semibold text-card-foreground">{t('fam.tasksHead')}</h4>
         )}
-        <ul className="flex flex-col gap-2">
-          {patient.family.tasks.map((task, i) => {
-            const state = FAM_STATE[task.st] ?? FAM_STATE.open
-            const done = isDone(overrides, i, Boolean(state.c))
-            return (
-              <li key={i}>
-                <label className="flex cursor-pointer items-start gap-2.5 rounded-md border border-border p-2.5 transition-colors hover:bg-accent">
-                  <input
-                    type="checkbox"
-                    checked={done}
-                    onChange={(e) => setDone(pid, i, e.target.checked)}
-                    className="mt-0.5 size-4 flex-none accent-brand-500"
-                  />
-                  <span className="min-w-0 flex-1 overflow-hidden">
-                    <b
+
+        {!hasTasks ? (
+          <div className="flex flex-col items-start gap-3 rounded-md border border-dashed border-border bg-muted/30 px-3.5 py-4">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-card-foreground">{t('fam.emptyTitle')}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                {t('fam.emptyBody')}
+              </p>
+            </div>
+            <InviteFamilyButton size="sm" />
+          </div>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {patient.family.tasks.map((task, i) => {
+              const state = FAM_STATE[task.st] ?? FAM_STATE.open
+              const done = isDone(overrides, i, Boolean(state.c))
+              return (
+                <li key={i}>
+                  <label className="flex cursor-pointer items-start gap-2.5 rounded-md border border-border p-2.5 transition-colors hover:bg-accent">
+                    <input
+                      type="checkbox"
+                      checked={done}
+                      onChange={(e) => setDone(pid, i, e.target.checked)}
+                      className="mt-0.5 size-4 flex-none accent-brand-500"
+                    />
+                    <span className="min-w-0 flex-1 overflow-hidden">
+                      <b
+                        className={cn(
+                          'block break-words text-sm font-semibold',
+                          done ? 'text-muted-foreground line-through' : 'text-card-foreground',
+                        )}
+                      >
+                        {decodeEntities(task.t)}
+                      </b>
+                      <span className="break-words text-xs text-muted-foreground">
+                        {decodeEntities(task.s)}
+                      </span>
+                    </span>
+                    <span
                       className={cn(
-                        'block break-words text-sm font-semibold',
-                        done ? 'text-muted-foreground line-through' : 'text-card-foreground',
+                        'shrink-0 text-xs font-semibold',
+                        done ? 'text-success-fg' : 'text-muted-foreground',
                       )}
                     >
-                      {decodeEntities(task.t)}
-                    </b>
-                    <span className="break-words text-xs text-muted-foreground">
-                      {decodeEntities(task.s)}
+                      {done ? t('home.done') : t(state.d)}
                     </span>
-                  </span>
-                  <span
-                    className={cn(
-                      'shrink-0 text-xs font-semibold',
-                      done ? 'text-success-fg' : 'text-muted-foreground',
-                    )}
-                  >
-                    {done ? t('home.done') : t(state.d)}
-                  </span>
-                </label>
-              </li>
-            )
-          })}
-        </ul>
+                  </label>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </div>
+
+      {invites.length > 0 ? (
+        <div
+          className={cn(
+            'rounded-md border border-border p-3.5',
+            variant === 'page' && 'bg-card shadow-[var(--shadow-sm)]',
+            variant === 'card' && 'mt-4',
+          )}
+        >
+          <h4 className="mb-2 text-sm font-semibold text-card-foreground">{t('fam.invitesHead')}</h4>
+          <ul className="flex flex-col gap-2">
+            {invites.map((inv) => (
+              <li
+                key={inv.id}
+                className="flex flex-wrap items-baseline justify-between gap-2 text-sm"
+              >
+                <span className="min-w-0 font-medium text-card-foreground">{inv.name}</span>
+                <span className="text-xs text-muted-foreground">
+                  {inv.delivery === 'email'
+                    ? t('fam.inviteViaEmail')
+                    : inv.delivery === 'sms'
+                      ? t('fam.inviteViaSms')
+                      : inv.delivery === 'email+sms'
+                        ? t('fam.inviteViaBoth')
+                        : t('fam.inviteViaShare')}
+                  {inv.email ? ` · ${inv.email}` : ''}
+                  {inv.phone ? ` · ${inv.phone}` : ''}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   )
 }
