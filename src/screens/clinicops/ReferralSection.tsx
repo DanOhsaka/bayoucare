@@ -1,9 +1,20 @@
+import { Check } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { ProgressTrack } from '@/components/shared/ProgressTrack'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Stepper,
+  StepperDescription,
+  StepperIndicator,
+  StepperItem,
+  StepperNav,
+  StepperSeparator,
+  StepperTitle,
+  StepperTrigger,
+} from '@/components/reui/stepper'
 import {
   ALL_REFERRALS,
   refBundle,
@@ -83,6 +94,13 @@ export function ReferralSection() {
     toast(`${next} — logged to the referral timeline.`)
   }
 
+  const timelineActive =
+    steps.length === 0
+      ? 1
+      : steps.every((s) => s.done)
+        ? steps.length + 1
+        : steps.findIndex((s) => !s.done) + 1
+
   return (
     <div className="flex flex-col gap-4">
       <Card>
@@ -119,14 +137,13 @@ export function ReferralSection() {
               const sel = r.id === refId
               const name = refPatient(r)?.name ?? r.pid
               return (
-                <Button
+                <button
                   key={r.id}
                   type="button"
-                  variant="outline"
                   aria-pressed={sel}
                   onClick={() => setRefId(r.id)}
                   className={cn(
-                    'h-auto w-full items-center justify-start gap-3 rounded-xl px-3 py-2.5 text-left font-normal whitespace-normal shadow-none motion-safe:hover:scale-100 motion-safe:active:scale-[0.99]',
+                    'flex w-full items-start gap-3 rounded-xl border px-3 py-3 text-left transition-colors',
                     sel
                       ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/40 hover:border-brand-500 hover:bg-brand-500/15'
                       : 'border-border bg-muted/30 hover:bg-muted/50',
@@ -135,7 +152,7 @@ export function ReferralSection() {
                   <span
                     aria-hidden="true"
                     className={cn(
-                      'flex size-9 flex-none items-center justify-center rounded-full text-xs font-bold tracking-wide',
+                      'mt-0.5 flex size-9 flex-none items-center justify-center rounded-full text-xs font-bold tracking-wide',
                       sel
                         ? 'bg-brand-600 text-on-dark'
                         : 'bg-brand-700/90 text-on-dark dark:bg-brand-800',
@@ -143,11 +160,11 @@ export function ReferralSection() {
                   >
                     {initials(name)}
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <b className="min-w-0 truncate text-sm font-semibold text-card-foreground">
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="min-w-0 truncate text-sm font-semibold leading-5 text-card-foreground">
                         {name}
-                      </b>
+                      </span>
                       <Badge
                         variant={TRIAGE_BADGE[tr.level]}
                         className="max-w-[9.5rem] shrink-0 truncate"
@@ -155,16 +172,16 @@ export function ReferralSection() {
                         {tr.score}% risk
                       </Badge>
                     </div>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    <p className="truncate text-xs leading-4 text-muted-foreground">
                       {r.fromCity} → {refDestCity(r)} · {p.done}/{p.total} steps · {r.coverage}
                     </p>
                     <ProgressTrack
-                      className="mt-2"
+                      className="mt-1.5"
                       pct={p.pct}
                       tone={p.pct === 100 ? 'brand' : 'warning'}
                     />
                   </div>
-                </Button>
+                </button>
               )
             })}
           </CardContent>
@@ -190,30 +207,46 @@ export function ReferralSection() {
                   </Badge>
                 </div>
 
-                <ol className="relative ms-1.5 flex flex-col border-s border-border ps-4">
-                  {steps.map((s) => (
-                    <li key={s.label} className="relative pb-3 last:pb-0">
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          'absolute -start-[1.28rem] top-1.5 size-2.5 rounded-full ring-4 ring-card',
-                          s.done ? 'bg-brand-500' : 'bg-muted-foreground/35',
-                        )}
-                      />
-                      <div
-                        className={cn(
-                          'text-sm leading-snug',
-                          s.done
-                            ? 'font-semibold text-card-foreground'
-                            : 'font-medium text-muted-foreground',
-                        )}
-                      >
-                        {s.label}
-                      </div>
-                      <div className="mt-0.5 text-xs text-muted-foreground">{s.when}</div>
-                    </li>
-                  ))}
-                </ol>
+                <Stepper
+                  key={`${refId}-${extra}`}
+                  value={timelineActive}
+                  orientation="vertical"
+                  className="w-full"
+                  indicators={{
+                    completed: <Check className="size-3.5" aria-hidden="true" strokeWidth={2.5} />,
+                  }}
+                >
+                  <StepperNav className="w-full">
+                    {steps.map((s, index) => {
+                      const n = index + 1
+                      return (
+                        <StepperItem
+                          key={`${s.label}-${n}`}
+                          step={n}
+                          completed={s.done}
+                          className="relative items-start not-last:flex-1"
+                        >
+                          <StepperTrigger className="w-full cursor-default items-start gap-2.5 rounded-md pb-8 last:pb-0">
+                            <StepperIndicator className="data-[state=completed]:bg-success data-[state=completed]:text-white data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                              {n}
+                            </StepperIndicator>
+                            <div className="mt-0.5 min-w-0 flex-1 space-y-1 text-left">
+                              <StepperTitle className="group-data-[state=inactive]/step:text-muted-foreground text-start font-semibold group-data-[state=active]/step:text-primary group-data-[state=completed]/step:text-primary">
+                                {s.label}
+                              </StepperTitle>
+                              <StepperDescription className="text-xs leading-relaxed">
+                                {s.when}
+                              </StepperDescription>
+                            </div>
+                          </StepperTrigger>
+                          {n < steps.length ? (
+                            <StepperSeparator className="group-data-[state=completed]/step:bg-success absolute inset-y-0 top-7 left-3 -order-1 m-0 -translate-x-1/2 group-data-[orientation=vertical]/stepper-nav:h-[calc(100%-2rem)]" />
+                          ) : null}
+                        </StepperItem>
+                      )
+                    })}
+                  </StepperNav>
+                </Stepper>
 
                 <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-muted/25 p-3 text-xs">
                   <div>

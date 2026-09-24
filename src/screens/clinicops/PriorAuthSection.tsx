@@ -1,10 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
+import { Check } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { RichText } from '@/components/shared/RichText'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Stepper,
+  StepperDescription,
+  StepperIndicator,
+  StepperItem,
+  StepperNav,
+  StepperSeparator,
+  StepperTitle,
+  StepperTrigger,
+} from '@/components/reui/stepper'
 import {
   AUTH_IDS,
   authCase,
@@ -161,41 +172,53 @@ export function PriorAuthSection() {
           </CardHeader>
           <CardContent>
             {/* ------------------------------------------------ tracker */}
-            <ol className="flex flex-col">
-              {rail.steps.map((s, i) => (
-                <li key={s.label} className="relative flex items-start gap-2.5 py-1.5">
-                  {i < rail.steps.length - 1 && (
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        'absolute bottom-0 left-[5px] top-[19px] w-px',
-                        s.done ? 'bg-brand-100' : 'bg-border',
-                      )}
-                    />
-                  )}
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      'mt-1 size-[11px] flex-none rounded-full',
-                      s.done ? 'bg-brand-500' : 'bg-border',
-                    )}
-                  />
-                  <div>
-                    <div
-                      className={cn(
-                        'text-sm',
-                        s.done
-                          ? 'font-semibold text-card-foreground'
-                          : 'font-medium text-muted-foreground',
-                      )}
-                    >
-                      {s.label}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{s.when}</div>
-                  </div>
-                </li>
-              ))}
-            </ol>
+            {(() => {
+              const doneCount = rail.steps.filter((s) => s.done).length
+              const activeValue =
+                doneCount >= rail.steps.length ? rail.steps.length + 1 : doneCount + 1
+              return (
+                <Stepper
+                  key={`${authId}-${submitted}-${railStep[authId] ?? 0}`}
+                  value={activeValue}
+                  orientation="vertical"
+                  className="w-full"
+                  indicators={{
+                    completed: <Check className="size-3.5" aria-hidden="true" strokeWidth={2.5} />,
+                  }}
+                >
+                  <StepperNav className="w-full">
+                    {rail.steps.map((s, index) => {
+                      const n = index + 1
+                      return (
+                        <StepperItem
+                          key={s.label}
+                          step={n}
+                          completed={s.done}
+                          className="relative items-start not-last:flex-1"
+                        >
+                          <StepperTrigger className="w-full cursor-default items-start gap-2.5 rounded-md pb-8 last:pb-0">
+                            <StepperIndicator className="data-[state=completed]:bg-success data-[state=completed]:text-white data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                              {n}
+                            </StepperIndicator>
+                            <div className="mt-0.5 min-w-0 flex-1 space-y-1 text-left">
+                              <StepperTitle className="group-data-[state=inactive]/step:text-muted-foreground text-start font-semibold group-data-[state=active]/step:text-primary group-data-[state=completed]/step:text-primary">
+                                {s.label}
+                              </StepperTitle>
+                              <StepperDescription className="text-xs leading-relaxed">
+                                {s.when}
+                              </StepperDescription>
+                            </div>
+                          </StepperTrigger>
+                          {n < rail.steps.length ? (
+                            <StepperSeparator className="group-data-[state=completed]/step:bg-success absolute inset-y-0 top-7 left-3 -order-1 m-0 -translate-x-1/2 group-data-[orientation=vertical]/stepper-nav:h-[calc(100%-2rem)]" />
+                          ) : null}
+                        </StepperItem>
+                      )
+                    })}
+                  </StepperNav>
+                </Stepper>
+              )
+            })()}
 
             {/* --------------------------------------- criteria summary */}
             <div className="mt-3 grid grid-cols-2 gap-x-3.5 gap-y-2 text-xs">
