@@ -474,33 +474,41 @@ export function TeamScreen() {
         </CardHeader>
 
         <CardContent>
-          <div className="flex flex-col">
+          <div className="flex flex-col divide-y divide-border">
             {assessed.map((x) => {
               const top = x.cfs[0]
               return (
-                <Button
+                <button
                   key={x.p.id}
                   type="button"
-                  variant="ghost"
                   onClick={() => select(selectedId === x.p.id ? null : x.p.id)}
                   className={cn(
-                    'grid h-auto grid-cols-2 items-center gap-3 rounded-none px-2 py-3 text-left font-normal whitespace-normal sm:grid-cols-[2fr_1fr_1.5fr_1.4fr_auto]',
-                    selectedId === x.p.id && 'bg-accent',
+                    'grid w-full grid-cols-1 gap-x-3 gap-y-2 px-3 py-3.5 text-left transition-colors hover:bg-muted/50 sm:grid-cols-[minmax(0,2fr)_minmax(0,0.85fr)_minmax(0,1.4fr)_minmax(0,1.35fr)_auto] sm:items-center',
+                    selectedId === x.p.id && 'bg-accent hover:bg-accent',
                   )}
                 >
-                  <div>
-                    <div className="text-sm font-semibold text-card-foreground">{x.p.name}</div>
-                    <div className="text-xs text-muted-foreground">{x.p.meta}</div>
+                  <div className="min-w-0 space-y-0.5">
+                    <div className="truncate text-sm font-semibold leading-5 text-card-foreground">
+                      {x.p.name}
+                    </div>
+                    <div className="truncate text-xs leading-4 text-muted-foreground">
+                      {x.p.meta}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {x.p.checkin}
-                    <br />
-                    <b className="text-card-foreground">{x.p.days}</b>
+                  <div className="min-w-0 space-y-0.5 text-xs leading-4">
+                    <div className="text-muted-foreground">{x.p.checkin}</div>
+                    <div className="font-semibold text-card-foreground">{x.p.days}</div>
                   </div>
-                  <RiskBar value={x.cur} />
-                  <div className="text-xs text-muted-foreground">{top ? top.label : '—'}</div>
-                  <RiskPill level={x.level} />
-                </Button>
+                  <div className="min-w-0">
+                    <RiskBar value={x.cur} />
+                  </div>
+                  <div className="min-w-0 text-xs leading-snug text-muted-foreground">
+                    {top ? top.label : '—'}
+                  </div>
+                  <div className="flex shrink-0 sm:justify-end">
+                    <RiskPill level={x.level} />
+                  </div>
+                </button>
               )
             })}
           </div>
