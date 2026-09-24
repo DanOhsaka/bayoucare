@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   Activity,
@@ -7,12 +8,14 @@ import {
   House,
   Map,
   MessageCircle,
+  Pencil,
   ShieldCheck,
   TrendingUp,
   Users,
   type LucideIcon,
 } from 'lucide-react'
 
+import { ProfileEditDialog } from '@/components/patient/ProfileEditDialog'
 import { UnreadCount } from '@/components/shared/UnreadCount'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
@@ -86,26 +89,24 @@ export function PatientSidebar() {
   const patient = useActivePatient()
   const unreadMap = useCareChat((s) => s.unread)
   const messagesUnread = unreadTotal(unreadMap, pid, patient.careTeam)
+  const [editOpen, setEditOpen] = useState(false)
 
   const firstName = patient.name.split(' ')[0] || patient.name
   const ageLabel = patient.age > 0 ? `, ${patient.age}` : ''
 
-  /*
-   * Profile card always. Section list is tablet+ only — on phones those
-   * links live under Menu → My Care (see MobileNav). Sticky offsets track
-   * the measured header heights.
-   *
-   * Active state is a static fill (no shared-layout pill) so switching
-   * sections never slides the highlight or grows a scrollbar.
-   */
   return (
     <aside className="min-w-0 md:sticky md:top-[112px] md:self-start lg:top-[60px]">
       <div className="overflow-hidden rounded-lg border border-border bg-card p-3 shadow-[var(--shadow)] sm:p-4">
-        <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setEditOpen(true)}
+          aria-label="Edit profile"
+          className="group flex w-full items-center gap-3 rounded-md p-1 text-left transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
           <div className="flex size-10 flex-none items-center justify-center rounded-full bg-brand-700 text-base font-bold text-on-dark">
             {firstName.charAt(0)}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <b className="block truncate text-sm font-semibold text-card-foreground">
               {firstName}
               {ageLabel}
@@ -114,7 +115,11 @@ export function PatientSidebar() {
               {patient.short}
             </span>
           </div>
-        </div>
+          <Pencil
+            className="size-3.5 flex-none text-muted-foreground opacity-70 transition-opacity group-hover:opacity-100"
+            aria-hidden="true"
+          />
+        </button>
 
         <nav
           aria-label="My Care sections"
@@ -125,6 +130,8 @@ export function PatientSidebar() {
           ))}
         </nav>
       </div>
+
+      <ProfileEditDialog open={editOpen} onOpenChange={setEditOpen} />
     </aside>
   )
 }

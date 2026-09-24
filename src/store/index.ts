@@ -29,7 +29,7 @@ export function resetStores() {
   const pid = 'darlene' as const
 
   usePatient.setState(
-    { pid, selfRecord: null, profileComplete: true, selfEmail: null },
+    { pid, selfRecord: null, profileComplete: true, selfEmail: null, chartPatches: {} },
     false,
   )
   useUi.setState({ mode: 'patient' }, false)

@@ -38,6 +38,8 @@ interface PatientState {
   profileComplete: boolean
   /** Email used to persist the self chart across refresh. */
   selfEmail: string | null
+  /** Session overlays for demo charts (and self fallback) — name/age/city/short. */
+  chartPatches: Partial<Record<PatientId, ChartBasicsPatch>>
   setPatient: (id: PatientId) => void
   /** Bind the record the server says this account owns (demo Neon logins). */
   loadFromServer: () => Promise<void>
@@ -48,7 +50,18 @@ interface PatientState {
     username?: string | null
   }) => void
   saveSelfProfile: (draft: SelfProfileDraft) => void
+  /** Edit the sidebar profile fields (name, age, city, status line). */
+  updateSidebarProfile: (patch: ChartBasicsPatch) => void
   clearSelf: () => void
+}
+
+/** Fields shown on the My Care sidebar profile card. */
+export type ChartBasicsPatch = {
+  name: string
+  age: number
+  city: string
+  /** Second line — e.g. "Alexandria, LA · Survivorship, year 6". */
+  short: string
 }
 
 function applyDerived(p: Patient): Patient {
@@ -89,6 +102,7 @@ export const usePatient = create<PatientState>((set, get) => ({
   selfRecord: null,
   profileComplete: true,
   selfEmail: null,
+  chartPatches: {},
 
   setPatient: (pid) => {
     if (pid === 'self') {
@@ -188,25 +202,98 @@ export const usePatient = create<PatientState>((set, get) => ({
     if (selfEmail) writeStored(selfEmail, { record: next, profileComplete: complete })
   },
 
+  updateSidebarProfile(patch) {
+    const { pid, selfRecord, selfEmail, chartPatches } = get()
+    const name = patch.name.trim() || 'Friend'
+    const age = Number.isFinite(patch.age) && patch.age > 0 ? Math.round(patch.age) : 0
+    const city = patch.city.trim()
+    const short = patch.short.trim()
+
+    if (pid === 'self') {
+      const base = selfRecord ?? createFreshPatient({ name })
+      const next: Patient = {
+        ...base,
+        name,
+        age,
+        city,
+        short:
+          short ||
+          deriveShort({
+            ...base,
+            name,
+            age,
+            city,
+          }),
+        profile: deriveProfile({
+          ...base,
+          name,
+          age,
+          city,
+        }),
+      }
+      const complete = isProfileComplete(next)
+      set({ selfRecord: next, profileComplete: complete, pid: 'self' })
+      if (selfEmail) writeStored(selfEmail, { record: next, profileComplete: complete })
+      return
+    }
+
+    set({
+      chartPatches: {
+        ...chartPatches,
+        [pid]: { name, age, city, short: short || getPatientBase(pid).short },
+      },
+    })
+  },
+
   clearSelf() {
-    set({ selfRecord: null, profileComplete: true, selfEmail: null, pid: 'darlene' })
+    set({
+      selfRecord: null,
+      profileComplete: true,
+      selfEmail: null,
+      pid: 'darlene',
+      chartPatches: {},
+    })
   },
 }))
 
-/** Resolve the live chart for any pid (works outside React). */
-export function getPatient(pid: PatientId = usePatient.getState().pid): Patient {
+function getPatientBase(pid: PatientId): Patient {
   if (pid === 'self') {
     return usePatient.getState().selfRecord ?? createFreshPatient({ name: 'Friend' })
   }
   return PATIENTS[pid]
 }
 
+function applyPatch(base: Patient, patch: ChartBasicsPatch | undefined): Patient {
+  if (!patch) return base
+  return {
+    ...base,
+    name: patch.name,
+    age: patch.age,
+    city: patch.city,
+    short: patch.short,
+    profile: deriveProfile({
+      ...base,
+      name: patch.name,
+      age: patch.age,
+      city: patch.city,
+    }),
+  }
+}
+
+/** Resolve the live chart for any pid (works outside React). */
+export function getPatient(pid: PatientId = usePatient.getState().pid): Patient {
+  const { chartPatches } = usePatient.getState()
+  return applyPatch(getPatientBase(pid), chartPatches[pid])
+}
+
 /** Reactive chart for the bound patient. */
 export function useActivePatient(): Patient {
   const pid = usePatient((s) => s.pid)
   const selfRecord = usePatient((s) => s.selfRecord)
-  if (pid === 'self') {
-    return selfRecord ?? createFreshPatient({ name: 'Friend' })
-  }
-  return PATIENTS[pid]
+  const patch = usePatient((s) => s.chartPatches[pid])
+  const base =
+    pid === 'self'
+      ? selfRecord ?? createFreshPatient({ name: 'Friend' })
+      : PATIENTS[pid]
+  return applyPatch(base, patch)
 }

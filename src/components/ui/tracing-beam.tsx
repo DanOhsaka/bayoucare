@@ -10,11 +10,10 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * Aceternity Tracing Beam — decorative scroll accent on md+.
+ * Aceternity Tracing Beam — scroll accent in a fixed left rail on md+.
  *
- * Layout padding is reserved via CSS (`md:pl-9`) from the first paint so the
- * beam appearing after measure never shove content sideways (CLS).
- * Desktop visibility uses CSS, not a JS `isDesktop` flag that starts false.
+ * The rail (`md:pl-10`) is reserved from the first paint so the beam never
+ * overlaps copy and never shoves layout when it becomes visible after measure.
  */
 export const TracingBeam = ({
   children,
@@ -82,12 +81,16 @@ export const TracingBeam = ({
   return (
     <div
       ref={ref}
-      className={cn("relative mx-auto h-full w-full max-w-4xl", className)}
+      className={cn(
+        "relative mx-auto h-full w-full max-w-4xl",
+        // Always reserve the far-left rail on md+ (beam lives here, not on text).
+        "md:pl-10",
+        className,
+      )}
     >
       <div
         className={cn(
-          // Overlay only — never toggles padding (that was a CLS on measure).
-          "pointer-events-none absolute top-3 bottom-0 left-1 z-0 hidden w-6 flex-col items-center md:flex",
+          "pointer-events-none absolute top-3 bottom-0 left-0 z-0 hidden w-10 flex-col items-center md:flex",
           !showBeam && "invisible",
         )}
         aria-hidden="true"
