@@ -20,7 +20,6 @@ import usStates from '@/data/us-states.json'
 import usStateLabels from '@/data/us-state-labels.json'
 import cancerFacilities from '@/data/cancerFacilities.json'
 import {
-  METRICS,
   PARISH_DATA,
   bucketOf,
   type MetricKey,

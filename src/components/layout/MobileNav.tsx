@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ChevronDown, Menu, X } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 
+import { AnimatedMenuIcon } from '@/components/layout/AnimatedMenuIcon'
 import { Drawer } from '@/components/motion/drawer'
 import { NAV_ITEMS, isNavItemActive } from '@/components/layout/navItems'
 import { PATIENT_SCREENS } from '@/components/patient/PatientSidebar'
@@ -58,10 +59,10 @@ export function MobileNav({ className }: { className?: string }) {
         aria-label={label('nav.menu')}
         title={label('nav.menu')}
         aria-expanded={open}
-        onClick={() => setOpen(true)}
-        className={cn(CONTROL, 'w-11 justify-center md:hidden lg:w-[34px]', className)}
+        onClick={() => setOpen((v) => !v)}
+        className={cn(CONTROL, 'h-14 w-14 justify-center md:hidden lg:h-12 lg:w-12', className)}
       >
-        <Menu className="size-4" aria-hidden="true" />
+        <AnimatedMenuIcon open={open} />
       </button>
 
       <Drawer
@@ -85,9 +86,9 @@ export function MobileNav({ className }: { className?: string }) {
             type="button"
             aria-label="Close menu"
             onClick={() => setOpen(false)}
-            className={cn(CONTROL, 'mt-0.5 w-11 shrink-0 justify-center')}
+            className={cn(CONTROL, 'mt-0.5 h-14 w-14 shrink-0 justify-center')}
           >
-            <X className="size-4" aria-hidden="true" />
+            <AnimatedMenuIcon open />
           </button>
         </div>
 

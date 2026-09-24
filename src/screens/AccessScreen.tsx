@@ -1,21 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
+  AlertTriangle,
   Bus,
+  Check,
+  ExternalLink,
   FlaskConical,
   Fuel,
   Hotel,
+  MapPin,
   Receipt,
   Stethoscope,
   Users,
   Video,
+  X,
   type LucideIcon,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { AccessCareMap } from '@/components/access/AccessCareMap'
 import { BouncyAccordion } from '@/components/motion/bouncy-accordion'
-import { Field, SELECT_CLASS } from '@/components/shared/Field'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/motion/select'
+import { Field } from '@/components/shared/Field'
 import { ProgressTrack } from '@/components/shared/ProgressTrack'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -25,6 +37,7 @@ import { PATIENTS, PHASE_FMT } from '@/data'
 import { usePatient } from '@/store/patient'
 import { useInterp } from '@/hooks/useInterp'
 import { useT } from '@/hooks/useT'
+import { cn } from '@/lib/utils'
 
 const HELP_TYPES = [
   'Transportation to a future appointment',
@@ -138,10 +151,22 @@ const RESOURCES: Array<{ key: string; note?: string; rows: ResourceRow[] }> = [
   },
 ]
 
-const CRIT_BADGE: Record<string, 'success' | 'danger' | 'warning'> = {
-  yes: 'success',
-  no: 'danger',
-  warn: 'warning',
+const CRIT_TONE: Record<
+  'yes' | 'no' | 'warn',
+  { box: string; Icon: LucideIcon }
+> = {
+  yes: {
+    box: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
+    Icon: Check,
+  },
+  no: {
+    box: 'border-destructive/30 bg-destructive/10 text-destructive',
+    Icon: X,
+  },
+  warn: {
+    box: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400',
+    Icon: AlertTriangle,
+  },
 }
 
 function scrollToId(id: string) {
@@ -156,6 +181,77 @@ function statusLabel(
   if (status === 'COMPLETED') return { label: t('trial.statusClosed'), variant: 'warning' }
   if (status === 'ACTIVE_NOT_RECRUITING') return { label: t('trial.statusOngoing'), variant: 'warning' }
   return { label: status.replace(/_/g, ' ').toLowerCase(), variant: 'neutral' }
+}
+
+function cityOf(site: string): string {
+  const parts = site.split(',').map((p) => p.trim()).filter(Boolean)
+  return parts.length > 1 ? parts[parts.length - 1]! : site
+}
+
+/** Compact Louisiana sites: a few names + Maps link, not a wall of · separators. */
+function TrialSites({
+  sites,
+  nct,
+  whereLabel,
+}: {
+  sites: string[]
+  nct: string
+  whereLabel: string
+}) {
+  const preview = sites.slice(0, 3)
+  const more = Math.max(0, sites.length - preview.length)
+  const cities = [...new Set(sites.map(cityOf))]
+  const mapsQuery =
+    sites.length === 1
+      ? sites[0]!
+      : `${preview.join(' · ')}${more ? ` +${more} more` : ''} · Louisiana clinical trial ${nct}`
+  const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`
+
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {whereLabel}
+      </p>
+      <p className="mt-1 text-sm font-semibold text-card-foreground">
+        {sites.length === 1
+          ? '1 clinic'
+          : `${sites.length} clinics`}
+        {cities.length > 0 ? (
+          <span className="font-normal text-muted-foreground">
+            {' '}
+            · {cities.slice(0, 4).join(', ')}
+            {cities.length > 4 ? ` +${cities.length - 4}` : ''}
+          </span>
+        ) : null}
+      </p>
+      <ul className="mt-2 space-y-1">
+        {preview.map((site) => (
+          <li key={site} className="flex gap-2 text-sm text-card-foreground">
+            <MapPin
+              className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
+              aria-hidden="true"
+              strokeWidth={1.75}
+            />
+            <span className="min-w-0 leading-snug">{site}</span>
+          </li>
+        ))}
+      </ul>
+      {more > 0 ? (
+        <p className="mt-1.5 pl-[1.375rem] text-xs text-muted-foreground">
+          +{more} more {more === 1 ? 'site' : 'sites'}
+        </p>
+      ) : null}
+      <a
+        href={mapsHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-link hover:underline"
+      >
+        View on Google Maps
+        <ExternalLink className="size-3.5 shrink-0" aria-hidden="true" strokeWidth={2} />
+      </a>
+    </div>
+  )
 }
 
 function TrialCard({ trial }: { trial: TrialMatch }) {
@@ -180,12 +276,7 @@ function TrialCard({ trial }: { trial: TrialMatch }) {
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t('trial.where')}
-          </p>
-          <p className="mt-1 text-sm text-card-foreground">{trial.sites.join(' · ')}</p>
-        </div>
+        <TrialSites sites={trial.sites} nct={trial.nct} whereLabel={t('trial.where')} />
 
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -194,11 +285,22 @@ function TrialCard({ trial }: { trial: TrialMatch }) {
           <ul className="flex flex-col gap-2">
             {trial.crits.map((c, i) => {
               const kind = c.ok === true ? 'yes' : c.ok === false ? 'no' : 'warn'
+              const { box, Icon } = CRIT_TONE[kind]
               return (
                 <li key={i}>
-                  <Badge variant={CRIT_BADGE[kind]} className="w-full justify-start whitespace-normal text-left">
-                    {c.txt}
-                  </Badge>
+                  <div
+                    className={cn(
+                      'flex w-full items-start gap-2.5 rounded-xl border px-3 py-2.5 text-sm leading-relaxed',
+                      box,
+                    )}
+                  >
+                    <Icon
+                      className="mt-0.5 size-3.5 shrink-0"
+                      aria-hidden="true"
+                      strokeWidth={2.25}
+                    />
+                    <span className="min-w-0 flex-1 font-medium">{c.txt}</span>
+                  </div>
                 </li>
               )
             })}
@@ -248,6 +350,8 @@ export function AccessScreen() {
 
   const [helpType, setHelpType] = useState<string>(HELP_TYPES[0])
   const [helpWhen, setHelpWhen] = useState<string>(HELP_WHEN[0])
+  /** Only one help select open at a time — panels stack in the same card. */
+  const [helpOpen, setHelpOpen] = useState<'type' | 'when' | null>(null)
   const helpRef = useRef<HTMLDivElement>(null)
 
   const [trials, setTrials] = useState<TrialMatch[]>([])
@@ -417,28 +521,44 @@ export function AccessScreen() {
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="What do you need help with?" id="help-type">
-              <select
+              <Select
                 id="help-type"
-                className={SELECT_CLASS}
                 value={helpType}
-                onChange={(e) => setHelpType(e.target.value)}
+                onValueChange={setHelpType}
+                open={helpOpen === 'type'}
+                onOpenChange={(open) => setHelpOpen(open ? 'type' : null)}
               >
-                {HELP_TYPES.map((h) => (
-                  <option key={h}>{h}</option>
-                ))}
-              </select>
+                <SelectTrigger className="h-11 text-sm font-medium lg:h-10">
+                  <SelectValue className="min-w-0 truncate" />
+                </SelectTrigger>
+                <SelectContent>
+                  {HELP_TYPES.map((h) => (
+                    <SelectItem key={h} value={h}>
+                      {h}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
             <Field label="When do you need it by?" id="help-when">
-              <select
+              <Select
                 id="help-when"
-                className={SELECT_CLASS}
                 value={helpWhen}
-                onChange={(e) => setHelpWhen(e.target.value)}
+                onValueChange={setHelpWhen}
+                open={helpOpen === 'when'}
+                onOpenChange={(open) => setHelpOpen(open ? 'when' : null)}
               >
-                {HELP_WHEN.map((h) => (
-                  <option key={h}>{h}</option>
-                ))}
-              </select>
+                <SelectTrigger className="h-11 text-sm font-medium lg:h-10">
+                  <SelectValue className="min-w-0 truncate" />
+                </SelectTrigger>
+                <SelectContent>
+                  {HELP_WHEN.map((h) => (
+                    <SelectItem key={h} value={h}>
+                      {h}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
           </div>
 

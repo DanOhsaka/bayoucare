@@ -1,24 +1,36 @@
+import { Check, LoaderCircle } from 'lucide-react'
+
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Stepper,
+  StepperDescription,
+  StepperIndicator,
+  StepperItem,
+  StepperNav,
+  StepperSeparator,
+  StepperTitle,
+  StepperTrigger,
+} from '@/components/reui/stepper'
 import { useT } from '@/hooks/useT'
-import { cn } from '@/lib/utils'
 
 /**
- * The timeline steps. `state` is the legacy `done` / `now` / (neither) class.
+ * Care-journey timeline. Step copy still comes from l10n; the rail/markers
+ * are ReUI's vertical stepper (title + description) so the demo matches the
+ * rest of the design system.
  *
- * The step labels come from the dictionary, but the dates inside `td` are part
- * of the same translated string — the legacy kept whole sentences per key
- * rather than baking dates into shared fragments, which is why these read a
- * little oddly as keys.
+ * `ACTIVE_STEP` is 1-based — Darlene's demo is in chemo (step 4 of 6).
  */
 const STEPS = [
-  { state: 'done', tw: 'journey.j1tw', td: 'journey.j1td' },
-  { state: 'done', tw: 'journey.j2tw', td: 'journey.j2td' },
-  { state: 'done', tw: 'journey.j3tw', td: 'journey.j3td' },
-  { state: 'now', tw: 'journey.j4tw', td: 'journey.j4td' },
-  { state: 'todo', tw: 'journey.j5tw', td: 'journey.j5td' },
-  { state: 'todo', tw: 'journey.j6tw', td: 'journey.j6td' },
-]
+  { tw: 'journey.j1tw', td: 'journey.j1td' },
+  { tw: 'journey.j2tw', td: 'journey.j2td' },
+  { tw: 'journey.j3tw', td: 'journey.j3td' },
+  { tw: 'journey.j4tw', td: 'journey.j4td' },
+  { tw: 'journey.j5tw', td: 'journey.j5td' },
+  { tw: 'journey.j6tw', td: 'journey.j6td' },
+] as const
+
+const ACTIVE_STEP = 4
 
 export function JourneyScreen() {
   const t = useT()
@@ -37,50 +49,45 @@ export function JourneyScreen() {
 
       <Card>
         <CardContent>
-          <ol className="flex flex-col">
-            {STEPS.map((s, i) => {
-              const done = s.state === 'done'
-              const now = s.state === 'now'
-              return (
-                <li key={s.tw} className="flex gap-3.5">
-                  {/* The rail: a mark, then a connector down to the next step. */}
-                  <div className="flex flex-none flex-col items-center">
-                    <span
-                      className={cn(
-                        'flex size-6 items-center justify-center rounded-full text-xs font-bold',
-                        done
-                          ? 'bg-brand-500 text-on-dark'
-                          : now
-                            ? 'border-2 border-brand-600 bg-accent text-link'
-                            : 'border border-border bg-background text-muted-foreground',
-                      )}
-                      aria-hidden="true"
-                    >
-                      {done ? '✓' : now ? '●' : i + 1}
-                    </span>
-                    {i < STEPS.length - 1 && (
-                      <span
-                        className={cn('w-px flex-1', done ? 'bg-brand-500/40' : 'bg-border')}
-                        aria-hidden="true"
-                      />
-                    )}
-                  </div>
-
-                  <div className={cn('pb-6', i === STEPS.length - 1 && 'pb-0')}>
-                    <div
-                      className={cn(
-                        'text-sm font-semibold',
-                        now ? 'text-link' : 'text-card-foreground',
-                      )}
-                    >
-                      {t(s.tw)}
-                    </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">{t(s.td)}</div>
-                  </div>
-                </li>
-              )
-            })}
-          </ol>
+          <Stepper
+            defaultValue={ACTIVE_STEP}
+            orientation="vertical"
+            className="w-full"
+            indicators={{
+              completed: <Check className="size-3.5" aria-hidden="true" strokeWidth={2.5} />,
+              loading: <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" />,
+            }}
+          >
+            <StepperNav className="w-full">
+              {STEPS.map((step, index) => {
+                const n = index + 1
+                return (
+                  <StepperItem
+                    key={step.tw}
+                    step={n}
+                    className="relative items-start not-last:flex-1"
+                  >
+                    <StepperTrigger className="w-full items-start gap-2.5 rounded-md pb-10 last:pb-0">
+                      <StepperIndicator className="data-[state=completed]:bg-success data-[state=completed]:text-white data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                        {n}
+                      </StepperIndicator>
+                      <div className="mt-0.5 min-w-0 flex-1 space-y-1 text-left">
+                        <StepperTitle className="group-data-[state=inactive]/step:text-muted-foreground text-start font-semibold group-data-[state=active]/step:text-primary group-data-[state=completed]/step:text-primary">
+                          {t(step.tw)}
+                        </StepperTitle>
+                        <StepperDescription className="text-xs leading-relaxed">
+                          {t(step.td)}
+                        </StepperDescription>
+                      </div>
+                    </StepperTrigger>
+                    {n < STEPS.length ? (
+                      <StepperSeparator className="group-data-[state=completed]/step:bg-success absolute inset-y-0 top-7 left-3 -order-1 m-0 -translate-x-1/2 group-data-[orientation=vertical]/stepper-nav:h-[calc(100%-2.5rem)]" />
+                    ) : null}
+                  </StepperItem>
+                )
+              })}
+            </StepperNav>
+          </Stepper>
         </CardContent>
       </Card>
     </div>

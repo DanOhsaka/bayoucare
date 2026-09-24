@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   CalendarDays,
-  ChevronDown,
+  Check,
   ClipboardList,
   HeartPulse,
   MessageCircle,
@@ -12,7 +12,18 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { BouncyAccordion } from '@/components/motion/bouncy-accordion'
 import { PageHeader } from '@/components/shared/PageHeader'
+import {
+  Stepper,
+  StepperDescription,
+  StepperIndicator,
+  StepperItem,
+  StepperNav,
+  StepperSeparator,
+  StepperTitle,
+  StepperTrigger,
+} from '@/components/reui/stepper'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -30,100 +41,6 @@ const STATUS_ORDER: Record<PlanRow['status'], number> = {
 
 function sortRows(rows: PlanRow[]) {
   return [...rows].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status])
-}
-
-function WatchCard({
-  row,
-  note,
-  open,
-  onToggle,
-  onSchedule,
-}: {
-  row: PlanRow
-  note?: string
-  open: boolean
-  onToggle: () => void
-  onSchedule: () => void
-}) {
-  const chip = statusChip(row)
-  const urgent = row.status === 'over' || row.status === 'soon'
-
-  return (
-    <div
-      className={cn(
-        'rounded-lg border bg-card transition-colors',
-        urgent ? 'border-warning/50' : 'border-border',
-        row.status === 'over' && 'border-danger/50 bg-danger-bg/30',
-      )}
-    >
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="flex w-full items-start gap-3 px-3.5 py-3.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <div
-          className={cn(
-            'mt-0.5 flex size-9 flex-none items-center justify-center rounded-md',
-            row.status === 'over'
-              ? 'bg-danger-bg text-danger-fg'
-              : row.status === 'soon'
-                ? 'bg-warning-bg text-warning-fg'
-                : 'bg-accent text-accent-foreground',
-          )}
-        >
-          <Stethoscope className="size-4" aria-hidden="true" />
-        </div>
-
-        <div className="min-w-0 flex-1 space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold text-card-foreground">{row.test}</p>
-            <Badge variant={chip.kind} className="whitespace-normal">
-              {chip.label}
-            </Badge>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {row.freq}
-            {row.due && row.due !== 'ongoing' ? ` · Next: ${row.due}` : null}
-          </p>
-        </div>
-
-        <ChevronDown
-          className={cn(
-            'mt-1 size-4 shrink-0 text-muted-foreground transition-transform',
-            open && 'rotate-180',
-          )}
-          aria-hidden="true"
-        />
-      </button>
-
-      {open ? (
-        <div className="space-y-3 border-t border-border px-3.5 py-3">
-          {note ? (
-            <p className="text-sm leading-relaxed text-muted-foreground">{note}</p>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Part of your regular follow-up with oncology and primary care.
-            </p>
-          )}
-          <div className="flex flex-wrap gap-2">
-            {urgent ? (
-              <Button type="button" size="sm" className="font-semibold" onClick={onSchedule}>
-                <CalendarDays className="size-3.5" aria-hidden="true" />
-                Schedule visit
-              </Button>
-            ) : null}
-            <Button asChild type="button" size="sm" variant="outline" className="font-semibold">
-              <Link to="/my-care/messages">
-                <MessageCircle className="size-3.5" aria-hidden="true" />
-                Ask care team
-              </Link>
-            </Button>
-          </div>
-        </div>
-      ) : null}
-    </div>
-  )
 }
 
 function PlanActions({
@@ -299,18 +216,46 @@ export function MyPlanScreen() {
             <Badge variant="neutral">{s.treatments.length} steps</Badge>
           </CardHeader>
           <CardContent className="px-0 pb-0">
-            <ol className="relative space-y-0 border-l border-border ml-3">
-              {s.treatments.map(([txt, dates], i) => (
-                <li key={i} className="relative pb-4 pl-5 last:pb-0">
-                  <span
-                    className="absolute -left-[5px] top-1.5 size-2.5 rounded-full bg-brand-600 ring-4 ring-card"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm font-medium leading-snug text-card-foreground">{txt}</p>
-                  <p className="mt-1 text-xs font-semibold text-muted-foreground">{dates}</p>
-                </li>
-              ))}
-            </ol>
+            <Stepper
+              // Past treatments — every step completed (value past the last index).
+              defaultValue={s.treatments.length + 1}
+              orientation="vertical"
+              className="w-full"
+              indicators={{
+                completed: <Check className="size-3.5" aria-hidden="true" strokeWidth={2.5} />,
+              }}
+            >
+              <StepperNav className="w-full">
+                {s.treatments.map(([txt, dates], index) => {
+                  const n = index + 1
+                  return (
+                    <StepperItem
+                      key={`${txt}-${dates}`}
+                      step={n}
+                      completed
+                      className="relative items-start not-last:flex-1"
+                    >
+                      <StepperTrigger className="w-full cursor-default items-start gap-2.5 rounded-md pb-8 last:pb-0">
+                        <StepperIndicator className="data-[state=completed]:bg-success data-[state=completed]:text-white">
+                          {n}
+                        </StepperIndicator>
+                        <div className="mt-0.5 min-w-0 flex-1 space-y-1 text-left">
+                          <StepperTitle className="text-start font-semibold group-data-[state=completed]/step:text-primary">
+                            {txt}
+                          </StepperTitle>
+                          <StepperDescription className="text-xs font-semibold leading-relaxed">
+                            {dates}
+                          </StepperDescription>
+                        </div>
+                      </StepperTrigger>
+                      {n < s.treatments.length ? (
+                        <StepperSeparator className="group-data-[state=completed]/step:bg-success absolute inset-y-0 top-7 left-3 -order-1 m-0 -translate-x-1/2 group-data-[orientation=vertical]/stepper-nav:h-[calc(100%-2rem)]" />
+                      ) : null}
+                    </StepperItem>
+                  )
+                })}
+              </StepperNav>
+            </Stepper>
           </CardContent>
         </Card>
 
@@ -320,20 +265,94 @@ export function MyPlanScreen() {
             <CardTitle className="text-base">What to watch</CardTitle>
             <Badge variant="warning">{sorted.length} follow-ups</Badge>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2.5 px-0 pb-0">
-            {sorted.map((row, i) => {
-              const key = `${row.test}-${i}`
-              return (
-                <WatchCard
-                  key={key}
-                  row={row}
-                  note={notesByTest.get(row.test) ?? row.note}
-                  open={openKey === key}
-                  onToggle={() => setOpenKey(openKey === key ? null : key)}
-                  onSchedule={schedule}
-                />
-              )
-            })}
+          <CardContent className="px-0 pb-0">
+            <BouncyAccordion
+              value={openKey}
+              onValueChange={setOpenKey}
+              classNames={{
+                title: 'min-w-0 flex-1',
+                icon: '!mt-0 !size-9 shrink-0 rounded-md p-0',
+                content: 'border-t border-border',
+                description: 'space-y-3 pt-1 text-sm leading-relaxed',
+                trigger: 'items-start',
+              }}
+              items={sorted.map((row, i) => {
+                const key = `${row.test}-${i}`
+                const chip = statusChip(row)
+                const urgent = row.status === 'over' || row.status === 'soon'
+                const note = notesByTest.get(row.test) ?? row.note
+                return {
+                  id: key,
+                  className: cn(
+                    urgent && 'border-warning/50',
+                    row.status === 'over' && 'border-danger/50 bg-danger-bg/30',
+                  ),
+                  icon: (
+                    <span
+                      className={cn(
+                        'flex size-9 items-center justify-center rounded-md',
+                        row.status === 'over'
+                          ? 'bg-danger-bg text-danger-fg'
+                          : row.status === 'soon'
+                            ? 'bg-warning-bg text-warning-fg'
+                            : 'bg-accent text-accent-foreground',
+                      )}
+                    >
+                      <Stethoscope className="size-4" aria-hidden="true" />
+                    </span>
+                  ),
+                  title: (
+                    <span className="flex min-w-0 flex-col gap-1.5">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-card-foreground">
+                          {row.test}
+                        </span>
+                        <Badge variant={chip.kind} className="whitespace-normal">
+                          {chip.label}
+                        </Badge>
+                      </span>
+                      <span className="text-xs font-normal text-muted-foreground">
+                        {row.freq}
+                        {row.due && row.due !== 'ongoing' ? ` · Next: ${row.due}` : null}
+                      </span>
+                    </span>
+                  ),
+                  description: (
+                    <>
+                      <p>
+                        {note ??
+                          'Part of your regular follow-up with oncology and primary care.'}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {urgent ? (
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="font-semibold"
+                            onClick={schedule}
+                          >
+                            <CalendarDays className="size-3.5" aria-hidden="true" />
+                            Schedule visit
+                          </Button>
+                        ) : null}
+                        <Button
+                          asChild
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="font-semibold"
+                        >
+                          <Link to="/my-care/messages">
+                            <MessageCircle className="size-3.5" aria-hidden="true" />
+                            Ask care team
+                          </Link>
+                        </Button>
+                      </div>
+                    </>
+                  ),
+                }
+              })}
+            />
           </CardContent>
         </Card>
       </div>

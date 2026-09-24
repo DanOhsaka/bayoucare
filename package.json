@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@base-ui/react": "^1.8.0",
     "@fontsource-variable/fraunces": "^5.3.0",
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "@fontsource/jetbrains-mono": "^5.3.0",

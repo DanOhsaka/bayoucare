@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type ComponentType } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
@@ -72,7 +72,12 @@ export function DemoAccountsPage() {
             onIndexChange={setIndex}
             className="mx-auto"
           >
-            {DEMO_ACCOUNTS.map((account) => (
+            {DEMO_ACCOUNTS.map((account, i) => {
+              const activeOrb = i === index
+              const Shader = ShaderBackground as ComponentType<
+                { variant: string; className?: string } & Record<string, unknown>
+              >
+              return (
               <button
                 key={account.id}
                 type="button"
@@ -85,13 +90,8 @@ export function DemoAccountsPage() {
                   'motion-safe:hover:scale-[1.04] motion-safe:hover:brightness-110',
                 )}
                 style={{
-                  background: account.face,
                   color: account.ink,
-                  boxShadow: [
-                    `0 18px 36px -10px ${account.glow}`,
-                    'inset 0 -14px 28px rgba(0,0,0,0.35)',
-                    'inset 0 2px 4px rgba(255,255,255,0.35)',
-                  ].join(', '),
+                  boxShadow: `0 18px 36px -10px ${account.glow}`,
                 }}
                 onPointerDown={(e) => {
                   press.current = { x: e.clientX, y: e.clientY, id: account.id }
@@ -108,26 +108,26 @@ export function DemoAccountsPage() {
                   press.current = null
                 }}
               >
-                {/* Primary specular — bright glass catchlight */}
+                {/* beUI Paper shader face — same family as the textured orb gallery */}
+                <Shader
+                  variant={account.shader.variant}
+                  className="absolute inset-0 size-full"
+                  {...account.shader.props}
+                  // Freeze off-center orbs so five WebGL canvases stay cheap.
+                  {...('speed' in account.shader.props
+                    ? { speed: activeOrb ? account.shader.props.speed : 0 }
+                    : {})}
+                />
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute -left-[8%] -top-[18%] h-[58%] w-[72%] rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.85)_0%,rgba(255,255,255,0.25)_38%,transparent_68%)] blur-[0.5px]"
+                  className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/15"
                 />
-                {/* Secondary rim light */}
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_70%_78%,rgba(255,255,255,0.2)_0%,transparent_42%)]"
-                />
-                {/* Soft equator sheen */}
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-[6%] rounded-full border border-white/20"
-                />
-                <span className="relative z-10 flex size-full items-center justify-center text-5xl font-semibold tracking-[-0.04em] drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)] sm:text-6xl md:text-7xl">
+                <span className="relative z-10 flex size-full items-center justify-center text-5xl font-semibold tracking-[-0.04em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] sm:text-6xl md:text-7xl">
                   {account.short.slice(0, 1)}
                 </span>
               </button>
-            ))}
+              )
+            })}
           </CylinderCarousel>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">

@@ -19,6 +19,8 @@ export type BouncyAccordionItem = {
   description?: ReactNode
   icon?: ReactNode
   disabled?: boolean
+  /** Extra classes on this row's card shell (e.g. warning border). */
+  className?: string
 }
 
 export type BouncyAccordionClassNames = {
@@ -151,9 +153,10 @@ function BouncyAccordionRow({
         }}
         transition={reduce ? { duration: 0 } : ROW_TRANSITION}
         className={cn(
-          'overflow-hidden border border-border bg-card text-card-foreground',
+          'overflow-hidden border border-border bg-card text-card-foreground isolate',
           item.disabled && 'opacity-50',
           classNames?.item,
+          item.className,
         )}
       >
         <button
@@ -164,7 +167,7 @@ function BouncyAccordionRow({
           aria-controls={contentId}
           onClick={onToggle}
           className={cn(
-            'flex min-h-[54px] w-full items-center gap-4 px-5 text-left outline-none transition-colors',
+            'flex min-h-[54px] w-full items-start gap-3 px-3.5 py-3.5 text-left outline-none transition-colors sm:items-center sm:gap-4 sm:px-5',
             'focus-visible:bg-muted/25',
             'disabled:pointer-events-none',
             classNames?.trigger,
@@ -173,7 +176,7 @@ function BouncyAccordionRow({
           {item.icon ? (
             <span
               className={cn(
-                'grid h-7 w-7 shrink-0 place-items-center text-muted-foreground',
+                'mt-0.5 grid h-9 w-9 shrink-0 place-items-center text-muted-foreground sm:mt-0 sm:h-7 sm:w-7',
                 classNames?.icon,
               )}
             >
@@ -182,7 +185,7 @@ function BouncyAccordionRow({
           ) : null}
           <span
             className={cn(
-              'min-w-0 flex-1 truncate text-[15px] font-medium text-foreground',
+              'min-w-0 flex-1 text-[15px] font-medium text-foreground',
               classNames?.title,
             )}
           >
@@ -223,7 +226,7 @@ function BouncyAccordionRow({
             ref={contentRef}
             animate={{ opacity: open ? 1 : 0 }}
             transition={reduce ? { duration: 0 } : DESCRIPTION_TRANSITION}
-            className="px-5 pb-5"
+            className="px-5 pb-5 pt-3"
           >
             <div
               className={cn(
