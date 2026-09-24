@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { create } from 'zustand'
 
-import { PATIENTS, type PatientId } from '@/data'
+import type { PatientId } from '@/data'
 import {
   canBook,
   newApptId,
@@ -11,6 +11,7 @@ import {
 } from '@/lib/appointments'
 import { buildPlan, dateAtOffset } from '@/lib/calendar'
 import { dayKey } from '@/lib/demoClock'
+import { getPatient, usePatient } from '@/store/patient'
 
 /** What the booking dialog collects. The date is derived from `off`. */
 export interface BookingDraft {
@@ -41,7 +42,7 @@ interface AppointmentsState {
 
 /** The working copy for a patient, cloned from the record on first use. */
 function copyFor(state: AppointmentsState, pid: PatientId): Appointment[] {
-  return state.plans[pid] ?? withStatus(buildPlan(PATIENTS[pid]))
+  return state.plans[pid] ?? withStatus(buildPlan(getPatient(pid)))
 }
 
 /** Appointments already sitting on the day a draft targets, excluding `except`. */
@@ -142,5 +143,9 @@ export const useAppointments = create<AppointmentsState>((set, get) => ({
  */
 export function usePlan(pid: PatientId): Appointment[] {
   const override = useAppointments((s) => s.plans[pid])
-  return useMemo(() => override ?? withStatus(buildPlan(PATIENTS[pid])), [override, pid])
+  const selfRecord = usePatient((s) => s.selfRecord)
+  return useMemo(
+    () => override ?? withStatus(buildPlan(getPatient(pid))),
+    [override, pid, selfRecord],
+  )
 }

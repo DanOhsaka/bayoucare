@@ -5,11 +5,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/motion/select'
-import { PATIENTS, type PatientId } from '@/data'
+import { PATIENTS, PATIENT_IDS, type DemoPatientId } from '@/data'
 import { usePatient } from '@/store/patient'
 import { cn } from '@/lib/utils'
-
-const PATIENT_IDS = Object.keys(PATIENTS) as PatientId[]
 
 /**
  * Clinician “viewing as” patient picker — beUI Select instead of a native
@@ -26,11 +24,12 @@ export function PatientSelect({
 }) {
   const pid = usePatient((s) => s.pid)
   const setPatient = usePatient((s) => s.setPatient)
+  const value = pid === 'self' ? PATIENT_IDS[0] : pid
 
   return (
     <Select
-      value={pid}
-      onValueChange={(next) => setPatient(next as PatientId)}
+      value={value}
+      onValueChange={(next) => setPatient(next as DemoPatientId)}
       className={cn('min-w-0 w-full', className)}
     >
       <SelectTrigger

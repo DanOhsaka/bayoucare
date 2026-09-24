@@ -14,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { PATIENTS, type CareTeamMember } from '@/data'
+import { type CareTeamMember } from '@/data'
 import {
   careMemberSlug,
   threadKey,
@@ -22,7 +22,7 @@ import {
   type CareChatMessage,
 } from '@/store/careChat'
 import { UnreadCount } from '@/components/shared/UnreadCount'
-import { usePatient } from '@/store/patient'
+import { useActivePatient, usePatient } from '@/store/patient'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
 
@@ -202,7 +202,7 @@ function ThreadView({
 export function CareChatScreen() {
   const t = useT()
   const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
+  const patient = useActivePatient()
   const [params, setParams] = useSearchParams()
   const withSlug = params.get('with')
 

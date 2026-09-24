@@ -13,13 +13,15 @@ import {
   StepperTrigger,
 } from '@/components/reui/stepper'
 import { useT } from '@/hooks/useT'
+import { useActivePatient, usePatient } from '@/store/patient'
 
 /**
  * Care-journey timeline. Step copy still comes from l10n; the rail/markers
  * are ReUI's vertical stepper (title + description) so the demo matches the
  * rest of the design system.
  *
- * `ACTIVE_STEP` is 1-based — Darlene's demo is in chemo (step 4 of 6).
+ * Demo charts default to chemo (step 4 of 6). Fresh self accounts start at
+ * step 1 until the health profile sets an active cycle day.
  */
 const STEPS = [
   { tw: 'journey.j1tw', td: 'journey.j1td' },
@@ -30,27 +32,41 @@ const STEPS = [
   { tw: 'journey.j6tw', td: 'journey.j6td' },
 ] as const
 
-const ACTIVE_STEP = 4
-
 export function JourneyScreen() {
   const t = useT()
+  const pid = usePatient((s) => s.pid)
+  const patient = useActivePatient()
+  const profileComplete = usePatient((s) => s.profileComplete)
+
+  const activeStep =
+    pid === 'self'
+      ? profileComplete && patient.cycleDay > 0
+        ? Math.min(6, Math.max(1, Math.ceil((patient.cycleDay / Math.max(patient.cycleTotal, 1)) * 6)))
+        : 1
+      : 4
 
   return (
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">{t('journey.head')}</CardTitle>
-          <Badge variant="success">{t('journey.chip')}</Badge>
+          <Badge variant="success">
+            {pid === 'self' && !profileComplete ? 'Getting started' : t('journey.chip')}
+          </Badge>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">{t('journey.sub')}</p>
+          <p className="text-sm text-muted-foreground">
+            {pid === 'self' && !profileComplete
+              ? 'Set up your health profile in My Plan to personalize this journey.'
+              : t('journey.sub')}
+          </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardContent>
           <Stepper
-            defaultValue={ACTIVE_STEP}
+            defaultValue={activeStep}
             orientation="vertical"
             className="w-full"
             indicators={{

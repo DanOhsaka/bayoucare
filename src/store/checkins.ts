@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 
-import { PATIENTS, type PatientId } from '@/data'
+import { type PatientId } from '@/data'
 import { remiLive } from '@/engine/remi/live'
 import { translate } from '@/lib/i18n'
-import { usePatient } from '@/store/patient'
+import { getPatient, usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
 import { useVitals } from '@/store/vitals'
 
@@ -45,7 +45,7 @@ interface CheckinsState {
   resetForPatient: (pid: PatientId) => void
 }
 
-const freshTrend = (pid: PatientId) => PATIENTS[pid].trend.map((d) => ({ ...d }))
+const freshTrend = (pid: PatientId) => getPatient(pid).trend.map((d) => ({ ...d }))
 
 function raiseCheckinAlert(args: {
   kind: string
@@ -56,7 +56,7 @@ function raiseCheckinAlert(args: {
 }) {
   const pid = usePatient.getState().pid
   useVitals.getState().raiseAlert({
-    name: PATIENTS[pid].name,
+    name: getPatient(pid).name,
     when: 'Just now',
     reading: args.reading,
     msg: args.msg,

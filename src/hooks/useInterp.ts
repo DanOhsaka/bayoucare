@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { useUi } from '@/store/ui'
-import { usePatient } from '@/store/patient'
-import { PATIENTS } from '@/data'
+import { useActivePatient, usePatient } from '@/store/patient'
 import { interp, translate } from '@/lib/i18n'
 
 type Vars = Record<string, string | number>
@@ -22,21 +21,22 @@ type Vars = Record<string, string | number>
 export function useInterp() {
   const lang = useUi((s) => s.lang)
   const pid = usePatient((s) => s.pid)
+  const patient = useActivePatient()
 
   return useCallback(
     (key: string, extra?: Vars) => {
-      const p = PATIENTS[pid]
+      const p = patient
       if (!p) return translate(lang, key)
       return interp(translate(lang, key), {
-        name: p.name.split(' ')[0],
+        name: p.name.split(' ')[0] || p.name,
         full: p.name,
-        age: p.age,
+        age: p.age || '—',
         chip: p.chip,
         short: p.short,
         profile: p.profile,
         ...extra,
       })
     },
-    [lang, pid],
+    [lang, pid, patient],
   )
 }

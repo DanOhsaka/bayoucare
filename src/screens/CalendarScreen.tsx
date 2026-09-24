@@ -23,9 +23,8 @@ import {
   type Appointment,
   type ApptStatus,
 } from '@/lib/appointments'
-import { PATIENTS } from '@/data'
 import { useAppointments, usePlan } from '@/store/appointments'
-import { usePatient } from '@/store/patient'
+import { useActivePatient, usePatient } from '@/store/patient'
 import { useT } from '@/hooks/useT'
 import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
@@ -110,7 +109,7 @@ export function CalendarScreen() {
   const t = useT()
   const lang = useUi((s) => s.lang)
   const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
+  const patient = useActivePatient()
   const plan = usePlan(pid)
   const cancel = useAppointments((s) => s.cancel)
   const restore = useAppointments((s) => s.restore)

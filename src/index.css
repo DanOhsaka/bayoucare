@@ -942,6 +942,11 @@
     border: 1px solid var(--glass-border);
   }
 
+  /* Clerk CAPTCHA fallback — never leave a visible empty white widget on page. */
+  #clerk-captcha:empty {
+    display: none !important;
+  }
+
   /*
    * Animated menu icon — Aaron Iker / Mikael Ainalem circular morph
    * (dribbble.com/shots/10060846-menu-icon-micro-interaction).

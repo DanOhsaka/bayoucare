@@ -21,7 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { PATIENTS } from '@/data'
 import { useT } from '@/hooks/useT'
 import {
   dayState,
@@ -37,7 +36,7 @@ import {
 } from '@/lib/calendar'
 import { dayKey } from '@/lib/demoClock'
 import { useAppointments, usePlan } from '@/store/appointments'
-import { usePatient } from '@/store/patient'
+import { useActivePatient, usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
 
 interface Props {
@@ -79,7 +78,7 @@ export function BookingDialog({ open, onOpenChange, editing, initialOff, initial
   const t = useT()
   const lang = useUi((s) => s.lang)
   const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
+  const patient = useActivePatient()
   const plan = usePlan(pid)
   const book = useAppointments((s) => s.book)
   const reschedule = useAppointments((s) => s.reschedule)

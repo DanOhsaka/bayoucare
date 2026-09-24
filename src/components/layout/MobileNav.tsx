@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ChevronDown } from 'lucide-react'
 
 import { AnimatedMenuIcon } from '@/components/layout/AnimatedMenuIcon'
 import { Drawer } from '@/components/motion/drawer'
+import { BouncyAccordion } from '@/components/motion/bouncy-accordion'
 import { NAV_ITEMS, isNavItemActive } from '@/components/layout/navItems'
 import { PATIENT_SCREENS } from '@/components/patient/PatientSidebar'
 import { UnreadCount } from '@/components/shared/UnreadCount'
-import { PATIENTS } from '@/data'
 import { useT } from '@/hooks/useT'
 import { unreadTotal, useCareChat } from '@/store/careChat'
-import { usePatient } from '@/store/patient'
+import { useActivePatient, usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
 import { cn } from '@/lib/utils'
 
@@ -25,15 +24,14 @@ const NEW_KEYS: Record<string, string> = {
 
 /**
  * App menu — trigger sits left of the logo; full-height drawer opens from the left.
- * Patient "My Care" expands to the section list that used to live in the
- * horizontal ScrollRail on the profile card.
+ * Patient "My Care" uses beUI BouncyAccordion for the section list.
  */
 export function MobileNav({ className }: { className?: string }) {
   const t = useT()
   const mode = useUi((s) => s.mode)
   const pathname = useLocation().pathname
   const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
+  const patient = useActivePatient()
   const unreadMap = useCareChat((s) => s.unread)
   const messagesUnread = unreadTotal(unreadMap, pid, patient.careTeam)
 
@@ -51,6 +49,43 @@ export function MobileNav({ className }: { className?: string }) {
   }
 
   const visible = NAV_ITEMS.filter((i) => i.mode === mode)
+
+  const careSections = useMemo(
+    () => (
+      <div className="-mx-4 -mb-3 -mt-1 flex flex-col gap-0.5">
+        {PATIENT_SCREENS.map((screen) => {
+          const to = `/my-care/${screen.key}`
+          const sectionActive = pathname === to || pathname.startsWith(`${to}/`)
+          const Icon = screen.icon
+          const showUnread = screen.key === 'messages' && messagesUnread > 0
+          return (
+            <Link
+              key={screen.key}
+              to={to}
+              aria-current={sectionActive ? 'page' : undefined}
+              onClick={() => setOpen(false)}
+              className={cn(
+                'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors',
+                sectionActive
+                  ? 'bg-brand-700 text-on-dark'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+              )}
+            >
+              <Icon className="size-4 flex-none" aria-hidden="true" />
+              <span className="min-w-0 flex-1 truncate">{t(screen.labelKey)}</span>
+              {showUnread ? (
+                <UnreadCount
+                  count={messagesUnread}
+                  tone={sectionActive ? 'onDark' : 'danger'}
+                />
+              ) : null}
+            </Link>
+          )
+        })}
+      </div>
+    ),
+    [pathname, messagesUnread, t],
+  )
 
   return (
     <>
@@ -94,76 +129,48 @@ export function MobileNav({ className }: { className?: string }) {
 
         <nav
           aria-label="Main"
-          className="flex flex-1 flex-col gap-1.5 overflow-y-auto px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          className="flex flex-1 flex-col gap-2 overflow-y-auto px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
         >
           {visible.map((item) => {
             const active = isNavItemActive(item, pathname)
 
             if (item.view === 'app') {
+              const highlight = active || careOpen
               return (
-                <div key={item.view} className="flex flex-col gap-1">
-                  <button
-                    type="button"
-                    aria-expanded={careOpen}
-                    aria-controls="menu-my-care-sections"
-                    onClick={() => setCareOpen((v) => !v)}
-                    className={cn(
-                      'flex w-full items-center justify-between gap-2 rounded-2xl px-4 py-3.5 text-left text-base font-semibold transition-colors',
-                      active || careOpen
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-foreground hover:bg-accent hover:text-accent-foreground',
-                    )}
-                  >
-                    <span>{t(item.key)}</span>
-                    <ChevronDown
-                      className={cn(
-                        'size-4 shrink-0 transition-transform duration-200',
-                        careOpen && 'rotate-180',
-                      )}
-                      aria-hidden="true"
-                    />
-                  </button>
-
-                  {careOpen ? (
-                    <div
-                      id="menu-my-care-sections"
-                      role="group"
-                      aria-label={t(item.key)}
-                      className="ml-2 flex flex-col gap-0.5 border-l border-border py-1 pl-2"
-                    >
-                      {PATIENT_SCREENS.map((screen) => {
-                        const to = `/my-care/${screen.key}`
-                        const sectionActive =
-                          pathname === to || pathname.startsWith(`${to}/`)
-                        const Icon = screen.icon
-                        const showUnread = screen.key === 'messages' && messagesUnread > 0
-                        return (
-                          <Link
-                            key={screen.key}
-                            to={to}
-                            aria-current={sectionActive ? 'page' : undefined}
-                            onClick={() => setOpen(false)}
-                            className={cn(
-                              'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors',
-                              sectionActive
-                                ? 'bg-brand-700 text-on-dark'
-                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-                            )}
-                          >
-                            <Icon className="size-4 flex-none" aria-hidden="true" />
-                            <span className="min-w-0 flex-1 truncate">{t(screen.labelKey)}</span>
-                            {showUnread ? (
-                              <UnreadCount
-                                count={messagesUnread}
-                                tone={sectionActive ? 'onDark' : 'danger'}
-                              />
-                            ) : null}
-                          </Link>
-                        )
-                      })}
-                    </div>
-                  ) : null}
-                </div>
+                <BouncyAccordion
+                  key={item.view}
+                  collapsible
+                  value={careOpen ? 'my-care' : null}
+                  onValueChange={(next) => setCareOpen(next === 'my-care')}
+                  items={[
+                    {
+                      id: 'my-care',
+                      title: t(item.key),
+                      description: careSections,
+                    },
+                  ]}
+                  classNames={{
+                    root: 'w-full',
+                    // Transparent shell so only the trigger reads as the mint pill;
+                    // content springs open underneath on the drawer surface.
+                    item: 'border-transparent bg-transparent shadow-none',
+                    trigger: cn(
+                      'min-h-0 rounded-2xl px-4 py-3.5 sm:px-4',
+                      highlight
+                        ? 'bg-primary text-primary-foreground focus-visible:bg-primary/90'
+                        : 'text-foreground hover:bg-accent focus-visible:bg-accent',
+                    ),
+                    title: cn(
+                      'text-base font-semibold',
+                      highlight ? 'text-primary-foreground' : 'text-foreground',
+                    ),
+                    chevron: highlight
+                      ? 'text-primary-foreground'
+                      : 'text-muted-foreground',
+                    content: 'bg-transparent',
+                    description: 'px-0 pb-0 pt-0 text-foreground',
+                  }}
+                />
               )
             }
 

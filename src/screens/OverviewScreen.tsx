@@ -15,13 +15,12 @@ import {
 import { Stagger, StaggerItem } from '@/components/shared/Motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { PATIENTS } from '@/data'
 import { buildPlan, describeAppointment, fmtDay, nextAppointment } from '@/lib/calendar'
 import { factorsFor, stateOf } from '@/engine/team/risk'
 import { useInterp } from '@/hooks/useInterp'
 import { useT } from '@/hooks/useT'
 import { useCheckins } from '@/store/checkins'
-import { usePatient } from '@/store/patient'
+import { useActivePatient, usePatient } from '@/store/patient'
 import { useSession } from '@/store/session'
 import { TEAM_PATIENTS, useTeam } from '@/store/team'
 import { useUi } from '@/store/ui'
@@ -42,8 +41,8 @@ function PatientHome() {
   const ti = useInterp()
   const navigate = useNavigate()
   const lang = useUi((s) => s.lang)
-  const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
+  const patient = useActivePatient()
+  const profileComplete = usePatient((s) => s.profileComplete)
   const checkinCount = useCheckins((s) => s.checkinCount)
   const summary = useCheckins((s) => s.summary)
 
@@ -158,11 +157,13 @@ function PatientHome() {
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-card-foreground">{t('overview.journeyHead')}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {patient.dx} · {patient.stage}
+              {profileComplete && patient.dx
+                ? `${patient.dx} · ${patient.stage}`
+                : 'Set up your health profile in My Plan to personalize your care path.'}
             </p>
           </div>
           <Button asChild variant="outline" size="sm">
-            <Link to="/my-plan">{t('overview.viewPlan')}</Link>
+            <Link to="/my-plan">{profileComplete ? t('overview.viewPlan') : 'Set up My Plan'}</Link>
           </Button>
         </CardContent>
       </Card>

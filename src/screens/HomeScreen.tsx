@@ -3,12 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { CalendarDays, Car, ClipboardList, MessageCircle, Pill, Receipt, Stethoscope } from 'lucide-react'
 
 import { FamilyHelpPanel } from '@/components/patient/FamilyHelpPanel'
-import { PATIENTS, type CareTeamMember } from '@/data'
+import { type CareTeamMember } from '@/data'
 import { buildPlan, describeAppointment, fmtDay, nextAppointment } from '@/lib/calendar'
 import { careMemberSlug, threadKey, useCareChat } from '@/store/careChat'
 import { UnreadCount } from '@/components/shared/UnreadCount'
 import { useInterp } from '@/hooks/useInterp'
-import { usePatient } from '@/store/patient'
+import { useActivePatient, usePatient } from '@/store/patient'
 import { useT } from '@/hooks/useT'
 import { useUi } from '@/store/ui'
 
@@ -29,7 +29,7 @@ export function HomeScreen() {
   const navigate = useNavigate()
   const lang = useUi((s) => s.lang)
   const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
+  const patient = useActivePatient()
   const unread = useCareChat((s) => s.unread)
 
   const next = useMemo(() => nextAppointment(buildPlan(patient)), [patient])

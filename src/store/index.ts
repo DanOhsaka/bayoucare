@@ -28,7 +28,10 @@ import { useCareChat } from '@/store/careChat'
 export function resetStores() {
   const pid = 'darlene' as const
 
-  usePatient.setState({ pid }, false)
+  usePatient.setState(
+    { pid, selfRecord: null, profileComplete: true, selfEmail: null },
+    false,
+  )
   useUi.setState({ mode: 'patient' }, false)
 
   useVitals.getState().resetForPatient(pid)

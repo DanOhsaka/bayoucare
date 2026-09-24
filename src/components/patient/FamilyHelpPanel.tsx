@@ -7,13 +7,13 @@ import {
   Users,
 } from 'lucide-react'
 
-import { FAM_STATE, PATIENTS } from '@/data'
+import { FAM_STATE } from '@/data'
 import { buildPlan, describeAppointment, fmtDay, nextAppointment } from '@/lib/calendar'
 import { decodeEntities } from '@/lib/html'
 import { RichText } from '@/components/shared/RichText'
 import { Badge } from '@/components/ui/badge'
 import { isDone, useFamily } from '@/store/family'
-import { usePatient } from '@/store/patient'
+import { useActivePatient, usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
 import { useVitals } from '@/store/vitals'
 import { useT } from '@/hooks/useT'
@@ -31,15 +31,16 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
   const ti = useInterp()
   const lang = useUi((s) => s.lang)
   const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
+  const patient = useActivePatient()
   const overrides = useFamily((s) => s.overrides[pid])
   const setDone = useFamily((s) => s.setDone)
   const alerts = useVitals((s) => s.alerts)
 
-  const firstName = patient.name.split(' ')[0]
+  const firstName = patient.name.split(' ')[0] || patient.name
   const next = useMemo(() => nextAppointment(buildPlan(patient)), [patient])
   const appt = next ? describeAppointment(next, patient.calTypes) : null
   const latestAlert = alerts[alerts.length - 1] ?? null
+  const hasTasks = patient.family.tasks.length > 0
 
   const openTasks = patient.family.tasks.filter((task, i) => {
     const state = FAM_STATE[task.st] ?? FAM_STATE.open
@@ -59,8 +60,12 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
             <Users className="size-4 text-brand-600" aria-hidden="true" />
             {ti('fam.helping', { name: firstName })}
           </h3>
-          <Badge variant={openTasks > 0 ? 'warning' : 'success'}>
-            {openTasks > 0 ? t('fam.openCount', { n: openTasks }) : t('fam.allCaught')}
+          <Badge variant={hasTasks && openTasks > 0 ? 'warning' : 'success'}>
+            {!hasTasks
+              ? 'No tasks yet'
+              : openTasks > 0
+                ? t('fam.openCount', { n: openTasks })
+                : t('fam.allCaught')}
           </Badge>
         </div>
 

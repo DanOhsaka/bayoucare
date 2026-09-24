@@ -2,10 +2,10 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Crosshair, Info } from 'lucide-react'
 
 import { ClinicCard, RouteSummary, TravelModeToggle } from '@/components/access/ClinicCards'
+import { AccessSectionHero } from '@/components/access/AccessSectionHero'
 import { MapEmptyState, MapErrorState, MapLoadingState } from '@/components/access/MapStates'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SELECT_CLASS } from '@/components/shared/Field'
 import type { PatientId } from '@/data'
 import type { TravelMode } from '@/data/demoHomes'
@@ -119,24 +119,28 @@ export function AccessCareMap({ patientId }: { patientId: PatientId }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="min-w-0 space-y-1">
-          <CardTitle className="typo-card-title flex items-center gap-2">
-            <Crosshair className="size-4 text-muted-foreground" aria-hidden="true" strokeWidth={1.75} />
-            Clinics near you
-          </CardTitle>
-          <p className="typo-muted">
-            See healthcare options around your home area, compare distance and drive time, and
-            preview a street route — like a GPS built for care.
-          </p>
-        </div>
-        <Badge variant="neutral">Demo map · approximate location</Badge>
-      </CardHeader>
+    <div className="flex flex-col gap-4">
+      <AccessSectionHero
+        icon={Crosshair}
+        tone="map"
+        tiltMax={8}
+        title="Clinics near you"
+        subtitle="See healthcare options around your home area, compare distance and drive time, and preview a street route — like a GPS built for care."
+        badge={
+          <Badge variant="neutral" className="shrink-0 shadow-[var(--shadow-sm)]">
+            Demo map · approximate location
+          </Badge>
+        }
+      />
 
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          <Info className="size-3.5 shrink-0" aria-hidden="true" strokeWidth={1.75} />
+      <section className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-[var(--shadow-sm)]">
+      <div className="space-y-4 p-4 sm:p-6">
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/80 bg-muted/35 px-3.5 py-2.5 text-xs leading-relaxed text-muted-foreground">
+          <Info
+            className="size-3.5 shrink-0 text-sky-600 dark:text-sky-400"
+            aria-hidden="true"
+            strokeWidth={1.75}
+          />
           <span>
             Home pin uses a <b className="font-semibold text-card-foreground">neighborhood</b>{' '}
             near {home.city} — not a street address. Selected routes follow real roads via
@@ -221,13 +225,28 @@ export function AccessCareMap({ patientId }: { patientId: PatientId }) {
                 ) : null}
               </div>
 
-              <div className="flex min-w-0 flex-col gap-2">
-                <p className="typo-label">
-                  Nearby · {clinics.length} {clinics.length === 1 ? 'facility' : 'facilities'}
-                </p>
+              <div className="flex min-w-0 flex-col gap-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      className="relative flex size-2.5 shrink-0"
+                      aria-hidden="true"
+                    >
+                      <span className="absolute inset-0 animate-ping rounded-full bg-brand-500/50" />
+                      <span className="relative size-2.5 rounded-full bg-brand-600" />
+                    </span>
+                    <p className="font-display text-base font-semibold tracking-tight text-foreground">
+                      Nearby
+                    </p>
+                    <span className="rounded-full border border-border/80 bg-muted/50 px-2 py-0.5 text-[10px] font-bold tracking-[0.08em] text-muted-foreground uppercase">
+                      {clinics.length}{' '}
+                      {clinics.length === 1 ? 'facility' : 'facilities'}
+                    </span>
+                  </div>
+                </div>
                 <div
                   ref={listRef}
-                  className="flex max-h-[520px] flex-col gap-2.5 overflow-y-auto overscroll-contain pr-0.5"
+                  className="flex max-h-[520px] flex-col gap-3 overflow-y-auto overscroll-contain px-0.5 pb-1 pt-0.5 [perspective:1000px]"
                   role="listbox"
                   aria-label="Nearby clinics"
                 >
@@ -259,7 +278,8 @@ export function AccessCareMap({ patientId }: { patientId: PatientId }) {
             </div>
           </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+      </section>
+    </div>
   )
 }

@@ -31,7 +31,14 @@ import laMapJson from './la_map.json'
 
 /* ------------------------------------------------------------------ patients */
 
-export type PatientId = 'darlene' | 'priscilla' | 'yolanda' | 'marcus'
+/** Bundled demo charts used by Neon demo logins and clinician "view as". */
+export type DemoPatientId = 'darlene' | 'priscilla' | 'yolanda' | 'marcus'
+
+/**
+ * Active chart id. `'self'` is a real Clerk (or other) account with a fresh
+ * empty record — not one of the four demo patients.
+ */
+export type PatientId = DemoPatientId | 'self'
 
 export interface CalendarType {
   ico: string
@@ -96,8 +103,9 @@ export interface Patient {
   calPlan: Array<{ off: number; type: string; time: string; ride: boolean }>
 }
 
-export const PATIENTS = patientsJson as unknown as Record<PatientId, Patient>
-export const PATIENT_IDS = Object.keys(PATIENTS) as PatientId[]
+export const PATIENTS = patientsJson as unknown as Record<DemoPatientId, Patient>
+export const PATIENT_IDS = Object.keys(PATIENTS) as DemoPatientId[]
+export const DEMO_PATIENT_IDS = PATIENT_IDS
 
 /* -------------------------------------------------------------------- trials */
 

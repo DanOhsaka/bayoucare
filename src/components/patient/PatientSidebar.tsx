@@ -15,12 +15,11 @@ import {
 } from 'lucide-react'
 
 import { UnreadCount } from '@/components/shared/UnreadCount'
-import { PATIENTS } from '@/data'
 import { SPRING_THUMB } from '@/lib/ease'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
 import { unreadTotal, useCareChat } from '@/store/careChat'
-import { usePatient } from '@/store/patient'
+import { useActivePatient, usePatient } from '@/store/patient'
 
 export interface PatientScreen {
   key: string
@@ -96,11 +95,12 @@ function ScreenLink({
 
 export function PatientSidebar() {
   const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
+  const patient = useActivePatient()
   const unreadMap = useCareChat((s) => s.unread)
   const messagesUnread = unreadTotal(unreadMap, pid, patient.careTeam)
 
-  const firstName = patient.name.split(' ')[0]
+  const firstName = patient.name.split(' ')[0] || patient.name
+  const ageLabel = patient.age > 0 ? `, ${patient.age}` : ''
 
   /*
    * Profile card always. Section list is tablet+ only — on phones those
@@ -116,7 +116,7 @@ export function PatientSidebar() {
           </div>
           <div className="min-w-0">
             <b className="block truncate text-sm font-semibold text-card-foreground">
-              {firstName}, {patient.age}
+              {firstName}{ageLabel}
             </b>
             <span className="block line-clamp-2 text-xs leading-snug text-muted-foreground">
               {patient.short}

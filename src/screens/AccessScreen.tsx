@@ -13,13 +13,16 @@ import {
   Stethoscope,
   Users,
   Video,
+  HeartHandshake,
   X,
   type LucideIcon,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { AccessCareMap } from '@/components/access/AccessCareMap'
+import { AccessSectionHero, AccessTitleSplit } from '@/components/access/AccessSectionHero'
 import { BouncyAccordion } from '@/components/motion/bouncy-accordion'
+import { TiltCard } from '@/components/motion/tilt-card'
 import {
   Select,
   SelectContent,
@@ -33,8 +36,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { loadTrials, type TrialMatch, type TrialSource } from '@/engine/trials'
-import { PATIENTS, PHASE_FMT } from '@/data'
-import { usePatient } from '@/store/patient'
+import { PHASE_FMT } from '@/data'
+import { useActivePatient, usePatient } from '@/store/patient'
 import { useInterp } from '@/hooks/useInterp'
 import { useT } from '@/hooks/useT'
 import { cn } from '@/lib/utils'
@@ -346,7 +349,7 @@ export function AccessScreen() {
   const ti = useInterp()
   const navigate = useNavigate()
   const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
+  const patient = useActivePatient()
 
   const [helpType, setHelpType] = useState<string>(HELP_TYPES[0])
   const [helpWhen, setHelpWhen] = useState<string>(HELP_WHEN[0])
@@ -420,28 +423,34 @@ export function AccessScreen() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{t('access.head')}</CardTitle>
-          <Badge variant="success">{t('access.chip')}</Badge>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{t('access.sub')}</p>
-        </CardContent>
-      </Card>
+    <div className="flex flex-col gap-5 sm:gap-6">
+      <AccessSectionHero
+        icon={HeartHandshake}
+        tone="brand"
+        title={<AccessTitleSplit text={t('access.head')} />}
+        subtitle={t('access.sub')}
+        badge={t('access.chip')}
+      />
 
       <div id="access-map" className="scroll-mt-24">
         <AccessCareMap patientId={pid} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 [perspective:1100px]">
         {RESOURCES.map((r) => (
-          <Card key={r.key}>
-            <CardHeader>
-              <CardTitle>{t(r.key)}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+          <TiltCard
+            key={r.key}
+            max={8}
+            glare
+            className="rounded-2xl border border-border/70 bg-gradient-to-b from-muted/40 to-card shadow-[var(--shadow-sm)]"
+          >
+            <Card className="border-0 bg-transparent shadow-none">
+              <CardHeader className="border-b border-border/50 bg-card/40 pb-3">
+                <CardTitle className="font-display text-lg font-semibold tracking-tight">
+                  {t(r.key)}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 pt-4">
               <BouncyAccordion
                 defaultValue={r.rows[0]?.title ?? null}
                 items={r.rows.map((row) => {
@@ -467,20 +476,28 @@ export function AccessScreen() {
                 })}
               />
               {r.note ? <p className="text-xs text-muted-foreground">{r.note}</p> : null}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </TiltCard>
         ))}
       </div>
 
-      <Card id="access-trials" className="scroll-mt-24">
-        <CardHeader>
-          <CardTitle>{t('trial.head')}</CardTitle>
-          <Badge variant={source === 'live' && patient.trialSet ? 'success' : 'neutral'}>
-            {source === 'live' && patient.trialSet ? t('trial.live') : t('trial.snapshot')}
-          </Badge>
-        </CardHeader>
+      <Card
+        id="access-trials"
+        className="scroll-mt-24 overflow-hidden border-border/70 shadow-[var(--shadow-sm)]"
+      >
+        <div className="border-b border-border/60 bg-gradient-to-r from-brand-700/12 via-card to-card px-4 py-4 sm:px-6">
+          <CardHeader className="p-0">
+            <CardTitle className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+              {t('trial.head')}
+            </CardTitle>
+            <Badge variant={source === 'live' && patient.trialSet ? 'success' : 'neutral'}>
+              {source === 'live' && patient.trialSet ? t('trial.live') : t('trial.snapshot')}
+            </Badge>
+          </CardHeader>
+        </div>
 
-        <CardContent>
+        <CardContent className="pt-4">
           {!patient.trialSet ? (
             <p className="text-sm text-muted-foreground">{t('trial.notApplicable')}</p>
           ) : (
@@ -512,13 +529,21 @@ export function AccessScreen() {
         </CardContent>
       </Card>
 
-      <Card id="access-help" ref={helpRef} className="scroll-mt-24">
-        <CardHeader>
-          <CardTitle>{t('access.helpHead')}</CardTitle>
-          <Badge variant="neutral">{t('access.helpChip')}</Badge>
-        </CardHeader>
+      <Card
+        id="access-help"
+        ref={helpRef}
+        className="scroll-mt-24 overflow-hidden border-border/70 shadow-[var(--shadow-sm)]"
+      >
+        <div className="border-b border-border/60 bg-gradient-to-r from-amber-500/10 via-card to-card px-4 py-4 sm:px-6">
+          <CardHeader className="p-0">
+            <CardTitle className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+              {t('access.helpHead')}
+            </CardTitle>
+            <Badge variant="neutral">{t('access.helpChip')}</Badge>
+          </CardHeader>
+        </div>
 
-        <CardContent>
+        <CardContent className="pt-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="What do you need help with?" id="help-type">
               <Select

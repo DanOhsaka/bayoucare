@@ -1,4 +1,5 @@
-import { PATIENTS } from '@/data'
+import type { PatientId } from '@/data'
+import { getPatient } from '@/store/patient'
 
 /** A row of the Morning Sweep — device vitals plus the patient's name. */
 export interface SweepRow {
@@ -28,7 +29,7 @@ export const remiLive = {
  * their record — exactly as `sweepRow()` did it. The rest of the table is the
  * fixed ward population.
  */
-export function sweepRowFor(pid: keyof typeof PATIENTS): SweepRow {
-  const p = PATIENTS[pid]
+export function sweepRowFor(pid: PatientId): SweepRow {
+  const p = getPatient(pid)
   return { name: p.name, ...p.vitals }
 }

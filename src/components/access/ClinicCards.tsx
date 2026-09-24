@@ -1,6 +1,7 @@
 import { MapPin, Clock, Navigation, Phone, Cross } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
+import { TiltCard } from '@/components/motion/tilt-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -45,61 +46,60 @@ export function ClinicCard({
   selected: boolean
   onSelect: () => void
 }) {
-  const reduce = useReducedMotion()
-
   return (
-    <motion.button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={selected}
-      whileHover={
-        reduce || selected
-          ? undefined
-          : { y: -3, transition: transitionFast }
-      }
-      whileTap={reduce ? undefined : { scale: 0.985 }}
-      className={cn(
-        'w-full rounded-lg border border-border bg-card p-3.5 text-left shadow-[var(--shadow-sm)] transition-[border-color,box-shadow,background-color] duration-200 ease-out',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-        selected
-          ? 'border-brand-600 bg-accent shadow-[var(--shadow)]'
-          : 'hover:border-brand-600/50 hover:bg-accent/40 hover:shadow-[var(--shadow)]',
-      )}
-    >
-      <div className="flex items-start gap-2.5">
-        <span
-          className={cn(
-            'mt-0.5 flex size-8 flex-none items-center justify-center rounded-md transition-colors duration-200',
-            selected ? 'bg-brand-700 text-on-dark' : 'bg-muted text-muted-foreground',
-          )}
-          aria-hidden="true"
+    <div className="[perspective:900px]">
+      <TiltCard
+        max={selected ? 6 : 10}
+        glare
+        className={cn(
+          'rounded-2xl border shadow-[var(--shadow-sm)] transition-[border-color,box-shadow,background-color] duration-200',
+          selected
+            ? 'border-brand-600 bg-accent shadow-[var(--shadow)] ring-1 ring-brand-600/30'
+            : 'border-border bg-card hover:border-brand-600/45',
+        )}
+      >
+        <button
+          type="button"
+          onClick={onSelect}
+          aria-pressed={selected}
+          className="relative z-[1] w-full p-3.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          <Cross className="size-3.5" strokeWidth={2} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-card-foreground">{clinic.name}</p>
-          <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <MapPin className="size-3" aria-hidden="true" strokeWidth={1.75} />
-              <AnimatedMetric value={clinic.distanceLabel} />
+          <div className="flex items-start gap-2.5">
+            <span
+              className={cn(
+                'mt-0.5 flex size-9 flex-none items-center justify-center rounded-xl transition-colors duration-200',
+                selected ? 'bg-brand-700 text-on-dark' : 'bg-muted text-muted-foreground',
+              )}
+              aria-hidden="true"
+            >
+              <Cross className="size-3.5" strokeWidth={2} />
             </span>
-            <span aria-hidden="true">·</span>
-            <span className="inline-flex items-center gap-1">
-              <Clock className="size-3" aria-hidden="true" strokeWidth={1.75} />
-              <AnimatedMetric value={clinic.etaLabel} />
-            </span>
-          </p>
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            {clinic.services.slice(0, 3).join(' · ')}
-          </p>
-          {clinic.hours ? (
-            <Badge variant="neutral" className="mt-2">
-              {clinic.hours}
-            </Badge>
-          ) : null}
-        </div>
-      </div>
-    </motion.button>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-card-foreground">{clinic.name}</p>
+              <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="size-3" aria-hidden="true" strokeWidth={1.75} />
+                  <AnimatedMetric value={clinic.distanceLabel} />
+                </span>
+                <span aria-hidden="true">·</span>
+                <span className="inline-flex items-center gap-1">
+                  <Clock className="size-3" aria-hidden="true" strokeWidth={1.75} />
+                  <AnimatedMetric value={clinic.etaLabel} />
+                </span>
+              </p>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {clinic.services.slice(0, 3).join(' · ')}
+              </p>
+              {clinic.hours ? (
+                <Badge variant="neutral" className="mt-2">
+                  {clinic.hours}
+                </Badge>
+              ) : null}
+            </div>
+          </div>
+        </button>
+      </TiltCard>
+    </div>
   )
 }
 

@@ -1,5 +1,4 @@
 import {
- PATIENTS,
  SWEEP_POP,
  TRIALS,
  type CalendarType,
@@ -9,7 +8,7 @@ import {
 import { buildPlan, fmtDay as fmtDayBase, indexByDay, nextAppointment, upcoming } from '@/lib/calendar'
 import { DEMO_TODAY, dayKey } from '@/lib/demoClock'
 import { translate } from '@/lib/i18n'
-import { usePatient } from '@/store/patient'
+import { getPatient, usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
 import { remiLive, sweepRowFor, type SweepRow } from '@/engine/remi/live'
 
@@ -43,7 +42,7 @@ export function buildRemiContext(): RemiContext {
  const pid = usePatient.getState().pid
  const lang = useUi.getState().lang
 
- const PATIENT = PATIENTS[pid]?? PATIENTS.darlene
+ const PATIENT = getPatient(pid)
  const CAL_TYPES = PATIENT.calTypes
  const CAL_PLAN = buildPlan(PATIENT)
  const CAL_BY_DAY = indexByDay(CAL_PLAN)

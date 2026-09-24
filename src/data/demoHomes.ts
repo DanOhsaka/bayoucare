@@ -50,4 +50,11 @@ export const DEMO_HOMES: Record<PatientId, DemoHome> = {
     label: 'Near Monroe',
     city: 'Monroe',
   },
+  /** Coarse Louisiana centroid until the self profile sets a city. */
+  self: {
+    lat: 31.0,
+    lng: -92.0,
+    label: 'Near central Louisiana',
+    city: 'Louisiana',
+  },
 }

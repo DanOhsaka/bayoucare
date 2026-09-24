@@ -143,6 +143,10 @@ function CarouselBall({
       ? 1 - (1 - minScale) * t
       : minScale + (1 - minScale) * t;
   });
+  // Drive layout size (not CSS `scale`) so WebGL shader canvases keep a real
+  // box to paint into — CSS scale leaves Paper shaders as blank black discs.
+  const sizePx = useTransform(scale, (s) => itemSize * s);
+  const marginPx = useTransform(sizePx, (s) => -s / 2);
   // Parabola centered on the stage — valley for concave (center ball dips
   // arc/2 below the midline, edges rise arc/2 above), arch for convex — and
   // deliberately unclamped: a ball keeps following the same curve as it
@@ -163,12 +167,11 @@ function CarouselBall({
       style={{
         x,
         y,
-        scale,
         visibility,
-        width: itemSize,
-        height: itemSize,
-        marginLeft: -itemSize / 2,
-        marginTop: -itemSize / 2,
+        width: sizePx,
+        height: sizePx,
+        marginLeft: marginPx,
+        marginTop: marginPx,
       }}
     >
       {children}

@@ -9,16 +9,17 @@ export type DemoAccount = {
   pass: string
   /** Colored contact shadow under the orb. */
   glow: string
-  /** Letter color over the shader face. */
-  ink: string
-  /** beUI ShaderBackground preset — Paper shaders clipped to the orb. */
+  /** beUI ShaderBackground preset — same faces as the cylinder-carousel docs. */
   shader: {
     variant: ShaderBackgroundVariant
     props: Record<string, unknown>
   }
 }
 
-/** Shared demo roster — carousel page + login prefill. */
+/**
+ * Demo roster. Orb shaders match the beUI Cylinder Carousel preview slides
+ * (https://beui.dev/components/motion/cylinder-carousel).
+ */
 export const DEMO_ACCOUNTS: readonly DemoAccount[] = [
   {
     id: 'patient',
@@ -27,47 +28,10 @@ export const DEMO_ACCOUNTS: readonly DemoAccount[] = [
     role: 'In treatment',
     email: 'patient@bayoucare.demo',
     pass: 'patient2026',
-    glow: 'rgba(249, 115, 22, 0.55)',
-    ink: '#fff7ed',
-    // Mosaic / stained-glass (beUI voronoi)
+    glow: 'rgba(185, 140, 255, 0.55)',
     shader: {
-      variant: 'voronoi',
-      props: { colors: ['#ff8247', '#ffe53d', '#c2410c'], speed: 0.35 },
-    },
-  },
-  {
-    id: 'yolanda',
-    name: 'Yolanda',
-    short: 'Yolanda',
-    role: 'Survivorship',
-    email: 'yolanda@bayoucare.demo',
-    pass: 'yolanda2026',
-    glow: 'rgba(45, 212, 191, 0.5)',
-    ink: '#f0fdfa',
-    // Wavy silk (beUI waves)
-    shader: {
-      variant: 'waves',
-      props: { colorFront: '#2dd4bf', colorBack: '#042f2e', speed: 0.35 },
-    },
-  },
-  {
-    id: 'priscilla',
-    name: 'Priscilla',
-    short: 'Priscilla',
-    role: 'In treatment',
-    email: 'priscilla@bayoucare.demo',
-    pass: 'priscilla2026',
-    glow: 'rgba(56, 189, 248, 0.5)',
-    ink: '#f0f9ff',
-    // Glossy liquid blue (beUI mesh)
-    shader: {
-      variant: 'mesh-gradient',
-      props: {
-        colors: ['#e0f2fe', '#38bdf8', '#0369a1', '#082f49'],
-        distortion: 0.75,
-        swirl: 0.35,
-        speed: 0.4,
-      },
+      variant: 'dithering',
+      props: { colorBack: '#1a1030', colorFront: '#b98cff', speed: 0.3 },
     },
   },
   {
@@ -77,15 +41,46 @@ export const DEMO_ACCOUNTS: readonly DemoAccount[] = [
     role: 'Survivorship',
     email: 'marcus@bayoucare.demo',
     pass: 'marcus2026',
-    glow: 'rgba(74, 222, 128, 0.5)',
-    ink: '#f0fdf4',
-    // Metallic / organic blob (beUI metaballs)
+    glow: 'rgba(201, 185, 168, 0.5)',
     shader: {
       variant: 'metaballs',
       props: {
-        colors: ['#86efac', '#22c55e', '#052e16'],
-        colorBack: '#052e16',
-        speed: 0.45,
+        colors: ['#e8e8ef', '#8a8a9a', '#1a1a22'],
+        colorBack: '#c9b9a8',
+        speed: 0.4,
+      },
+    },
+  },
+  {
+    id: 'yolanda',
+    name: 'Yolanda',
+    short: 'Yolanda',
+    role: 'Survivorship',
+    email: 'yolanda@bayoucare.demo',
+    pass: 'yolanda2026',
+    glow: 'rgba(200, 255, 0, 0.45)',
+    shader: {
+      variant: 'warp',
+      props: {
+        colors: ['#c8ff00', '#3a5a00', '#c8ff00', '#88bb00'],
+        speed: 0.4,
+      },
+    },
+  },
+  {
+    id: 'priscilla',
+    name: 'Priscilla',
+    short: 'Priscilla',
+    role: 'In treatment',
+    email: 'priscilla@bayoucare.demo',
+    pass: 'priscilla2026',
+    glow: 'rgba(106, 123, 255, 0.55)',
+    shader: {
+      variant: 'god-rays',
+      props: {
+        colors: ['#6a7bff', '#00114d'],
+        colorBack: '#000000',
+        speed: 0.5,
       },
     },
   },
@@ -96,13 +91,12 @@ export const DEMO_ACCOUNTS: readonly DemoAccount[] = [
     role: 'Admin · all patients',
     email: 'clinician@bayoucare.demo',
     pass: 'clinician2026',
-    glow: 'rgba(52, 211, 153, 0.55)',
-    ink: '#ecfdf5',
-    // Pleated / panel folds (beUI color-panels)
+    glow: 'rgba(255, 106, 61, 0.5)',
     shader: {
-      variant: 'color-panels',
+      variant: 'swirl',
       props: {
-        colors: ['#6ee7b7', '#34d399', '#0f6b4c', '#022c22'],
+        colorBack: '#1a0000',
+        colors: ['#ffd1a8', '#ff6a3d', '#b31a57'],
         speed: 0.3,
       },
     },

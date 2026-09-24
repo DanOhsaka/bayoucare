@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 
-import { PATIENTS, REPLAY, type PatientId } from '@/data'
+import { REPLAY, type PatientId } from '@/data'
 import { translate } from '@/lib/i18n'
 import { remiLive, sweepRowFor, type SweepRow } from '@/engine/remi/live'
-import { usePatient } from '@/store/patient'
+import { getPatient, usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
 
 const T = (key: string) => translate(useUi.getState().lang, key)
@@ -139,7 +139,7 @@ export const useVitals = create<VitalsState>((set, get) => ({
       const nextAlerts: VitalsAlert[] = [
         ...alerts,
         {
-          name: PATIENTS[usePatient.getState().pid].name,
+          name: getPatient(usePatient.getState().pid).name,
           when: '2:14 am',
           reading: '38.6°C (101.5°F)',
           msg: T('vitals.alertMsg'),

@@ -11,9 +11,8 @@ import {
   remiProviderOf,
   type ProviderId,
 } from '@/engine/remi/providers'
-import { PATIENTS } from '@/data'
 import { interp, translate } from '@/lib/i18n'
-import { usePatient } from '@/store/patient'
+import { getPatient, usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
 import { useVitals } from '@/store/vitals'
 
@@ -69,7 +68,7 @@ function readKey(): string {
 const T = (key: string) => translate(useUi.getState().lang, key)
 
 function greetingHtml(): string {
-  const p = PATIENTS[usePatient.getState().pid]
+  const p = getPatient(usePatient.getState().pid)
   return interp(T('remi.greet'), { name: p.name.split(' ')[0] })
 }
 
@@ -287,7 +286,7 @@ export const useRemi = create<RemiState>((set, get) => ({
         if (local.tier === 'crisis') {
           const pid = usePatient.getState().pid
           useVitals.getState().raiseAlert({
-            name: PATIENTS[pid].name,
+            name: getPatient(pid).name,
             when: 'Just now',
             reading: 'Crisis language in Remi chat',
             msg: 'Patient disclosed crisis language to Remi. 988 was shown first. Care-team follow-up needed.',

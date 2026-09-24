@@ -11,7 +11,14 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { Field, INPUT_CLASS, PersonaButton, SELECT_CLASS, Stat } from '@/components/shared/Field'
+import { Field, INPUT_CLASS, PersonaButton, Stat } from '@/components/shared/Field'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/motion/select'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -41,6 +48,10 @@ const TIER_BADGE: Record<Tier, 'danger' | 'warning' | 'success'> = {
    sentence case. Left as caps here because dropping it changes what the screen
    reads as, and the audit did not call for it — see the migration notes. */
 const CHIP_CAPS = 'uppercase tracking-[0.04em]'
+
+/** Match age inputs + LanguageSelect chrome — beUI panel, not the OS menu. */
+const FIELD_TRIGGER =
+  'h-11 px-3 py-0 text-sm shadow-[var(--shadow-sm)] lg:h-10'
 
 function ResultBlock({ children }: { children: React.ReactNode }) {
   return (
@@ -113,12 +124,20 @@ function LungCalculator() {
               value={v.packs} onChange={(e) => setV({ ...v, packs: num(e.target.value) })} />
           </Field>
           <Field label="Status" id="lung-status">
-            <select id="lung-status" className={SELECT_CLASS} value={v.status}
-              onChange={(e) => setV({ ...v, status: e.target.value })}>
-              <option value="current">Current smoker</option>
-              <option value="former">Former smoker</option>
-              <option value="never">Never smoked</option>
-            </select>
+            <Select
+              id="lung-status"
+              value={v.status}
+              onValueChange={(status) => setV({ ...v, status })}
+            >
+              <SelectTrigger className={FIELD_TRIGGER} aria-label="Status">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent className="z-50">
+                <SelectItem value="current">Current smoker</SelectItem>
+                <SelectItem value="former">Former smoker</SelectItem>
+                <SelectItem value="never">Never smoked</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
           <Field label="Years since quitting (if former)" id="lung-quit">
             <input id="lung-quit" type="number" min={0} max={60} className={INPUT_CLASS}
@@ -194,6 +213,7 @@ function BreastCalculator() {
   const v = useClinic((s) => s.calc.breast)
   const setV = (next: BreastInput) => useClinic.getState().setCalc('breast', next)
   const [result, setResult] = useState<ReturnType<typeof riskBreast> | null>(null)
+  const [openField, setOpenField] = useState<'fdr' | 'sig' | null>(null)
 
   const autoCalc = useClinic((s) => s.autoCalc)
   useEffect(() => {
@@ -228,19 +248,45 @@ function BreastCalculator() {
               value={v.age} onChange={(e) => setV({ ...v, age: num(e.target.value) })} />
           </Field>
           <Field label="First-degree relatives with breast cancer" id="breast-fdr">
-            <select id="breast-fdr" className={SELECT_CLASS} value={v.fdr}
-              onChange={(e) => setV({ ...v, fdr: num(e.target.value) })}>
-              <option value={0}>None</option>
-              <option value={1}>One</option>
-              <option value={2}>Two or more</option>
-            </select>
+            <Select
+              id="breast-fdr"
+              value={String(v.fdr)}
+              open={openField === 'fdr'}
+              onOpenChange={(next) => setOpenField(next ? 'fdr' : null)}
+              onValueChange={(fdr) => setV({ ...v, fdr: Number(fdr) })}
+            >
+              <SelectTrigger
+                className={FIELD_TRIGGER}
+                aria-label="First-degree relatives with breast cancer"
+              >
+                <SelectValue placeholder="Relatives" />
+              </SelectTrigger>
+              <SelectContent className="z-50">
+                <SelectItem value="0">None</SelectItem>
+                <SelectItem value="1">One</SelectItem>
+                <SelectItem value="2">Two or more</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
           <Field label="BRCA warning signs (male breast cancer · Ashkenazi Jewish · relative dx < 50)" id="breast-sig">
-            <select id="breast-sig" className={SELECT_CLASS} value={v.sig}
-              onChange={(e) => setV({ ...v, sig: e.target.value })}>
-              <option value="none">None</option>
-              <option value="yes">Yes, in my family</option>
-            </select>
+            <Select
+              id="breast-sig"
+              value={v.sig}
+              open={openField === 'sig'}
+              onOpenChange={(next) => setOpenField(next ? 'sig' : null)}
+              onValueChange={(sig) => setV({ ...v, sig })}
+            >
+              <SelectTrigger
+                className={FIELD_TRIGGER}
+                aria-label="BRCA warning signs"
+              >
+                <SelectValue placeholder="Warning signs" />
+              </SelectTrigger>
+              <SelectContent className="z-50">
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="yes">Yes, in my family</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
         </div>
 
@@ -323,13 +369,24 @@ function ColoCalculator() {
               value={v.age} onChange={(e) => setV({ ...v, age: num(e.target.value) })} />
           </Field>
           <Field label="Family history (colorectal cancer)" id="colo-fdr">
-            <select id="colo-fdr" className={SELECT_CLASS} value={v.f}
-              onChange={(e) => setV({ ...v, f: e.target.value })}>
-              <option value="none">None</option>
-              <option value="one60">One relative, dx at 60+</option>
-              <option value="oneyoung">One relative, dx before 60</option>
-              <option value="multiple">Two or more relatives</option>
-            </select>
+            <Select
+              id="colo-fdr"
+              value={v.f}
+              onValueChange={(f) => setV({ ...v, f })}
+            >
+              <SelectTrigger
+                className={FIELD_TRIGGER}
+                aria-label="Family history (colorectal cancer)"
+              >
+                <SelectValue placeholder="Family history" />
+              </SelectTrigger>
+              <SelectContent className="z-50">
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="one60">One relative, dx at 60+</SelectItem>
+                <SelectItem value="oneyoung">One relative, dx before 60</SelectItem>
+                <SelectItem value="multiple">Two or more relatives</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
         </div>
 

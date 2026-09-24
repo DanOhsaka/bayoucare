@@ -3,8 +3,7 @@ import { BookOpen, Check, Dna, MessageCircleQuestion } from 'lucide-react'
 import { BouncyAccordion } from '@/components/motion/bouncy-accordion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { usePatient } from '@/store/patient'
-import { PATIENTS } from '@/data'
+import { useActivePatient } from '@/store/patient'
 import { useT } from '@/hooks/useT'
 
 /**
@@ -82,9 +81,8 @@ const EXPLAINER_MATCHES = /ductal carcinoma|\bIDC\b/i
 /** The record's own diagnosis fields, plainly — no interpretation added. */
 function RecordOnly() {
   const t = useT()
-  const pid = usePatient((s) => s.pid)
-  const p = PATIENTS[pid]
-  const firstName = p.name.split(' ')[0]
+  const p = useActivePatient()
+  const firstName = p.name.split(' ')[0] || p.name
 
   const rows: Array<[string, string]> = (
     [
@@ -130,11 +128,10 @@ function RecordOnly() {
 
 export function UnderstandScreen() {
   const t = useT()
-  const pid = usePatient((s) => s.pid)
-  const patient = PATIENTS[pid]
-  const firstName = patient.name.split(' ')[0]
+  const patient = useActivePatient()
+  const firstName = patient.name.split(' ')[0] || patient.name
 
-  if (!EXPLAINER_MATCHES.test(patient.dx)) return <RecordOnly />
+  if (!patient.dx || !EXPLAINER_MATCHES.test(patient.dx)) return <RecordOnly />
 
   return (
     <div className="flex flex-col gap-4">
