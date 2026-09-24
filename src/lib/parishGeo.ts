@@ -35,32 +35,114 @@ function pointInGeometry(lng: number, lat: number, geometry: GeoJSON.Geometry): 
   return false
 }
 
-/** Approximate geographic centroid from the outer ring (mean of vertices). */
-function ringCentroid(ring: Ring): [number, number] {
-  let sx = 0
-  let sy = 0
-  const n = Math.max(1, ring.length - (ring[0] === ring[ring.length - 1] ? 1 : 0))
-  for (let i = 0; i < n; i++) {
-    sx += ring[i]![0]!
-    sy += ring[i]![1]!
+/** Area-weighted polygon centroid (more stable than vertex mean on coasts). */
+function ringAreaCentroid(ring: Ring): [number, number] {
+  let twiceArea = 0
+  let cx = 0
+  let cy = 0
+  const n = ring.length
+  const closed =
+    n > 1 && ring[0]![0] === ring[n - 1]![0] && ring[0]![1] === ring[n - 1]![1]
+  const last = closed ? n - 1 : n
+
+  for (let i = 0; i < last; i++) {
+    const [x1, y1] = ring[i]!
+    const [x2, y2] = ring[(i + 1) % (closed ? n - 1 : n)] ?? ring[0]!
+    const cross = x1 * y2 - x2 * y1
+    twiceArea += cross
+    cx += (x1 + x2) * cross
+    cy += (y1 + y2) * cross
   }
-  return [sx / n, sy / n]
+
+  if (Math.abs(twiceArea) < 1e-12) {
+    let sx = 0
+    let sy = 0
+    for (let i = 0; i < last; i++) {
+      sx += ring[i]![0]!
+      sy += ring[i]![1]!
+    }
+    return [sx / Math.max(1, last), sy / Math.max(1, last)]
+  }
+
+  return [cx / (3 * twiceArea), cy / (3 * twiceArea)]
+}
+
+function ringAbsArea(ring: Ring): number {
+  let a = 0
+  for (let i = 0; i < ring.length - 1; i++) {
+    a += ring[i]![0]! * ring[i + 1]![1]! - ring[i + 1]![0]! * ring[i]![1]!
+  }
+  return Math.abs(a / 2)
+}
+
+/** Guaranteed-on-land anchor: area centroid, else densest interior sample. */
+function interiorAnchor(ring: Ring): [number, number] {
+  const c = ringAreaCentroid(ring)
+  if (pointInRing(c[0], c[1], ring)) return c
+
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  for (const p of ring) {
+    minX = Math.min(minX, p[0]!)
+    maxX = Math.max(maxX, p[0]!)
+    minY = Math.min(minY, p[1]!)
+    maxY = Math.max(maxY, p[1]!)
+  }
+
+  // Coarse grid — pick the sample farthest from the exterior (proxy for visual center).
+  let best: [number, number] | null = null
+  let bestScore = -1
+  const steps = 14
+  for (let iy = 0; iy <= steps; iy++) {
+    for (let ix = 0; ix <= steps; ix++) {
+      const lng = minX + ((maxX - minX) * ix) / steps
+      const lat = minY + ((maxY - minY) * iy) / steps
+      if (!pointInRing(lng, lat, ring)) continue
+      // Distance-to-edge proxy: how many of 8 neighbors are also inside.
+      let score = 0
+      const d = Math.min(maxX - minX, maxY - minY) / steps
+      for (const [dx, dy] of [
+        [d, 0],
+        [-d, 0],
+        [0, d],
+        [0, -d],
+        [d, d],
+        [d, -d],
+        [-d, d],
+        [-d, -d],
+      ] as const) {
+        if (pointInRing(lng + dx, lat + dy, ring)) score++
+      }
+      if (score > bestScore) {
+        bestScore = score
+        best = [lng, lat]
+      }
+    }
+  }
+
+  return best ?? c
 }
 
 function geometryCentroid(geometry: GeoJSON.Geometry): [number, number] | null {
   if (geometry.type === 'Polygon') {
     const outer = geometry.coordinates[0]
-    return outer ? ringCentroid(outer) : null
+    return outer ? interiorAnchor(outer) : null
   }
   if (geometry.type === 'MultiPolygon') {
-    // Prefer the largest ring (by vertex count) as the visual anchor.
     let best: Ring | null = null
+    let bestArea = -1
     for (const poly of geometry.coordinates) {
       const outer = poly[0]
       if (!outer) continue
-      if (!best || outer.length > best.length) best = outer
+      const a = ringAbsArea(outer)
+      if (a > bestArea) {
+        bestArea = a
+        best = outer
+      }
     }
-    return best ? ringCentroid(best) : null
+    return best ? interiorAnchor(best) : null
   }
   return null
 }

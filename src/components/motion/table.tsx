@@ -231,10 +231,10 @@ export function DataTable<T extends object>({
         }}
       >
         <table className="w-full border-collapse text-sm" style={{ tableLayout: 'fixed' }}>
-          <thead className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm">
-            <tr className="border-b border-border">
+          <thead className="sticky top-0 z-20 isolate border-b border-border bg-card">
+            <tr>
               {selectable ? (
-                <th className="w-12 px-3 py-2.5 text-left">
+                <th className="w-12 bg-card px-3 py-2.5 text-left">
                   <Checkbox
                     checked={allSelected}
                     indeterminate={someSelected}
@@ -250,7 +250,7 @@ export function DataTable<T extends object>({
                     key={column.key}
                     style={column.width ? { width: column.width } : undefined}
                     className={cn(
-                      'px-3 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground',
+                      'bg-card px-3 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground',
                       column.align === 'right' && 'text-right',
                       column.align === 'center' && 'text-center',
                       column.align !== 'right' && column.align !== 'center' && 'text-left',
@@ -260,19 +260,19 @@ export function DataTable<T extends object>({
                       <button
                         type="button"
                         onClick={() => toggleSort(column.key)}
-                        className="inline-flex items-center gap-1 rounded-md transition-colors hover:text-foreground"
+                        className="inline-flex max-w-full items-center gap-1 rounded-md transition-colors hover:text-foreground"
                       >
-                        {column.header}
+                        <span className="truncate">{column.header}</span>
                         {active && sort?.direction === 'asc' ? (
-                          <ArrowUp className="size-3.5 opacity-80" aria-hidden="true" />
+                          <ArrowUp className="size-3.5 shrink-0 opacity-80" aria-hidden="true" />
                         ) : active && sort?.direction === 'desc' ? (
-                          <ArrowDown className="size-3.5 opacity-80" aria-hidden="true" />
+                          <ArrowDown className="size-3.5 shrink-0 opacity-80" aria-hidden="true" />
                         ) : (
-                          <ArrowUpDown className="size-3.5 opacity-40" aria-hidden="true" />
+                          <ArrowUpDown className="size-3.5 shrink-0 opacity-40" aria-hidden="true" />
                         )}
                       </button>
                     ) : (
-                      column.header
+                      <span className="truncate">{column.header}</span>
                     )}
                   </th>
                 )
@@ -328,7 +328,7 @@ export function DataTable<T extends object>({
                           truncate={column.truncate !== false}
                           title={column.title?.(entry.row)}
                           className={cn(
-                            'px-3 py-2 align-middle text-card-foreground',
+                            'overflow-hidden px-3 py-2 align-middle text-card-foreground',
                             column.align === 'right' && 'text-right',
                             column.align === 'center' && 'text-center',
                           )}

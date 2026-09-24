@@ -46,27 +46,44 @@ const METRIC_KEYS: MetricKey[] = ['need', 'late', 'inc', 'cov']
  * The caption is the only mode-dependent part, because "each tile is one parish"
  * and the numbered rank badges describe the cartogram and nothing else.
  */
-function MapLegend({ metric, mode }: { metric: MetricKey; mode: 'tiles' | 'geo' }) {
+function MapLegend({
+  metric,
+  mode,
+  indexOn = true,
+}: {
+  metric: MetricKey
+  mode: 'tiles' | 'geo'
+  /** Geo only: hide color ramp when street map (index off). */
+  indexOn?: boolean
+}) {
   const m = METRICS[metric]
+  const showRamp = mode === 'tiles' || indexOn
 
   return (
     <>
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <span>
-          {m.worse ? 'lower' : 'higher'} {m.label.toLowerCase()}
-        </span>
-        {SCALE.map((c, i) => (
-          <span key={i} className={cn('block size-3.5 rounded-sm', c)} aria-hidden="true" />
-        ))}
-        <span>
-          {m.worse ? 'higher' : 'lower'} {m.label.toLowerCase()}
-        </span>
-      </div>
+      {showRamp ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span>
+            {m.worse ? 'lower' : 'higher'} {m.label.toLowerCase()}
+          </span>
+          {SCALE.map((c, i) => (
+            <span key={i} className={cn('block size-3.5 rounded-sm', c)} aria-hidden="true" />
+          ))}
+          <span>
+            {m.worse ? 'higher' : 'lower'} {m.label.toLowerCase()}
+          </span>
+        </div>
+      ) : (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Index off — street map only. Toggle <b className="text-card-foreground">Index on</b> on the
+          map to show parish heat colors.
+        </p>
+      )}
 
       <p className="mt-2 text-xs text-muted-foreground">
         {mode === 'tiles'
           ? 'Tile cartogram — each tile is one parish; positions approximate geography. Numbered badges = top-10 unmet-need rank.'
-          : 'Geographic map — continental United States context with Louisiana parish choropleth. Hover/click parishes for detail; United States / Louisiana buttons reframe the camera.'}{' '}
+          : 'Geographic map — Carto street basemap under Louisiana parish fills. Zoom in for roads and place names; United States / Louisiana reframes the camera.'}{' '}
         <b className="text-card-foreground">
           Incidence &amp; late-stage: State Cancer Profiles / USCS. Screening coverage &amp;
           population: CDC PLACES 2025. {mode === 'tiles' ? 'Hatched tiles' : 'Muted parishes'} = late
@@ -82,20 +99,23 @@ export function PopulationScreen() {
   const [mode, setMode] = useState<'tiles' | 'geo'>('tiles')
   const [parish, setParish] = useState<string | null>(null)
   const [vanHere, setVanHere] = useState<string | null>(null)
+  const [indexOn, setIndexOn] = useState(true)
 
   // The van tour, at the app root of this screen and cleaned up on unmount —
   // the legacy ran it un-cleared, so it kept advancing after you navigated away.
   const [tourStop, setTourStop] = useState<number | null>(null)
   const [tourLog, setTourLog] = useState<string[]>([])
 
-  const stops = useMemo(() => PARISH_DATA.filter((p) => p.rank != null).slice(0, 10), [])
+  // Same set as the outreach queue — one source of truth for the demo van route.
+  const top8 = useMemo(() => PARISH_DATA.filter((p) => p.rank != null).slice(0, 8), [])
+  const stops = top8
 
   useInterval(
     () => {
       if (tourStop == null) return
       if (tourStop >= stops.length) {
         setTourStop(null)
-        toast('Van tour complete — 10 parishes routed by unmet need.')
+        toast('Van tour complete — 8 parishes routed by unmet need.')
         return
       }
       const p = stops[tourStop]
@@ -103,7 +123,7 @@ export function PopulationScreen() {
       setParish(p.n)
       setTourLog((l) => [
         ...l,
-        `Stop ${tourStop + 1}/10 — ${p.n} — ${p.late}% late-stage · ${p.uns.toLocaleString()} unscreened · rank #${p.rank}`,
+        `Stop ${tourStop + 1}/${stops.length} — ${p.n} — ${p.late}% late-stage · ${p.uns.toLocaleString()} unscreened · rank #${p.rank}`,
       ])
       setTourStop(tourStop + 1)
     },
@@ -112,7 +132,6 @@ export function PopulationScreen() {
 
   const m = METRICS[metric]
   const selected = parish ? (PARISH_DATA.find((p) => p.n === parish) ?? null) : null
-  const top8 = PARISH_DATA.filter((p) => p.rank != null).slice(0, 8)
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
@@ -237,11 +256,13 @@ export function PopulationScreen() {
                   selected={parish}
                   vanHere={vanHere}
                   onSelect={setParish}
+                  indexOn={indexOn}
+                  onIndexOnChange={setIndexOn}
                 />
               )}
 
               {/* One legend for both modes — see `MapLegend` above. */}
-              <MapLegend metric={metric} mode={mode} />
+              <MapLegend metric={metric} mode={mode} indexOn={indexOn} />
             </div>
 
             {/* ------------------------------------------------ side panel */}
@@ -359,7 +380,7 @@ export function PopulationScreen() {
                 <div className="mt-3 max-h-[140px] overflow-y-auto rounded-md bg-brand-900 p-3 font-mono text-xs leading-relaxed text-on-dark">
                   {tourLog.length === 0 ? (
                     <span className="text-on-dark-muted">
-                     Van tour log — deploy to the top-10 parishes to watch routing live.
+                     Van tour log — deploy to the top-8 parishes to watch routing live.
                     </span>
                   ) : (
                     tourLog.map((l, i) => <div key={i}>{l}</div>)
@@ -393,17 +414,17 @@ export function PopulationScreen() {
                 }
               }}
             >
-              {tourStop != null ? 'Stop tour' : 'Deploy van to top-10'}
+              {tourStop != null ? 'Stop tour' : 'Deploy van to top-8'}
             </Button>
           </CardAction>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="overflow-hidden">
           <DataTable
             data={top8}
             getRowId={(p) => p.n}
-            height={420}
-            rowHeight={64}
+            height={380}
+            rowHeight={56}
             defaultSort={{ key: 'uns', direction: 'desc' }}
             columns={[
               {
@@ -411,17 +432,19 @@ export function PopulationScreen() {
                 header: 'Parish',
                 sortable: true,
                 truncate: false,
+                width: '42%',
                 title: (p) => `${p.rank}. ${p.n} Parish`,
                 cell: (p) => (
-                  <>
-                    <b className="text-card-foreground">
+                  <div className="min-w-0 py-0.5">
+                    <b className="block truncate text-card-foreground">
                       {p.rank}. {p.n} Parish
                     </b>
-                    <div className="text-xs text-muted-foreground">
-                      {p.late == null ? 'late-stage suppressed' : `${p.late}% late-stage`} ·{' '}
+                    <div className="truncate text-xs text-muted-foreground">
+                      {p.late == null ? 'late-stage suppressed' : `${p.late}% late-stage`}
+                      {' · '}
                       {p.cov}% screened
                     </div>
-                  </>
+                  </div>
                 ),
               },
               {
@@ -429,12 +452,10 @@ export function PopulationScreen() {
                 header: 'Unscreened',
                 sortable: true,
                 truncate: false,
+                width: '18%',
                 sortValue: (p) => p.uns,
                 cell: (p) => (
-                  <>
-                    <span className="block text-xs text-muted-foreground">Unscreened</span>
-                    <b className="text-card-foreground">{p.uns.toLocaleString()}</b>
-                  </>
+                  <b className="tabular-nums text-card-foreground">{p.uns.toLocaleString()}</b>
                 ),
               },
               {
@@ -442,12 +463,12 @@ export function PopulationScreen() {
                 header: 'Coverage gap',
                 sortable: true,
                 truncate: false,
+                width: '18%',
                 sortValue: (p) => 100 - p.cov,
                 cell: (p) => (
-                  <>
-                    <span className="block text-xs text-muted-foreground">Coverage gap</span>
-                    <b className="text-card-foreground">{(100 - p.cov).toFixed(0)}%</b>
-                  </>
+                  <b className="tabular-nums text-card-foreground">
+                    {(100 - p.cov).toFixed(0)}%
+                  </b>
                 ),
               },
               {
@@ -455,10 +476,15 @@ export function PopulationScreen() {
                 header: 'Outreach',
                 align: 'right',
                 truncate: false,
+                width: '22%',
                 title: (p) => outreachAction(p).label,
                 cell: (p) => {
                   const a = outreachAction(p)
-                  return <Badge variant={a.tone}>{a.label}</Badge>
+                  return (
+                    <Badge variant={a.tone} className="max-w-full whitespace-nowrap">
+                      {a.label}
+                    </Badge>
+                  )
                 },
               },
             ]}

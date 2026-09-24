@@ -822,6 +822,10 @@
   .maplibregl-popup-tip {
     @apply hidden!;
   }
+  /* Keep the parish 3D pin above facility markers and basemap chrome */
+  .maplibregl-marker:has(.bc-parish-pin) {
+    z-index: 40 !important;
+  }
   .maplibregl-ctrl-attrib {
     @apply bg-background! text-muted-foreground! border-border! rounded-md! border! shadow-sm!;
   }
