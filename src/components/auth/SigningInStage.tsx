@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 import { Loader } from '@/components/motion/loader'
 import { BrandLogo } from '@/components/shared/BrandLogo'
@@ -57,18 +57,19 @@ export function AuthFade({
 }) {
   const reduce = useReducedMotion()
 
+  /*
+   * Soft enter only — never `mode="wait"` with opacity→0. That produced a
+   * full-viewport black frame between PendingShell and the signed-in app.
+   */
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={authKey}
-        className="min-h-dvh"
-        initial={reduce ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={reduce ? undefined : { opacity: 0 }}
-        transition={{ duration: reduce ? 0.01 : 0.32, ease: EASE_OUT }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={authKey}
+      className="min-h-dvh"
+      initial={reduce ? false : { opacity: 0.92 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: reduce ? 0 : 0.2, ease: EASE_OUT }}
+    >
+      {children}
+    </motion.div>
   )
 }

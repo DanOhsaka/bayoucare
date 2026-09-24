@@ -141,7 +141,7 @@ export function LandingPage() {
         </p>
 
         <SectionTitle title={t('landing.whyHead')} sub={t('landing.whySub')} />
-        <Stagger className="grid gap-4 md:grid-cols-3">
+        <Stagger animateOnMount className="grid gap-4 md:grid-cols-3">
           {MARKETING_WHY.map((c) => (
             <StaggerItem key={c.h}>
               <TiltCard>
@@ -169,7 +169,7 @@ export function LandingPage() {
           ))}
         </div>
 
-        <Stagger className="mt-4 grid gap-4 md:grid-cols-2">
+        <Stagger animateOnMount className="mt-4 grid gap-4 md:grid-cols-2">
           {MARKETING_TOOLS.map(({ icon: Icon, h, p }) => (
             <StaggerItem key={h}>
               <Card>

@@ -20,6 +20,17 @@ import { RoadmapScreen } from '@/screens/RoadmapScreen'
 import { SurvivorshipScreen } from '@/screens/SurvivorshipScreen'
 import { PopulationScreen } from '@/screens/PopulationScreen'
 import { ClinicOpsScreen } from '@/screens/ClinicOpsScreen'
+import { HomeScreen } from '@/screens/HomeScreen'
+import { CalendarScreen } from '@/screens/CalendarScreen'
+import { RemiScreen } from '@/screens/RemiScreen'
+import { CareChatScreen } from '@/screens/CareChatScreen'
+import { FamilyHelpScreen } from '@/screens/FamilyHelpScreen'
+import { PreventScreen } from '@/screens/PreventScreen'
+import { JourneyScreen } from '@/screens/JourneyScreen'
+import { UnderstandScreen } from '@/screens/UnderstandScreen'
+import { CheckinsScreen } from '@/screens/CheckinsScreen'
+import { VitalsScreen } from '@/screens/VitalsScreen'
+import { AccessScreen } from '@/screens/AccessScreen'
 import { useSession } from '@/store/session'
 
 function PublicApp() {
@@ -30,7 +41,6 @@ function PublicApp() {
         <Route path="/login" element={<LoginGate />} />
         <Route path="/demo" element={<DemoAccountsPage />} />
         <Route path="/" element={<LandingPage />} />
-        {/* Unknown public URLs → landing, not the fault page. */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>
@@ -47,8 +57,23 @@ function SignedInApp() {
           <Route path="/login" element={<Navigate to="/overview" replace />} />
 
           <Route path="/overview" element={<OverviewScreen />} />
-          <Route path="/my-care" element={<Navigate to="/my-care/home" replace />} />
-          <Route path="/my-care/:screen" element={<MyCare />} />
+
+          <Route path="/my-care" element={<MyCare />}>
+            <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<HomeScreen />} />
+            <Route path="family" element={<FamilyHelpScreen />} />
+            <Route path="calendar" element={<CalendarScreen />} />
+            <Route path="remi" element={<RemiScreen />} />
+            <Route path="prevent" element={<PreventScreen />} />
+            <Route path="journey" element={<JourneyScreen />} />
+            <Route path="understand" element={<UnderstandScreen />} />
+            <Route path="checkins" element={<CheckinsScreen />} />
+            <Route path="vitals" element={<VitalsScreen />} />
+            <Route path="access" element={<AccessScreen />} />
+            <Route path="messages" element={<CareChatScreen />} />
+            <Route path="*" element={<Navigate to="home" replace />} />
+          </Route>
+
           <Route path="/my-plan" element={<MyPlanScreen />} />
 
           <Route path="/care-team" element={<RequireClinician><TeamScreen /></RequireClinician>} />
@@ -57,7 +82,6 @@ function SignedInApp() {
           <Route path="/population" element={<RequireClinician><PopulationScreen /></RequireClinician>} />
           <Route path="/roadmap" element={<RequireClinician><RoadmapScreen /></RequireClinician>} />
 
-          {/* Unknown signed-in URLs → overview, not the fault page. */}
           <Route path="*" element={<Navigate to="/overview" replace />} />
         </Route>
       </Routes>
@@ -74,7 +98,6 @@ export default function App() {
     void check()
   }, [check])
 
-  // Server/session boot failures only — not ordinary “logged out” or bad hashes.
   if (bootFault) {
     return (
       <HashRouter>

@@ -2,11 +2,10 @@ import { useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 /**
- * Reset window scroll on every route change.
+ * Reset window scroll on route change.
  *
- * Public pages (landing → demo carousel) sit outside AppShell, so without this
- * the previous page's scroll offset carries over and you land on the footer.
- * `useLayoutEffect` + `instant` avoids a smooth jump mid-paint.
+ * Public pages (landing → demo) sit outside AppShell, so without this the
+ * previous scroll offset carries over. Instant scroll avoids mid-paint jumps.
  */
 export function ScrollToTop() {
   const { pathname, search, hash } = useLocation()

@@ -10,8 +10,11 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * Aceternity Tracing Beam — visible on tablet/desktop when the page scrolls.
- * Hidden on phone layouts and when content fits in one viewport.
+ * Aceternity Tracing Beam — decorative scroll accent on md+.
+ *
+ * Layout padding is reserved via CSS (`md:pl-9`) from the first paint so the
+ * beam appearing after measure never shove content sideways (CLS).
+ * Desktop visibility uses CSS, not a JS `isDesktop` flag that starts false.
  */
 export const TracingBeam = ({
   children,
@@ -23,8 +26,9 @@ export const TracingBeam = ({
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [svgHeight, setSvgHeight] = useState(0);
-  const [viewportH, setViewportH] = useState(0);
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [viewportH, setViewportH] = useState(
+    () => (typeof window !== "undefined" ? window.innerHeight : 0),
+  );
   const reduceMotion = useReducedMotion();
   const gradientId = useId().replace(/:/g, "");
 
@@ -34,17 +38,10 @@ export const TracingBeam = ({
   });
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const syncMq = () => setIsDesktop(mq.matches);
     const syncVp = () => setViewportH(window.innerHeight);
-    syncMq();
     syncVp();
-    mq.addEventListener("change", syncMq);
     window.addEventListener("resize", syncVp, { passive: true });
-    return () => {
-      mq.removeEventListener("change", syncMq);
-      window.removeEventListener("resize", syncVp);
-    };
+    return () => window.removeEventListener("resize", syncVp);
   }, []);
 
   useEffect(() => {
@@ -80,25 +77,25 @@ export const TracingBeam = ({
   const y2 = useSpring(y2Raw, { stiffness: 400, damping: 80, mass: 0.4 });
 
   const needsScroll = viewportH > 0 && svgHeight > viewportH + 48;
-  const showBeam = !reduceMotion && isDesktop && needsScroll;
+  const showBeam = !reduceMotion && needsScroll;
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      className={cn(
-        "relative mx-auto h-full w-full max-w-4xl",
-        showBeam && "md:pl-9",
-        className,
-      )}
+      className={cn("relative mx-auto h-full w-full max-w-4xl", className)}
     >
-      {showBeam ? (
-        <div
-          className="pointer-events-none absolute top-3 bottom-0 left-0 z-0 hidden w-9 flex-col items-center md:flex"
-          aria-hidden="true"
-        >
-          <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-background shadow-sm dark:border-neutral-600">
-            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399]" />
-          </div>
+      <div
+        className={cn(
+          // Overlay only — never toggles padding (that was a CLS on measure).
+          "pointer-events-none absolute top-3 bottom-0 left-1 z-0 hidden w-6 flex-col items-center md:flex",
+          !showBeam && "invisible",
+        )}
+        aria-hidden="true"
+      >
+        <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-background shadow-sm dark:border-neutral-600">
+          <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#34d399]" />
+        </div>
+        {showBeam && svgHeight > 0 ? (
           <svg
             viewBox={`0 0 20 ${svgHeight}`}
             width="20"
@@ -135,11 +132,11 @@ export const TracingBeam = ({
               </motion.linearGradient>
             </defs>
           </svg>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
       <div ref={contentRef} className="relative z-10 min-w-0">
         {children}
       </div>
-    </motion.div>
+    </div>
   );
 };

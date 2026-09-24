@@ -19,7 +19,7 @@ function useEntranceVariants(full = true) {
   return full ? fadeUp : fadeUpSm
 }
 
-/** Route / screen entrance — keyed by the caller (usually pathname). */
+/** @deprecated Prefer `RouteEnter` — kept for screens that still import it. */
 export function PageFade({
   children,
   className,
@@ -30,9 +30,8 @@ export function PageFade({
 
   return (
     <motion.div
-      initial="hidden"
+      initial={reduce ? false : 'hidden'}
       animate="show"
-      exit={reduce ? undefined : 'hidden'}
       variants={variants}
       className={className}
       {...props}
@@ -42,17 +41,26 @@ export function PageFade({
   )
 }
 
-/** Staggered children for dashboard card grids. */
+/**
+ * Staggered children for marketing / optional polish.
+ * Default: paint immediately (no progressive reveal on navigation).
+ */
 export function Stagger({
   children,
   className,
+  animateOnMount = false,
   ...props
-}: { children: ReactNode; className?: string } & Omit<DivProps, 'children'>) {
+}: {
+  children: ReactNode
+  className?: string
+  /** When true, run the cascade on first paint (landing marketing only). */
+  animateOnMount?: boolean
+} & Omit<DivProps, 'children'>) {
   const reduce = useReducedMotion()
 
   return (
     <motion.div
-      initial="hidden"
+      initial={animateOnMount && !reduce ? 'hidden' : false}
       animate="show"
       variants={reduce ? reducedFade : staggerContainer}
       className={className}
@@ -94,12 +102,11 @@ export function ContentFade({
   const reduce = useReducedMotion()
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="sync" initial={false}>
       <motion.div
         key={showKey ?? 'content'}
-        initial={reduce ? false : { opacity: 0 }}
+        initial={reduce ? false : { opacity: 0.9 }}
         animate={{ opacity: 1 }}
-        exit={reduce ? undefined : { opacity: 0 }}
         transition={reduce ? { duration: 0.01 } : transitionNormal}
         className={className}
       >
