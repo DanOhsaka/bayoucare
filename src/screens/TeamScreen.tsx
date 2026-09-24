@@ -36,7 +36,13 @@ const RISK_VARIANT: Record<RiskLevel, 'danger' | 'warning' | 'neutral'> = {
    the counterfactual board cannot drift apart. */
 
 function RiskPill({ level }: { level: RiskLevel }) {
-  return <Badge variant={RISK_VARIANT[level]}>{RISK_LABEL[level]}</Badge>
+  /* Static chip — AnimatedBadge `layout` flies Watch/Critical across cards when
+     Apply updates risk and the list reflows. */
+  return (
+    <Badge variant={RISK_VARIANT[level]} animated={false}>
+      {RISK_LABEL[level]}
+    </Badge>
+  )
 }
 
 function RiskBar({ value }: { value: number }) {
@@ -213,14 +219,19 @@ export function TeamScreen() {
                   )}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <b className="text-sm font-semibold text-card-foreground">{v.name}</b>{' '}
-                      <RiskPill level={level} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <b className="text-sm font-semibold text-card-foreground">{v.name}</b>
+                        <RiskPill level={level} />
+                      </div>
                       <div className="mt-1 text-xs text-muted-foreground">
                         {sourceLabel} · {v.when} · {v.reading}
                       </div>
                     </div>
-                    <Badge variant={level === 'critical' ? 'danger' : 'warning'}>
+                    <Badge
+                      variant={level === 'critical' ? 'danger' : 'warning'}
+                      animated={false}
+                    >
                       {source === 'device' ? 'auto-escalated' : 'on worklist'}
                     </Badge>
                   </div>
@@ -246,14 +257,18 @@ export function TeamScreen() {
                   )}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <b className="text-sm font-semibold text-card-foreground">{x.p.name}</b>{' '}
-                      <RiskPill level={x.level} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <b className="text-sm font-semibold text-card-foreground">{x.p.name}</b>
+                        <RiskPill level={x.level} />
+                      </div>
                       <div className="mt-1 text-xs text-muted-foreground">
                         {x.p.meta} · {x.p.driver}
                       </div>
                     </div>
-                    <Badge variant="warning">7-day risk {x.cur}%</Badge>
+                    <Badge variant="warning" animated={false}>
+                      7-day risk {x.cur}%
+                    </Badge>
                   </div>
                   <div className="mt-2.5">
                     <RiskBar value={x.cur} />
