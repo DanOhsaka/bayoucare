@@ -604,6 +604,32 @@ function MapInner({
   onClear: () => void
 }) {
   const pinCentroid = selected ? PARISH_CENTROIDS[selected] : null
+  /** Keep the 3D pin clear of clinic markers/popups in dense parishes. */
+  const pinLngLat = (() => {
+    if (!selected || !pinCentroid) return null
+    const clinics = PARISH_CARE[selected]?.clinicsInParish ?? []
+    if (clinics.length === 0) return pinCentroid
+
+    let avgLng = 0
+    let avgLat = 0
+    for (const c of clinics) {
+      avgLng += c.lng
+      avgLat += c.lat
+    }
+    avgLng /= clinics.length
+    avgLat /= clinics.length
+
+    const dx = pinCentroid[0] - avgLng
+    const dy = pinCentroid[1] - avgLat
+    const len = Math.hypot(dx, dy)
+    // ~0.05° ≈ 3–4 mi — enough to clear downtown clinic clusters.
+    const nudge = 0.05
+    if (len < 0.025) return [pinCentroid[0], pinCentroid[1] - nudge] as [number, number]
+    return [
+      pinCentroid[0] + (dx / len) * nudge,
+      pinCentroid[1] + (dy / len) * nudge,
+    ] as [number, number]
+  })()
 
   return (
     <>
@@ -655,25 +681,31 @@ function MapInner({
           PARISH_CARE[selected]?.clinicsInParish.some((c) => c.id === f.id)
         return (
           <MapMarker key={f.id} longitude={f.lng} latitude={f.lat}>
-            <MarkerContent className="cursor-pointer">
+            <MarkerContent className="bc-facility-marker cursor-pointer">
               <span
                 className={cn(
-                  'flex size-6 items-center justify-center rounded-full shadow-[var(--shadow-sm)] ring-2 transition-opacity duration-200',
+                  'flex size-7 items-center justify-center rounded-full shadow-[var(--shadow-sm)] ring-2 transition-[opacity,transform] duration-200',
                   facilityTone(f.kind),
-                  selected && !inSelected && 'opacity-40',
+                  selected && !inSelected && 'opacity-35',
                   inSelected && 'scale-110 ring-brand-400',
                 )}
               >
-                <Icon className="size-3" aria-hidden="true" />
+                <Icon className="size-3.5" aria-hidden="true" />
               </span>
             </MarkerContent>
-            <MarkerTooltip>
+            <MarkerTooltip offset={18}>
               <span className="text-xs font-semibold">{f.name}</span>
             </MarkerTooltip>
-            <MarkerPopup className="min-w-[200px] max-w-[240px] rounded-xl border border-border bg-card p-3 text-card-foreground shadow-[var(--shadow)]">
-              <p className="text-sm font-semibold">{f.name}</p>
+            <MarkerPopup
+              offset={40}
+              anchor="bottom"
+              className="min-w-[210px] max-w-[260px] rounded-xl border border-border bg-card p-3 text-card-foreground shadow-[var(--shadow-lg)]"
+            >
+              <p className="pr-1 text-sm font-semibold leading-snug">{f.name}</p>
               <p className="mt-1 text-xs capitalize text-muted-foreground">{f.kind}</p>
-              <p className="mt-2 text-xs text-muted-foreground">{f.services.join(' · ')}</p>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {f.services.join(' · ')}
+              </p>
             </MarkerPopup>
             {f.kind === 'ochsner' ? (
               <MarkerLabel className="text-[10px] font-bold text-brand-600 dark:text-brand-500">
@@ -696,17 +728,17 @@ function MapInner({
         </MapMarker>
       ) : null}
 
-      {selected && pinCentroid ? (
+      {selected && pinLngLat ? (
         <MapMarker
           key={`pin-${selected}`}
-          longitude={pinCentroid[0]}
-          latitude={pinCentroid[1]}
+          longitude={pinLngLat[0]}
+          latitude={pinLngLat[1]}
           anchor="bottom"
           pitchAlignment="viewport"
           rotationAlignment="viewport"
         >
-          <MarkerContent className="!bg-transparent !shadow-none !cursor-default">
-            <Map3DPin title={`${selected} Parish`} />
+          <MarkerContent className="bc-parish-pin !cursor-default !bg-transparent !shadow-none">
+            <Map3DPin title={selected} />
           </MarkerContent>
         </MapMarker>
       ) : null}

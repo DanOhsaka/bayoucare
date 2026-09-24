@@ -822,9 +822,17 @@
   .maplibregl-popup-tip {
     @apply hidden!;
   }
-  /* Keep the parish 3D pin above facility markers and basemap chrome */
+  /* Popups always above markers so facility cards stay readable. */
+  .maplibregl-popup {
+    z-index: 9999 !important;
+  }
+  /* Facility pins sit above the parish 3D pin; never cover open popups. */
+  .maplibregl-marker:has(.bc-facility-marker) {
+    z-index: 30 !important;
+  }
   .maplibregl-marker:has(.bc-parish-pin) {
-    z-index: 40 !important;
+    z-index: 5 !important;
+    pointer-events: none !important;
   }
   .maplibregl-ctrl-attrib {
     @apply bg-background! text-muted-foreground! border-border! rounded-md! border! shadow-sm!;
