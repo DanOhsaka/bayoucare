@@ -132,9 +132,9 @@ export function HomeScreen() {
                         </span>
                       )}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <b className="block text-sm font-semibold text-card-foreground">{m.name}</b>
-                      <p className="text-xs text-muted-foreground lg:truncate">
+                    <div className="min-w-0 flex-1 overflow-hidden">
+                      <b className="block truncate text-sm font-semibold text-card-foreground">{m.name}</b>
+                      <p className="truncate text-xs text-muted-foreground">
                         {teamSubtitle(m)}
                       </p>
                     </div>

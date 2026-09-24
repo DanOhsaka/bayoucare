@@ -534,13 +534,15 @@ function FollowQueue({ selected }: { selected: ParishRow | null }) {
             const a = followAction(f)
             return (
               <div key={p.n} className="flex flex-wrap items-center gap-3 rounded-md border border-border p-3">
-                <div className="min-w-0 flex-1">
-                  <b className="text-sm text-card-foreground">{p.n}</b>
-                  <div className="text-xs text-muted-foreground">
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <b className="block truncate text-sm text-card-foreground">{p.n}</b>
+                  <div className="truncate text-xs text-muted-foreground">
                     {f.abnormal} abnormal · {f.overdue} overdue · {f.lag}-day lag
                   </div>
                 </div>
-                <Badge variant={a.tone}>{a.label}</Badge>
+                <Badge variant={a.tone} className="shrink-0">
+                  {a.label}
+                </Badge>
               </div>
             )
           })}

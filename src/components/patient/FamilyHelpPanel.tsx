@@ -163,20 +163,22 @@ export function FamilyHelpPanel({ variant = 'card' }: { variant?: 'card' | 'page
                     onChange={(e) => setDone(pid, i, e.target.checked)}
                     className="mt-0.5 size-4 flex-none accent-brand-500"
                   />
-                  <span className="min-w-0 flex-1">
+                  <span className="min-w-0 flex-1 overflow-hidden">
                     <b
                       className={cn(
-                        'block text-sm font-semibold',
+                        'block break-words text-sm font-semibold',
                         done ? 'text-muted-foreground line-through' : 'text-card-foreground',
                       )}
                     >
                       {decodeEntities(task.t)}
                     </b>
-                    <span className="text-xs text-muted-foreground">{decodeEntities(task.s)}</span>
+                    <span className="break-words text-xs text-muted-foreground">
+                      {decodeEntities(task.s)}
+                    </span>
                   </span>
                   <span
                     className={cn(
-                      'flex-none text-xs font-semibold',
+                      'shrink-0 text-xs font-semibold',
                       done ? 'text-success-fg' : 'text-muted-foreground',
                     )}
                   >

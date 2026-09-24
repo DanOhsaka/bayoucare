@@ -268,14 +268,18 @@ function TrialCard({ trial }: { trial: TrialMatch }) {
   return (
     <Card className="p-4">
       <CardHeader className="items-start gap-2">
-        <div className="min-w-0 flex-1 space-y-1">
-          <p className="text-sm font-semibold leading-snug text-card-foreground">{trial.title}</p>
-          <p className="text-xs text-muted-foreground">
+        <div className="min-w-0 flex-1 space-y-1 overflow-hidden">
+          <p className="break-words text-sm font-semibold leading-snug text-card-foreground">
+            {trial.title}
+          </p>
+          <p className="truncate text-xs text-muted-foreground">
             {ti('trial.studyId', { nct: trial.nct })}
             {PHASE_FMT[trial.phase] ? ` · ${PHASE_FMT[trial.phase]}` : ''}
           </p>
         </div>
-        <Badge variant={status.variant}>{status.label}</Badge>
+        <Badge variant={status.variant} className="shrink-0">
+          {status.label}
+        </Badge>
       </CardHeader>
 
       <CardContent className="space-y-3">

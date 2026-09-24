@@ -490,19 +490,23 @@ function CommunityEventsCard() {
             return (
               <li
                 key={ev.id}
-                className="flex items-start gap-3 rounded-md border border-border p-2.5"
+                className="flex flex-col gap-2.5 rounded-md border border-border p-2.5 min-[480px]:flex-row min-[480px]:items-start min-[480px]:gap-3"
               >
-                <span
-                  className="flex size-10 flex-none items-center justify-center rounded-full bg-primary/10 text-primary"
-                  aria-hidden="true"
-                >
-                  <Icon className="size-4" strokeWidth={1.75} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <b className="block text-sm font-semibold text-card-foreground">{ev.title}</b>
-                  <p className="text-xs text-muted-foreground">{ev.where}</p>
-                  <p className="text-xs font-medium text-card-foreground">{ev.when}</p>
-                  <p className="text-xs text-muted-foreground">{ev.note}</p>
+                <div className="flex min-w-0 flex-1 items-start gap-3">
+                  <span
+                    className="flex size-10 flex-none items-center justify-center rounded-full bg-primary/10 text-primary"
+                    aria-hidden="true"
+                  >
+                    <Icon className="size-4" strokeWidth={1.75} />
+                  </span>
+                  <div className="min-w-0 flex-1 overflow-hidden">
+                    <b className="block truncate text-sm font-semibold text-card-foreground">
+                      {ev.title}
+                    </b>
+                    <p className="truncate text-xs text-muted-foreground">{ev.where}</p>
+                    <p className="text-xs font-medium text-card-foreground">{ev.when}</p>
+                    <p className="break-words text-xs text-muted-foreground">{ev.note}</p>
+                  </div>
                 </div>
                 <Button
                   type="button"
@@ -510,7 +514,7 @@ function CommunityEventsCard() {
                   size="xs"
                   onClick={() => toggleSave(ev.id, ev.title)}
                   aria-pressed={isSaved}
-                  className="flex-none font-bold"
+                  className="w-full flex-none font-bold min-[480px]:w-auto"
                 >
                   {isSaved ? t('prevent.saved') : t('prevent.remind')}
                 </Button>

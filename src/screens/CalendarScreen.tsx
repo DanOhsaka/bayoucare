@@ -348,30 +348,38 @@ export function CalendarScreen() {
                   <li
                     key={a.id}
                     className={cn(
-                      'flex flex-wrap items-center gap-3 rounded-md border border-border p-3',
+                      'grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 rounded-md border border-border p-3',
                       cancelled && 'opacity-60',
                       focused && 'border-brand-600 ring-2 ring-brand-600/30',
                     )}
                   >
                     <span
-                      className="flex size-9 flex-none items-center justify-center rounded-full bg-primary/10 text-primary"
+                      className="flex size-9 flex-none items-center justify-center self-start rounded-full bg-primary/10 text-primary"
                       aria-hidden="true"
                     >
                       <Icon className="size-4" strokeWidth={1.75} />
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <b className="block text-sm font-semibold text-card-foreground">{d.label}</b>
-                      <span className="block text-xs text-muted-foreground">
-                        {d.where} · {d.duration} min
-                      </span>
-                    </div>
-                    <span className="flex-none text-sm font-bold text-card-foreground">{a.time}</span>
-                    <Badge variant={STATUS_VARIANT[a.status]}>{t(STATUS_KEY[a.status])}</Badge>
-                    {a.ride && (
-                      <Badge variant="success">Ride</Badge>
-                    )}
 
-                    <div className="flex flex-none flex-wrap gap-1">
+                    <div className="min-w-0 space-y-1.5 overflow-hidden">
+                      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                        <b className="text-sm font-semibold text-card-foreground">{d.label}</b>
+                        <span className="text-sm font-bold tabular-nums text-card-foreground">
+                          {a.time}
+                        </span>
+                      </div>
+                      <p className="break-words text-xs leading-snug text-muted-foreground">
+                        {d.where}
+                        {d.duration > 0 ? ` · ${d.duration} min` : ''}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        <Badge variant={STATUS_VARIANT[a.status]}>
+                          {t(STATUS_KEY[a.status])}
+                        </Badge>
+                        {a.ride ? <Badge variant="success">Ride</Badge> : null}
+                      </div>
+                    </div>
+
+                    <div className="col-span-full flex flex-wrap gap-1.5 sm:col-start-2">
                       {cancelled ? (
                         <Button
                           size="xs"
@@ -386,7 +394,11 @@ export function CalendarScreen() {
                       ) : (
                         <>
                           {!a.ride && (
-                            <Button size="xs" variant="outline" onClick={() => openBooking(a, true)}>
+                            <Button
+                              size="xs"
+                              variant="outline"
+                              onClick={() => openBooking(a, true)}
+                            >
                               {t('cal.rideRequest')}
                             </Button>
                           )}
