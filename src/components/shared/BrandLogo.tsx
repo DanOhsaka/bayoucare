@@ -19,7 +19,7 @@ export function BrandLogo({
     size === 'sm' ? 'h-8 sm:h-9' : size === 'lg' ? 'h-28 sm:h-32' : 'h-10'
 
   return (
-    <span className={cn('inline-flex items-center', className)}>
+    <span className={cn('inline-flex items-center overflow-hidden', className)}>
       <img
         src="/bayoucare-logo.png"
         alt="BayouCare — Supporting Louisiana through every step"

@@ -32,8 +32,12 @@ export function SigningInStage({
       exit={reduce ? undefined : { opacity: 0, y: -6, scale: 0.99 }}
       transition={{ duration: reduce ? 0.01 : duration.slow, ease: EASE_OUT }}
     >
-      <div className="rounded-2xl border border-border bg-card px-4 py-3 shadow-[var(--shadow)]">
-        <BrandLogo size="lg" />
+      <div className="overflow-hidden rounded-2xl border border-border shadow-[var(--shadow)]">
+        <BrandLogo
+          size="lg"
+          className="block w-full"
+          imgClassName="!h-auto w-full object-cover"
+        />
       </div>
 
       <div className="mt-7 text-primary">

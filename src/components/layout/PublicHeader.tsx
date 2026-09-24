@@ -28,8 +28,8 @@ export function PublicHeader() {
         <Link to="/" className="min-w-0 flex-none" aria-label="BayouCare home">
           <BrandLogo
             size="sm"
-            className="max-w-[7.25rem] rounded-lg bg-card px-1.5 py-0.5 shadow-[var(--shadow-sm)] sm:max-w-[9.5rem] md:max-w-none"
-            imgClassName="max-h-8 w-auto object-contain object-left sm:max-h-9"
+            className="max-w-[7.25rem] overflow-hidden rounded-lg bg-card shadow-[var(--shadow-sm)] sm:max-w-[9.5rem] md:max-w-none"
+            imgClassName="max-h-8 w-auto object-cover object-left sm:max-h-9"
           />
         </Link>
 

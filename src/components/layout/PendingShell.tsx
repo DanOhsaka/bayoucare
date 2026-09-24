@@ -18,8 +18,8 @@ export function PendingShell() {
       <div className="glass flex h-[3.75rem] shrink-0 items-center border-b border-border px-3 sm:px-5 lg:h-[3.25rem]">
         <BrandLogo
           size="sm"
-          className="max-w-[9rem] rounded-lg bg-card px-1.5 py-0.5 shadow-[var(--shadow-sm)]"
-          imgClassName="max-h-8 w-auto object-contain"
+          className="max-w-[9rem] overflow-hidden rounded-lg bg-card shadow-[var(--shadow-sm)]"
+          imgClassName="max-h-8 w-auto object-cover"
         />
       </div>
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6">
