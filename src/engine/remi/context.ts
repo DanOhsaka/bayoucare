@@ -6,7 +6,7 @@ import {
  type PlannedAppointment,
 } from '@/data'
 import { buildPlan, fmtDay as fmtDayBase, indexByDay, nextAppointment, upcoming } from '@/lib/calendar'
-import { DEMO_TODAY, dayKey } from '@/lib/demoClock'
+import { dayKey, today } from '@/lib/demoClock'
 import { translate } from '@/lib/i18n'
 import { getPatient, usePatient } from '@/store/patient'
 import { useUi } from '@/store/ui'
@@ -66,19 +66,20 @@ export function buildRemiContext(): RemiContext {
  */
  const remiDayLookup = (txt: string) => {
  const t = String(txt || '').toLowerCase()
+ const anchor = today()
  let target: Date
  if (/\btoday\b/.test(t)) {
- target = new Date(DEMO_TODAY)
+ target = new Date(anchor)
  } else if (/\btomorrow\b/.test(t)) {
- target = new Date(DEMO_TODAY)
+ target = new Date(anchor)
  target.setDate(target.getDate() + 1)
  } else {
  const i = REMI_DAYS.findIndex((d) =>
  new RegExp('\\b(' + d + '|' + d.slice(0, 3) + ')\\b').test(t),
  )
  if (i < 0) return null
- const add = ((i - DEMO_TODAY.getDay()) + 7) % 7 || 7
- target = new Date(DEMO_TODAY)
+ const add = ((i - anchor.getDay()) + 7) % 7 || 7
+ target = new Date(anchor)
  target.setDate(target.getDate() + add)
  }
  return { date: target, list: CAL_BY_DAY[dayKey(target)] || [] }

@@ -1,5 +1,5 @@
 import { SURVIVORS, type Survivor } from '@/data'
-import { DEMO_TODAY } from '@/lib/demoClock'
+import { today } from '@/lib/demoClock'
 import {
   LATE_RULES,
   ruleFind,
@@ -59,16 +59,17 @@ export function buildRows(s: Survivor, hits: FiredRule[]): PlanRow[] {
       dueTxt = 'documented'
       status = 'doc'
     } else {
-      const elapsed = DEMO_TODAY.getFullYear() - startY
+      const now = today()
+      const elapsed = now.getFullYear() - startY
       const dueY = startY + Math.max(1, Math.ceil(elapsed / fy)) * fy
       dueTxt = String(dueY)
-      status = dueY - DEMO_TODAY.getFullYear() <= 1 ? 'soon' : 'on'
+      status = dueY - now.getFullYear() <= 1 ? 'soon' : 'on'
     }
 
     const override = s.od?.[h.cat]
     if (override) {
       dueTxt = override
-      status = monthOf(override) < DEMO_TODAY ? 'over' : 'soon'
+      status = monthOf(override) < today() ? 'over' : 'soon'
     }
 
     rows.push({

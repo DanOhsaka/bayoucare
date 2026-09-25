@@ -1,38 +1,40 @@
 /**
- * The demo clock.
+ * The app clock — local calendar "today".
  *
- * BayouCare deliberately runs on a FROZEN date rather than the wall clock. The
- * appointment plans, the seeded slot generator and the parish results are all
- * anchored to it, so every reload and every live demo renders byte-identically.
- * A live `new Date()` would make each run different, which is exactly what the
- * original author avoided.
+ * Appointment plans use day offsets from this clock, so the schedule, the
+ * calendar today-marker, and "next appointment" stay aligned with the real
+ * current date.
  *
- * This is the single place that date is defined. Nothing else in `src/` may
- * call `new Date()` with no arguments — `npm run check:clock` enforces that.
- *
- * To move the demo forward, change DEMO_TODAY and nothing else. Note the
- * appointments then shift with it: Darlene's plan runs from +2 to +39 days, so
- * the current anchor places her last appointment on 2026-09-25.
+ * Prefer `today()` over a frozen Date so midnight rollovers stay correct.
+ * Other modules should not call bare `new Date()` for "today" — go through here.
  */
-export const DEMO_TODAY = new Date(2026, 7, 17)
-
-/** The calendar's anchor. Same instant as DEMO_TODAY, named for its role. */
-export const CAL_ANCHOR = DEMO_TODAY
-
-/** Today, as a fresh Date at local midnight — for comparisons, not for storage. */
 export function today(): Date {
-  return new Date(DEMO_TODAY.getFullYear(), DEMO_TODAY.getMonth(), DEMO_TODAY.getDate())
-}
-
-/** Add `n` days to the demo clock. */
-export function dayOffset(n: number): Date {
-  return new Date(DEMO_TODAY.getFullYear(), DEMO_TODAY.getMonth(), DEMO_TODAY.getDate() + n)
+  const n = new Date()
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate())
 }
 
 /**
- * Stable key for a day. The legacy app used an unpadded, zero-based-month key
- * (`2026-7-19`) which is internally consistent but is a trap for anything that
- * expects a real date string. This emits ISO (`2026-07-19`).
+ * Live calendar anchor — same as `today()`.
+ * Kept as a function (not a frozen const) so the month view tracks the wall clock.
+ */
+export function calAnchor(): Date {
+  return today()
+}
+
+/** @deprecated Prefer `today()` / `calAnchor()`. */
+export const DEMO_TODAY = today()
+
+/** @deprecated Prefer `calAnchor()`. */
+export const CAL_ANCHOR = DEMO_TODAY
+
+/** Add `n` days to today's local midnight. */
+export function dayOffset(n: number): Date {
+  const a = today()
+  return new Date(a.getFullYear(), a.getMonth(), a.getDate() + n)
+}
+
+/**
+ * Stable key for a day. Emits ISO (`2026-07-19`).
  */
 export function dayKey(d: Date): string {
   const m = String(d.getMonth() + 1).padStart(2, '0')

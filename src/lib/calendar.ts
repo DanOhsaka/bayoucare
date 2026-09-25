@@ -7,7 +7,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import { CAL_ANCHOR, dayKey } from '@/lib/demoClock'
+import { calAnchor, dayKey, today } from '@/lib/demoClock'
 import type { CalendarType, Patient, PlannedAppointment } from '@/data'
 import type { Lang } from '@/lib/i18n'
 
@@ -49,15 +49,16 @@ export function buildPlan(patient: Patient): PlannedAppointment[] {
  * appointment would land on a different day than the one that was picked.
  */
 export function dateAtOffset(off: number): Date {
-  return new Date(CAL_ANCHOR.getFullYear(), CAL_ANCHOR.getMonth(), CAL_ANCHOR.getDate() + off)
+  const a = calAnchor()
+  return new Date(a.getFullYear(), a.getMonth(), a.getDate() + off)
 }
 
 /**
- * Inverse of `dateAtOffset`: how many calendar days `date` is past the frozen
- * demo clock. Used to preselect the booking dialog's day from the calendar.
+ * Inverse of `dateAtOffset`: how many calendar days `date` is past today.
+ * Used to preselect the booking dialog's day from the calendar.
  */
 export function offsetFromAnchor(date: Date): number {
-  const a = CAL_ANCHOR
+  const a = calAnchor()
   const from = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())
   const to = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
   return Math.round((to - from) / 86_400_000)
@@ -90,13 +91,10 @@ export function indexByDay(plan: PlannedAppointment[]): Record<string, PlannedAp
 
 /**
  * Appointments from today onward, soonest first.
- *
- * The `>=` against the demo clock is deliberate — the legacy comparator is the
- * same, and on this frozen clock every appointment is in the future anyway. If
- * the clock is ever moved forward, past appointments drop out of "next up".
  */
 export function upcoming(plan: PlannedAppointment[]): PlannedAppointment[] {
-  return plan.filter((a) => a.date >= CAL_ANCHOR).sort((a, b) => +a.date - +b.date)
+  const start = today()
+  return plan.filter((a) => a.date >= start).sort((a, b) => +a.date - +b.date)
 }
 
 export function nextAppointment(plan: PlannedAppointment[]): PlannedAppointment | undefined {
@@ -104,11 +102,11 @@ export function nextAppointment(plan: PlannedAppointment[]): PlannedAppointment 
 }
 
 /**
- * Day offset of the next Thursday on or after the demo clock.
+ * Day offset of the next Thursday on or after today.
  * Access "Ride to Thursday's appointment" deep-links here.
  */
 export function nextThursdayOff(): number {
-  const dow = CAL_ANCHOR.getDay() // 0 Sun … 4 Thu
+  const dow = today().getDay() // 0 Sun … 4 Thu
   return (4 - dow + 7) % 7
 }
 
@@ -118,12 +116,13 @@ export function nextThursdayOff(): number {
  * the patient can book and request pickup.
  */
 export function rideFocusDay(plan: Array<{ date: Date; ride: boolean }>): Date {
+  const start = today()
   const thu = dateAtOffset(nextThursdayOff())
   const thuKey = dayKey(thu)
   if (plan.some((a) => dayKey(a.date) === thuKey)) return thu
 
   const withRide = plan
-    .filter((a) => a.ride && a.date >= CAL_ANCHOR)
+    .filter((a) => a.ride && a.date >= start)
     .sort((a, b) => +a.date - +b.date)[0]
   return withRide?.date ?? thu
 }
@@ -146,9 +145,9 @@ export function fmtDay(d: Date, lang: Lang): string {
   return d.toLocaleDateString(localeOf(lang), { weekday: 'long', month: 'short', day: 'numeric' })
 }
 
-/** "Aug 20", or "Jan 5, 2027" when the year differs from the demo clock. */
+/** "Aug 20", or "Jan 5, 2027" when the year differs from today. */
 export function fmtShort(d: Date, lang: Lang): string {
-  const sameYear = d.getFullYear() === CAL_ANCHOR.getFullYear()
+  const sameYear = d.getFullYear() === today().getFullYear()
   return d.toLocaleDateString(
     localeOf(lang),
     sameYear

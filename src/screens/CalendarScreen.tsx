@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar'
-import { CAL_ANCHOR, dayKey } from '@/lib/demoClock'
+import { dayKey, today } from '@/lib/demoClock'
 import { describeAppointment, fmtDay, offsetFromAnchor, rideFocusDay } from '@/lib/calendar'
 import {
   dayState,
@@ -64,15 +64,49 @@ function DayWithDots({
   day,
   modifiers,
   children,
+  onClick,
   ...props
 }: React.ComponentProps<typeof CalendarDayButton>) {
   const byDay = useContext(DayDataContext)
   // Cancelled appointments keep their place in the agenda but do not put a dot
   // on the calendar — the day is not busy any more.
   const appts = (byDay[dayKey(day.date)] ?? []).filter(isActive)
+  const isPast = Boolean(modifiers.past) || dayKey(day.date) < dayKey(today())
+  const [shake, setShake] = useState(false)
+
+  function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
+    if (isPast) {
+      e.preventDefault()
+      e.stopPropagation()
+      setShake(false)
+      requestAnimationFrame(() => setShake(true))
+      return
+    }
+    onClick?.(e)
+  }
 
   return (
-    <CalendarDayButton className={className} day={day} modifiers={modifiers} {...props}>
+    <CalendarDayButton
+      className={cn(
+        className,
+        isPast &&
+          cn(
+            'cursor-not-allowed opacity-60 text-muted-foreground',
+            // Override the default green day hover with a danger / error face.
+            'hover:!bg-danger-bg hover:!text-danger-fg',
+            'hover:!shadow-[0_0_0_1.5px_color-mix(in_srgb,var(--danger)_75%,transparent),0_0_14px_3px_color-mix(in_srgb,var(--danger)_40%,transparent),0_0_28px_10px_color-mix(in_srgb,var(--danger)_22%,transparent)]',
+            'dark:hover:!bg-danger/20 dark:hover:!text-danger-fg',
+          ),
+        shake && 'motion-safe:animate-cal-day-shake',
+      )}
+      day={day}
+      modifiers={modifiers}
+      {...props}
+      aria-disabled={isPast || undefined}
+      data-past={isPast || undefined}
+      onClick={handleClick}
+      onAnimationEnd={() => setShake(false)}
+    >
       {children}
 
       {appts.length > 0 && (
@@ -101,6 +135,7 @@ function DayWithDots({
           {appts.length} appointment{appts.length === 1 ? '' : 's'}
         </span>
       )}
+      {isPast && <span className="sr-only">Past date — not selectable</span>}
     </CalendarDayButton>
   )
 }
@@ -118,7 +153,7 @@ export function CalendarScreen() {
   const byDay = useMemo(() => indexApptsByDay(plan), [plan])
   const types = patient.calTypes
 
-  const [month, setMonth] = useState<Date>(CAL_ANCHOR)
+  const [month, setMonth] = useState<Date>(() => today())
   const [selected, setSelected] = useState<Date | undefined>()
   const [bookingOpen, setBookingOpen] = useState(false)
   const [editing, setEditing] = useState<Appointment | null>(null)
@@ -232,22 +267,24 @@ export function CalendarScreen() {
             mode="single"
             weekStartsOn={1}
             /*
-              The frozen demo clock. react-day-picker defaults `today` to a live
-              `new Date()`, which would put the today-ring on the real current
-              date while every appointment is anchored to DEMO_TODAY — the
-              calendar would highlight a day with nothing on it, five weeks away
-              from the schedule it is showing.
+              Live wall-clock today — appointment offsets are derived from the
+              same `today()` anchor, so the today underline and the schedule
+              stay on the same day.
             */
-            today={CAL_ANCHOR}
-            defaultMonth={CAL_ANCHOR}
+            today={today()}
+            defaultMonth={today()}
             month={month}
             onMonthChange={setMonth}
             selected={selected}
-            onSelect={setSelected}
+            onSelect={(d) => {
+              // Past days are not bookable — DayWithDots shakes on click instead.
+              if (d && dayKey(d) < dayKey(today())) return
+              setSelected(d)
+            }}
             modifiers={{
               // Days that have something on them, so they can be styled as a set.
               booked: plan.filter(isActive).map((a) => a.date),
-              past: (d: Date) => d < CAL_ANCHOR,
+              past: (d: Date) => dayKey(d) < dayKey(today()),
               // The two states the port's audit found missing. Both are derived
               // from the same slot grid the Clinic Ops no-show board scores.
               full: (d: Date) => dayState(d, byDay[dayKey(d)] ?? []) === 'full',
@@ -255,7 +292,7 @@ export function CalendarScreen() {
             }}
             modifiersClassNames={{
               booked: 'font-bold',
-              past: 'opacity-55',
+              past: 'opacity-60',
               full: 'text-warning-fg',
               closed: 'text-muted-foreground',
             }}
@@ -311,7 +348,7 @@ export function CalendarScreen() {
                 variant="outline"
                 onClick={() => {
                   setSelected(undefined)
-                  setMonth(CAL_ANCHOR)
+                  setMonth(today())
                 }}
               >
                 {t('cal.close')}
