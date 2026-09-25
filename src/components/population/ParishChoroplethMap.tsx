@@ -14,6 +14,10 @@ import {
   MarkerTooltip,
   useMap,
 } from '@/components/ui/map'
+import {
+  ParishLeafletChoropleth,
+  canUseWebGL2,
+} from '@/components/population/ParishLeafletChoropleth'
 import { Button } from '@/components/ui/button'
 import laParishes from '@/data/la-parishes.json'
 import usStates from '@/data/us-states.json'
@@ -771,6 +775,9 @@ export function ParishChoroplethMap({
   const theme = useUi((s) => s.theme) as Theme
   const [hover, setHover] = useState<HoverInfo | null>(null)
   const [frame, setFrame] = useState<Frame>('la')
+  const [engine, setEngine] = useState<'gl' | 'leaflet'>(() =>
+    typeof window !== 'undefined' && !canUseWebGL2() ? 'leaflet' : 'gl',
+  )
   const [internalIndexOn, setInternalIndexOn] = useState(true)
   const indexEnabled = onIndexOnChange ? indexOn : internalIndexOn
   const setIndexEnabled = (on: boolean) => {
@@ -781,36 +788,57 @@ export function ParishChoroplethMap({
   const selectedCare = selected ? PARISH_CARE[selected] : null
 
   const clear = useCallback(() => onSelect(null), [onSelect])
+  const fallbackToLeaflet = useCallback(() => setEngine('leaflet'), [])
 
   return (
     <div className="relative h-[min(64vh,560px)] w-full overflow-hidden rounded-xl border border-border bg-muted/20">
-      <MapCN
-        theme={theme}
-        center={LA_CENTER}
-        zoom={LA_ZOOM}
-        pitch={DEFAULT_PITCH}
-        minZoom={3}
-        maxZoom={14}
-        maxPitch={55}
-        scrollZoom
-        dragRotate={false}
-        pitchWithRotate={false}
-        className="h-full w-full"
-      >
-        <MapInner
+      {engine === 'gl' ? (
+        <MapCN
+          theme={theme}
+          center={LA_CENTER}
+          zoom={LA_ZOOM}
+          pitch={DEFAULT_PITCH}
+          minZoom={3}
+          maxZoom={14}
+          maxPitch={55}
+          scrollZoom
+          dragRotate={false}
+          pitchWithRotate={false}
+          className="h-full w-full"
+          onUnavailable={fallbackToLeaflet}
+        >
+          <MapInner
+            metric={metric}
+            selected={selected}
+            vanHere={vanHere}
+            theme={theme}
+            frame={frame}
+            indexOn={indexEnabled}
+            hover={hover}
+            setHover={setHover}
+            onSelect={onSelect}
+            setFrame={setFrame}
+            onClear={clear}
+          />
+        </MapCN>
+      ) : (
+        <ParishLeafletChoropleth
           metric={metric}
           selected={selected}
           vanHere={vanHere}
-          theme={theme}
-          frame={frame}
           indexOn={indexEnabled}
-          hover={hover}
-          setHover={setHover}
+          frame={frame}
           onSelect={onSelect}
-          setFrame={setFrame}
-          onClear={clear}
+          onHover={(name) => {
+            if (!name) {
+              setHover(null)
+              return
+            }
+            const row = PARISH_DATA.find((p) => p.n === name)
+            if (row) setHover({ name, row })
+          }}
         />
-      </MapCN>
+      )}
 
       {/* Hover label — name only; full stats on click */}
       {hover && !selected ? (

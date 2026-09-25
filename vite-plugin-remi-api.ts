@@ -3,10 +3,27 @@ import type { Connect, Plugin } from 'vite'
 const DEEPSEEK_URL = 'https://api.deepseek.com/anthropic/v1/messages'
 const MODEL = 'deepseek-chat'
 
+/** Published demo credentials (same as the carousel / login card). Vite-only. */
+const DEMO_LOGINS: ReadonlyArray<{ email: string; password: string; role: 'patient' | 'clinician' }> =
+  [
+    { email: 'patient@bayoucare.demo', password: 'patient2026', role: 'patient' },
+    { email: 'marcus@bayoucare.demo', password: 'marcus2026', role: 'patient' },
+    { email: 'yolanda@bayoucare.demo', password: 'yolanda2026', role: 'patient' },
+    { email: 'priscilla@bayoucare.demo', password: 'priscilla2026', role: 'patient' },
+    { email: 'clinician@bayoucare.demo', password: 'clinician2026', role: 'clinician' },
+  ]
+
+const VITE_COOKIE = 'bc-vite-demo'
+const VITE_MAX_AGE_S = 60 * 60 * 8
+
 type JsonBody = {
   system?: unknown
   messages?: unknown
+  email?: unknown
+  password?: unknown
 }
+
+type ViteSession = { email: string; role: 'patient' | 'clinician' }
 
 function readJson(req: Connect.IncomingMessage): Promise<JsonBody> {
   return new Promise((resolve, reject) => {
@@ -32,9 +49,53 @@ function sendJson(res: Connect.ServerResponse, status: number, body: unknown) {
   res.end(payload)
 }
 
+function parseCookies(header: string | undefined): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (!header) return out
+  for (const part of String(header).split(';')) {
+    const i = part.indexOf('=')
+    if (i < 1) continue
+    out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim())
+  }
+  return out
+}
+
+function encodeViteSession(s: ViteSession): string {
+  const payload = Buffer.from(
+    JSON.stringify({ ...s, exp: Date.now() + VITE_MAX_AGE_S * 1000 }),
+    'utf8',
+  ).toString('base64url')
+  return `${VITE_COOKIE}=${payload}; Path=/; SameSite=Lax; Max-Age=${VITE_MAX_AGE_S}`
+}
+
+function clearViteSession(): string {
+  return `${VITE_COOKIE}=; Path=/; SameSite=Lax; Max-Age=0`
+}
+
+function readViteSession(req: Connect.IncomingMessage): ViteSession | null {
+  const raw = parseCookies(req.headers.cookie)[VITE_COOKIE]
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8')) as {
+      email?: string
+      role?: string
+      exp?: number
+    }
+    if (!parsed?.email || (parsed.role !== 'patient' && parsed.role !== 'clinician')) return null
+    if (typeof parsed.exp !== 'number' || parsed.exp < Date.now()) return null
+    return { email: parsed.email, role: parsed.role }
+  } catch {
+    return null
+  }
+}
+
 /**
  * Serves POST /api/remi inside `vite` so Remi works without a second
  * `vercel dev` process. Production still uses api/remi.js.
+ *
+ * Also answers session / demo login / logout locally when the Vercel Functions
+ * proxy target is down — otherwise Vite returns a proxy 5xx (or login 401 from
+ * a dead proxy) and the app cannot open or sign in with demo accounts.
  */
 export function remiApiPlugin(env: Record<string, string>): Plugin {
   const key = String(env.DEEPSEEK_API_KEY || '').trim()
@@ -44,6 +105,41 @@ export function remiApiPlugin(env: Record<string, string>): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const path = req.url?.split('?')[0]
+
+        if (path === '/api/session' && req.method === 'GET') {
+          const s = readViteSession(req)
+          if (!s) return sendJson(res, 401, { error: 'no_session' })
+          return sendJson(res, 200, { email: s.email, role: s.role })
+        }
+
+        if (path === '/api/logout' && req.method === 'POST') {
+          res.setHeader('Set-Cookie', clearViteSession())
+          return sendJson(res, 200, { ok: true })
+        }
+
+        if (path === '/api/login' && req.method === 'POST') {
+          let body: JsonBody
+          try {
+            body = await readJson(req)
+          } catch {
+            return sendJson(res, 400, { error: 'missing_credentials' })
+          }
+          const email = String(body.email || '')
+            .trim()
+            .toLowerCase()
+          const password = String(body.password || '')
+          if (!email || !password) {
+            return sendJson(res, 400, { error: 'missing_credentials' })
+          }
+          const match = DEMO_LOGINS.find((u) => u.email === email && u.password === password)
+          if (!match) {
+            return sendJson(res, 401, { error: 'invalid_credentials' })
+          }
+          const me = { email: match.email, role: match.role }
+          res.setHeader('Set-Cookie', encodeViteSession(me))
+          return sendJson(res, 200, me)
+        }
+
         if (path !== '/api/remi') return next()
 
         if (req.method !== 'POST') {

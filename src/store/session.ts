@@ -78,6 +78,13 @@ export const useSession = create<SessionState>((set) => ({
         return
       }
       if (res.status >= 500) {
+        // Vite's proxy returns a non-JSON 5xx when `vercel dev` is not running.
+        // That is "no backend locally", not a misconfigured production server.
+        const ct = res.headers.get('content-type') || ''
+        if (!ct.includes('application/json')) {
+          set({ auth: 'out', bootFault: null })
+          return
+        }
         set({ auth: 'out', bootFault: 'server' })
         return
       }

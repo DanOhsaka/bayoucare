@@ -23,14 +23,22 @@ export default defineConfig(({ mode }) => {
     server: {
       // Login and the rest of /api live in Vercel Functions. Run
       // `vercel dev --listen 3000` in a second terminal and this proxy forwards
-      // to it. Remi is handled in-process by remiApiPlugin so chat works even
-      // when that second process is missing (or something else owns :3000).
+      // to it. Remi + session cold-check are handled in-process so the landing
+      // page still opens when that second process is missing.
       proxy: {
         '/api': {
           target: 'http://localhost:3000',
           changeOrigin: true,
           bypass(req) {
-            if (req.url?.split('?')[0] === '/api/remi') return req.url
+            const path = req.url?.split('?')[0]
+            if (
+              path === '/api/remi' ||
+              path === '/api/session' ||
+              path === '/api/logout' ||
+              path === '/api/login'
+            ) {
+              return req.url
+            }
           },
         },
       },

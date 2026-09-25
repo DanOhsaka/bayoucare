@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { PublicHeader } from '@/components/layout/PublicHeader'
 import { Stagger, StaggerItem } from '@/components/shared/Motion'
-import { AnimatedBadge } from '@/components/motion/animated-badge'
 import { Button } from '@/components/motion/button/base'
 import { ChromaticTextReveal } from '@/components/motion/chromatic-text-reveal'
 import { NumberTicker } from '@/components/motion/number-ticker'
@@ -70,11 +69,9 @@ export function LandingPage() {
       <main className="relative z-10 mx-auto w-full max-w-6xl flex-1 px-3 py-6 sm:px-5 sm:py-10">
         <TracingBeam className="max-w-none">
         <section className="relative overflow-hidden rounded-3xl border border-border glass px-5 py-10 sm:px-10 sm:py-14">
-          <AnimatedBadge
-            className="mb-5 border-border bg-background/60 text-[10px] uppercase tracking-[0.12em] text-muted-foreground"
-          >
+          <p className="mb-5 inline-block max-w-full rounded-full border border-border bg-background/60 px-3 py-1.5 text-[10px] font-semibold uppercase leading-snug tracking-[0.08em] text-muted-foreground sm:tracking-[0.12em]">
             {t('hero.kicker')}
-          </AnimatedBadge>
+          </p>
 
           <TextReveal
             text={line1.trim()}

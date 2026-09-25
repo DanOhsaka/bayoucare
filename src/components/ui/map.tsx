@@ -211,6 +211,8 @@ type MapProps = {
   onViewportChange?: (viewport: MapViewport) => void;
   /** Show a loading indicator on the map */
   loading?: boolean;
+  /** Called when WebGL/map init fails — parent can swap engines without a 500 page. */
+  onUnavailable?: () => void;
 } & Omit<MapLibreGL.MapOptions, "container" | "style">;
 
 function DefaultLoader() {
@@ -246,6 +248,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     viewport,
     onViewportChange,
     loading = false,
+    onUnavailable,
     ...props
   },
   ref,
@@ -285,6 +288,13 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   // Expose the map instance to the parent component
   useImperativeHandle(ref, () => mapInstance as MapLibreGL.Map, [mapInstance]);
 
+  const [initError, setInitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!initError || !onUnavailable) return;
+    onUnavailable();
+  }, [initError, onUnavailable]);
+
   // Initialize the map
   useEffect(() => {
     if (!containerRef.current) return;
@@ -293,16 +303,26 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       resolvedTheme === "dark" ? mapStyles.dark : mapStyles.light;
     currentStyleRef.current = initialStyle;
 
-    const map = new MapLibreGL.Map({
-      container: containerRef.current,
-      style: initialStyle,
-      renderWorldCopies: false,
-      attributionControl: {
-        compact: true,
-      },
-      ...props,
-      ...viewport,
-    });
+    // React 19 routes useEffect throws into error boundaries. Catch WebGL
+    // failures so Cursor's preview browser does not dump Population to 500.
+    let map: MapLibreGL.Map;
+    try {
+      map = new MapLibreGL.Map({
+        container: containerRef.current,
+        style: initialStyle,
+        renderWorldCopies: false,
+        attributionControl: {
+          compact: true,
+        },
+        ...props,
+        ...viewport,
+      });
+    } catch (err) {
+      setInitError(
+        err instanceof Error ? err.message : "Map failed to start in this browser.",
+      );
+      return;
+    }
 
     const styleLoadHandler = () => {
       styleSwapInFlightRef.current = false;
@@ -316,15 +336,24 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       onViewportChangeRef.current?.(getViewport(map));
     };
 
+    const handleError = (e: MapLibreGL.ErrorEvent) => {
+      const message = e.error?.message ?? "";
+      if (/webgl|gpu/i.test(message)) {
+        setInitError(message || "WebGL is required to display this map.");
+      }
+    };
+
     map.on("load", loadHandler);
     map.on("style.load", styleLoadHandler);
     map.on("move", handleMove);
+    map.on("error", handleError);
     setMapInstance(map);
 
     return () => {
       map.off("load", loadHandler);
       map.off("style.load", styleLoadHandler);
       map.off("move", handleMove);
+      map.off("error", handleError);
       map.remove();
       setIsLoaded(false);
       setIsStyleLoaded(false);
@@ -401,6 +430,16 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     }),
     [mapInstance, isLoaded, isStyleLoaded, resolvedTheme],
   );
+
+  if (initError) {
+    return (
+      <div
+        className={cn("relative h-full w-full bg-muted/20", className)}
+        role="status"
+        aria-busy="true"
+      />
+    );
+  }
 
   return (
     <MapContext.Provider value={contextValue}>
